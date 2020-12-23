@@ -1,0 +1,73 @@
+---
+title: "Gun Series"
+author: "Ryan Larson"
+date: "11/24/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, message=F}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(readr)
+library(lubridate)
+library(covdata)
+library(ggplot2)
+library(astsa)
+
+#get updated VERA jail data:
+  #https://raw.githubusercontent.com/vera-institute/jail-population-data/master/jail_population.csv
+```
+
+
+```{r data, message = FALSE}
+#ois <- read_csv("Police_Officer_Involved_Shootings.csv")
+uof <- read_csv("Police_Use_Of_Force.csv") %>%
+  mutate(date=ymd_hms(ResponseDate),
+         year=year(date),
+         week=isoweek(date)) %>%
+  filter(year>=2019) %>%
+  group_by(year, week, .drop=F) %>%
+  tally(name = "use_of_force") %>%
+  arrange(year, week) %>%
+  ungroup() %>%
+  mutate(week_id = row_number()) %>%
+  select(week_id, year, week, everything())
+
+stop <- read_csv("Police_Stop_Data.csv") %>%
+  mutate(date=ymd_hms(responseDate),
+         year=year(date),
+         week=isoweek(date)) %>%
+  filter(year>=2019) %>%
+  group_by(year, week, .drop=F) %>%
+  tally(name = "police_stops") 
+
+gun_series <- uof %>% 
+  left_join(stop, by = c("year", "week"))
+
+ggplot(gun_series)+
+  geom_line(aes(x=week_id, y=use_of_force))+ 
+  geom_vline(xintercept=c(53), linetype="dotted", color="red", size=1)+
+  theme_minimal()
+
+ggplot(gun_series)+
+  geom_line(aes(x=week_id, y=police_stops))+ 
+  geom_vline(xintercept=c(53), linetype="dotted", color="red", size=1)+
+  theme_minimal()
+
+apple_mpls <- apple_mobility %>%
+  filter(region=="Minneapolis") %>%
+  mutate(week = isoweek(date), 
+         year = year(date)) %>%
+  group_by(year, week) %>%
+  summarize(apple_mobility = mean(score, na.rm = T))
+
+covid_hennepin <- nytcovcounty %>%
+  mutate(week = isoweek(date), 
+         year = year(date)) %>%
+  filter(county=="Hennepin" & state=="Minnesota" & year >=2019) %>%
+  group_by(year, week) %>%
+  summarize(covid_cases = sum(cases, na.rm = T),
+            covid_deaths = sum(deaths, na.rm = T))
+
+```
