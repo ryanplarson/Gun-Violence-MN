@@ -21,7 +21,9 @@ library(astsa)
 
 
 ```{r data, message = FALSE}
-#ois <- read_csv("Police_Officer_Involved_Shootings.csv")
+ois <- read_csv("Police_Officer_Involved_Shootings.csv")
+
+#Minneapolis POlice Department - Use of Force Dahsboard
 uof <- read_csv("Police_Use_Of_Force.csv") %>%
   mutate(date=ymd_hms(ResponseDate),
          year=year(date),
@@ -34,6 +36,7 @@ uof <- read_csv("Police_Use_Of_Force.csv") %>%
   mutate(week_id = row_number()) %>%
   select(week_id, year, week, everything())
 
+#Minneapolis POlice Department - POlice Stops Dashboard
 stop <- read_csv("Police_Stop_Data.csv") %>%
   mutate(date=ymd_hms(responseDate),
          year=year(date),
@@ -48,25 +51,31 @@ gun_series <- uof %>%
 ggplot(gun_series)+
   geom_line(aes(x=week_id, y=use_of_force))+ 
   geom_vline(xintercept=c(53), linetype="dotted", color="red", size=1)+
+  geom_vline(xintercept=c(75), linetype="dotted", color="blue", size=1)+
+  geom_vline(xintercept=c(65), linetype="dotted", color="orange", size=1)+
   theme_minimal()
 
-ggplot(gun_series)+
+ggplot(gun_series[gun_series$week_id<=80,])+
   geom_line(aes(x=week_id, y=police_stops))+ 
   geom_vline(xintercept=c(53), linetype="dotted", color="red", size=1)+
+  geom_vline(xintercept=c(75), linetype="dotted", color="blue", size=1)+
+  geom_vline(xintercept=c(65), linetype="dotted", color="orange", size=1)+
   theme_minimal()
 
+#Apple Mobility Data
 apple_mpls <- apple_mobility %>%
   filter(region=="Minneapolis") %>%
   mutate(week = isoweek(date), 
          year = year(date)) %>%
-  group_by(year, week) %>%
+  group_by(year, week, .drop=F) %>%
   summarize(apple_mobility = mean(score, na.rm = T))
 
+#New York Times COVID Case/Mortality Data
 covid_hennepin <- nytcovcounty %>%
   mutate(week = isoweek(date), 
          year = year(date)) %>%
   filter(county=="Hennepin" & state=="Minnesota" & year >=2019) %>%
-  group_by(year, week) %>%
+  group_by(year, week, .drop=F) %>%
   summarize(covid_cases = sum(cases, na.rm = T),
             covid_deaths = sum(deaths, na.rm = T))
 
