@@ -13,14 +13,29 @@ library(readr)
 library(lubridate)
 library(ggplot2)
 library(astsa)
+library(tseries)
 library(covdata)
 library(tidycensus)
 library(sf)
 library(purrr)
 library(imputeTS)
-library(weatherData)
+library(rnoaa)
+library(ISOweek)
+library(ggmap)
+library(ggrepel)
+library(suncalc)
+
+#finish TSA with seasonal covariates
+#make TSA table
+#finalize maps
+#test further RE cross-level interactions
+#FE and RE regression table
+
+
 
 setwd("C:/Users/DELL/Documents/UMN/UMN Projects/Chris RA 18_19/Gun Violence MN")
+google_key <- readRDS("C:/Users/DELL/Documents/R/Rworkingdirectory/google_api_key.rds")
+register_google(key = google_key)
 
 #create Morgan et. al. controls = dark.before.12, tmax.f, precip.in, snow.in, season, school
 
@@ -31,15 +46,17 @@ setwd("C:/Users/DELL/Documents/UMN/UMN Projects/Chris RA 18_19/Gun Violence MN")
   #https://raw.githubusercontent.com/vera-institute/jail-population-data/master/jail_population.csv
 ```
 
-## Hospital Data
+# Base Panel Construction - ZCTA-Week Level
+
+## Hospital Data - ZCTA-Week level
 ```{r hosp data, message=FALSE}
-hosp_zcta <- read_csv("minnepop_1620_agg_zipfull.csv") %>%
-  rename(zipcode = Zipcode) %>%
+hosp_zcta <- read_csv("minnepop_1620_agg_zipfull_updated.csv") %>%
   arrange(zipcode, year, weekofyr) %>%
-  select(-`_chk`)
+  select(-c(`_chk`, zippop_tag)) %>%
+  filter(!(year==2016 & weekofyr==53))
 ```
 
-## ACS 5-Year Estimates
+## ZCTAs and ACS 5-Year Estimates
 
 ```{r acs, message=FALSE, warning=FALSE}
 #adding in 5-year ACS data 
@@ -82,8 +99,7 @@ acs <- map_dfr(
   select(-NAME) %>%
   select(zcta, everything()) %>%
   mutate(year = as.numeric(year)) %>%
-  mutate_at(vars(-zcta, -year, -total_pop, -med_age), list(~(./total_pop)*100))
-  
+  mutate_at(vars(-zcta, -year, -total_pop, -med_age), list(~(./total_pop)*100)) 
 
 #linear imputation of 2020 until 2020 ACS release (12/9/2021)
 acs_2020 <- acs %>%
@@ -98,13 +114,11 @@ acs_imp <- acs %>%
   mutate(zcta = as.numeric(zcta))
 
 #joining to hospital data
-gun_panel <- hosp_zcta %>%
+hosp_panel <- hosp_zcta %>%
   left_join(acs_imp, by = c("zipcode"="zcta", "year"))
 
-
-#SF geometries - get all MN ZCTAs 
-mn_zcta <- get_acs(geography = "zcta",
-                   state = "MN",
+#SF geometries - get all ZCTAs 
+zcta <- get_acs(geography = "zcta",
                    variables = "B01001_001",
                    output = "wide", 
                    year = 2019,
@@ -115,18 +129,237 @@ mn_zcta <- get_acs(geography = "zcta",
   select(-c(NAME, B01001_001M, pop_2019)) %>%
   mutate(zcta = as.numeric(zcta))
 
-zcta_universe <- unique(hosp_zcta$zipcode)
 
+#minneapolis shapefile (source: openminneapolis.gov)
+mpls <- st_read("mpls_city-shp/16cdbbfa-ad10-493c-afaf-52b61f2e76e42020329-1-180h9ap.whbo.shp") %>%
+   st_set_crs(st_crs(zcta))
 
-#joining to panel
-gun_panel <- gun_panel %>%
-  left_join(mn_zcta, by = c("zipcode"="zcta"))
+#zctas that intersect MPLS
+zcta_intersect <- zcta %>%
+  filter(ifelse(lengths(st_intersects(., mpls)) > 0, 1, 0)==1) %>%
+  select(zcta)
+
+#which zctas are not in hosp data but still intersect MPLS
+setdiff(unique(zcta_intersect$zcta), unique(hosp_zcta$zipcode))
+
+#joining to panel, filter to those ZCTAs intersecting MPLS
+panel <- zcta %>%
+  left_join(hosp_panel, by = c("zcta"="zipcode")) %>%
+  filter(ifelse(lengths(st_intersects(., mpls)) > 0, 1, 0)==1 & 
+           zcta >= 55401)  #queen contiguity
+
+#creating date bookends
+panel <- panel %>%
+  group_by(zcta, year) %>%
+  mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", weekofyr)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1))
+
+#number of unique MPLS ZCTAs
+n_zcta <- length(unique(panel$zcta))
+
+#vector of intersecting ZCTAs for filtering downstream
+zcta_universe <- unique(panel$zcta)
+
 ```
+
+## ZCTA-Week Level Police Data
+
+```{r, warning=F, message=FALSE}
+#Minneapolis Police Department - Use of Force Dashboard
+uof_spatial <- read_csv("Police_Use_Of_Force.csv")  %>%
+  mutate(date=ymd_hms(ResponseDate),
+         year=isoyear(date),
+         week=isoweek(date)) %>%
+  select(OBJECTID, year, week, X, Y, Race) %>%
+  st_as_sf(coords = c("X", "Y"), crs = "NAD83", remove=F) %>%
+  mutate(intersection = as.integer(st_intersects(geometry, zcta)), 
+         zcta = ifelse(is.na(intersection), NA, zcta$zcta[intersection])) %>%
+  st_drop_geometry() %>%
+  filter(!is.na(zcta) & year >= 2016 & year <= 2020 & zcta %in% zcta_universe) %>%
+  group_by(year, week, zcta, Race, .drop=F) %>%
+  tally(name = "use_of_force") %>%
+  filter(!is.na(Race) & Race!="not recorded") %>%
+  ungroup() %>%
+  complete(year, week, zcta=zcta_universe, Race, fill = list(use_of_force = 0)) %>%
+  arrange(year, week, zcta, Race) %>%
+  mutate(race = str_to_lower(Race)) %>%
+  select(-Race) %>%
+  pivot_wider(names_from = race, 
+              values_from = use_of_force,
+              values_fill = 0,
+              names_glue = "{race}_{.value}") %>%
+  mutate(total_use_of_force = asian_use_of_force+black_use_of_force+`native american_use_of_force`+
+           `other / mixed race_use_of_force`+`pacific islander_use_of_force`+unknown_use_of_force+           
+            white_use_of_force)
+
+#MPD Stop Dashboard
+stop_spatial <- read_csv("Police_Stop_Data.csv") %>%
+  mutate(date=ymd_hms(responseDate),
+         year=isoyear(date),
+         week=isoweek(date)) %>%
+  select(OBJECTID, year, week, lat, long, race) %>%
+  st_as_sf(coords = c("long", "lat"), crs = "NAD83", remove=F) %>%
+  mutate(intersection = as.integer(st_intersects(geometry, zcta)), 
+         zcta = ifelse(is.na(intersection), NA, zcta$zcta[intersection])) %>%
+  st_drop_geometry() %>%
+  filter(!is.na(zcta) & year >= 2016& year <= 2020 & zcta %in% zcta_universe) %>%
+  group_by(year, week, zcta, race, .drop=F) %>%
+  tally(name = "police_stops") %>%
+   filter(!is.na(race) & race!="not recorded") %>%
+  ungroup() %>%
+  complete(year, week, zcta=zcta_universe, race, fill = list(police_stops = 0)) %>%
+  mutate(race = str_to_lower(race)) %>%
+  arrange(year, week, zcta, race) %>%
+  pivot_wider(names_from = race, 
+              values_from = police_stops,
+              values_fill = 0,
+              names_glue = "{race}_{.value}") %>%
+  mutate(total_police_stops = asian_police_stops+black_police_stops+
+         `east african_police_stops`+latino_police_stops+`native american_police_stops`+
+           other_police_stops+unknown_police_stops+white_police_stops)
+
+#Officer Involved Shootings - MPD
+ois_spatial <- read_csv("Police_Officer_Involved_Shootings.csv") %>%
+  mutate(date=ymd_hms(IncidentDate),
+         year=isoyear(date),
+         week=isoweek(date)) %>%
+  select(OBJECTID, year, week, CenterLatitude, CenterLongitude, SubjectOfForceRace) %>%
+  rename(race = SubjectOfForceRace,
+         lat = CenterLatitude,
+         long = CenterLongitude) %>%
+  st_as_sf(coords = c("long", "lat"), crs = "NAD83", remove=F) %>%
+  mutate(intersection = as.integer(st_intersects(geometry, zcta)), 
+         zcta = ifelse(is.na(intersection), NA, zcta$zcta[intersection])) %>%
+  st_drop_geometry() %>%
+  filter(!is.na(zcta) & year >= 2016 & year <= 2020 & zcta %in% zcta_universe) %>%
+  group_by(year, week, zcta, race, .drop=F) %>%
+  tally(name = "police_shootings") %>%
+  filter(!is.na(race) & race!="not recorded") %>%
+  ungroup() %>%
+  complete(year=2016:2021, week=1:53, zcta=zcta_universe, race, fill = list(police_shootings = 0)) %>%
+  mutate(race = str_to_lower(race)) %>%
+  arrange(year, week, zcta, race) %>%
+  pivot_wider(names_from = race, 
+              values_from = police_shootings,
+              values_fill = 0,
+              names_glue = "{race}_{.value}") %>%
+  mutate(total_police_shootings = asian_police_shootings+black_police_shootings+
+         hispanic_police_shootings+other_police_shootings+
+           unknown_police_shootings+white_police_shootings)
+
+panel <- panel %>%
+  left_join(uof_spatial, by = c("year", "weekofyr"="week", "zcta"="zcta")) %>%
+  left_join(stop_spatial, by = c("year", "weekofyr"="week", "zcta"="zcta")) %>%
+  left_join(ois_spatial, by = c("year", "weekofyr"="week", "zcta"="zcta")) 
+
+#creating period indicators for panel
+panel <- panel %>%
+  mutate(post_floyd = ifelse(begin_date >= as.Date("2020-05-25"), T, F),
+         post_floyd_3 = ifelse(begin_date >= (as.Date("2020-05-25")+months(3)), T, F),
+         stay_at_home = ifelse( begin_date >= as.Date("2020-03-28"), T, F),
+         state_of_emerg = ifelse( begin_date >= as.Date("2020-03-13"), T, F),
+         period = factor(case_when(
+           post_floyd==F & post_floyd_3==F ~ "Pre-Treatment",
+           post_floyd==T & post_floyd_3==F ~ "0-3 Months Post-Treatment",
+           post_floyd==T & post_floyd_3==T ~ "3+ Months Post-Treatment"),
+           levels = c("Pre-Treatment", "0-3 Months Post-Treatment", "3+ Months Post-Treatment"))) %>%
+  group_by(zcta) %>%
+  arrange(year, weekofyr) %>%
+  mutate(t = row_number(),
+         uof_lag = dplyr::lag(total_use_of_force, 1),
+         stops_lag = dplyr::lag(total_police_stops, 1),
+         shoot_lag = dplyr::lag(total_police_shootings, 1))
+```
+
+```{r prelim maps, message=FALSE}
+#aggregate to zip-level over years
+zip_level <- panel %>%
+  group_by(zcta, period) %>%
+  summarize(assault_tot = sum(assault_tot, na.rm = T),
+            unintent_tot = sum(unintent_tot, na.rm = T),
+            suicide_tot = sum(suicide_tot, na.rm = T),
+            undeter_tot = sum(undeter_tot, na.rm = T),
+            legal_tot = sum(legal_tot, na.rm = T),
+            combined_tot = sum(combined_tot, na.rm = T),
+            total_pop = sum(total_pop, na.rm = T)) %>%
+  mutate(assault_incid_c = (assault_tot/total_pop)*1000,
+         unintent_incid_c = (unintent_tot/total_pop)*1000,
+         suicide_incid_c = (suicide_tot/total_pop)*1000,
+         undeter_incid_c = (undeter_tot/total_pop)*1000,
+         legal_incid_c = (legal_tot/total_pop)*1000,
+         combined_incid_c = (combined_tot/total_pop)*1000) %>%
+  ungroup() %>%
+  st_drop_geometry() %>%
+  left_join(zcta, by = "zcta")
+
+#george floyd square
+gfs <- geocode("George Floyd Square, Minneapolis", output = "latlon") %>%
+  st_as_sf(coords = c("lon", "lat"), crs = "NAD83", remove=F) %>%
+  mutate(name = "George Floyd Square")
+
+ggplot() +
+  geom_sf(data = zip_level, aes(geometry = geometry, fill = assault_incid_c)) + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
+  geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
+                  size = 2,
+                 fontface = "bold",
+                 nudge_x = 1, nudge_y = -1)+
+  facet_wrap(~period)+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "Figure 2: Firearm Assault Rates by ZCTA and Period", 
+       subtitle = "MHA Hospital Discharge Data",
+       fill = "Incident Rate/1,000")+
+  theme(axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_blank(),
+  panel.grid.major = element_line(colour="transparent"), 
+  plot.subtitle = element_text(face="italic"),
+  strip.background = element_rect(fill = "white", 
+                colour = "black"))
+```
+
+## Panel Analysis
+```{r panel analysis, message=F}
+fe_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                 as.factor(zcta), data = panel)
+summary(fe_model)
+
+fe_police_model <-  lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                         uof_lag+stops_lag+shoot_lag+
+                 as.factor(zcta), data = panel)
+summary(fe_police_model)
+
+fe_int_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+as.factor(zcta)+
+                     post_floyd:as.factor(zcta)+post_floyd_3:as.factor(zcta), data = panel)
+summary(fe_int_model)
+
+#map of post_floyd coefficients by zip? color just significant from 0?
+
+
+#random effects models
+library(lme4)
+library(lmerTest)
+
+re_model <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                   uof_lag+stops_lag+shoot_lag+
+                   total_pop+black_pop+na_pop+white_pop+hisp_pop+asian_pop+mar_fam+povlevel+med_age+
+                   ssi_snap+bach_degree+male+nowork_12+post_floyd:black_pop+
+                   post_floyd:nowork_12+
+                  (1|zcta), data = panel)
+summary(re_model)
+```
+
+# Time Series Construction - Week Level
 
 ## Aggregate Hospital Panel to Week-Level
 ```{r aggregation, message=FALSE}
-#aggregated gun_panel to week-level
-hosp_series <- gun_panel %>%
+#panel to week-level, aggregating over ZCTAs
+hosp_series <- panel %>%
   group_by(year, weekofyr) %>%
   summarize(assault_tot = sum(assault_tot, na.rm = T),
             unintent_tot = sum(unintent_tot, na.rm = T),
@@ -142,16 +375,17 @@ hosp_series <- gun_panel %>%
          legal_incid_c = (legal_tot/total_pop)*1000,
          combined_incid_c = (combined_tot/total_pop)*1000) %>%
   ungroup() %>%
-  mutate(week_id = row_number()) 
+  mutate(week_id = row_number()) %>%
+  st_drop_geometry()
 ```
 
 ## Police Data Week-Level
 
 ```{r police data, message = FALSE, warning=FALSE}
-#Minneapolis POlice Department - Use of Force Dahsboard
+#Minneapolis Police Department - Use of Force Dashboard
 uof <- read_csv("Police_Use_Of_Force.csv") %>%
   mutate(date=ymd_hms(ResponseDate),
-         year=year(date),
+         year=isoyear(date),
          week=isoweek(date)) %>%
   group_by(year, week, .drop=F) %>%
   tally(name = "use_of_force") %>%
@@ -167,7 +401,7 @@ series <- hosp_series %>%
 #MPD Officer Involved Shootings
 ois <- read_csv("Police_Officer_Involved_Shootings.csv") %>%
   mutate(date=ymd_hms(IncidentDate),
-         year=year(date),
+         year=isoyear(date),
          week=isoweek(date)) %>%
   group_by(year, week, .drop=F) %>%
   tally(name = "off_inv_shooting") %>%
@@ -178,13 +412,14 @@ ois <- read_csv("Police_Officer_Involved_Shootings.csv") %>%
 #merge onto series
 series <- series %>%
   left_join(ois, by=c("year", "weekofyr"="week")) %>%
-  mutate(off_inv_shooting_rate = (off_inv_shooting/total_pop)*1000)
+  mutate(off_inv_shooting = ifelse(is.na(off_inv_shooting), 0, off_inv_shooting),
+         off_inv_shooting_rate = (off_inv_shooting/total_pop)*1000)
 
 
 #Minneapolis Police Department - Police Stops Dashboard
 stop <- read_csv("Police_Stop_Data.csv") %>%
   mutate(date=ymd_hms(responseDate),
-         year=year(date),
+         year=isoyear(date),
          week=isoweek(date)) %>%
   group_by(year, week, .drop=F) %>%
   tally(name = "police_stops") 
@@ -192,20 +427,13 @@ stop <- read_csv("Police_Stop_Data.csv") %>%
 #merge onto series
 series <- series %>% 
   left_join(stop, by = c("year", "weekofyr"="week")) %>%
-  mutate(police_stop_rate = (police_stops/total_pop)*1000)
-
-#Apple Mobility Data - don't have 2019, not using for now
-apple_mpls <- apple_mobility %>%
-  filter(region=="Minneapolis") %>%
-  mutate(week = isoweek(date), 
-         year = year(date)) %>%
-  group_by(year, week, .drop=F) %>%
-  summarize(apple_mobility = mean(score, na.rm = T))
+  mutate(police_stops = ifelse(is.na(police_stops), 0, police_stops),
+         police_stop_rate = (police_stops/total_pop)*1000)
 
 #New York Times COVID Case/Mortality Data
 covid_hennepin <- nytcovcounty %>%
   mutate(week = isoweek(date), 
-         year = year(date)) %>%
+         year = isoyear(date)) %>%
   filter(county=="Hennepin" & state=="Minnesota" & year >=2019) %>%
   group_by(year, week, .drop=F) %>%
   summarize(covid_cases = sum(cases, na.rm = T),
@@ -218,8 +446,390 @@ series <- series %>%
 
 #creating date variable
 series <- series %>%
-  mutate(begin_date = as.Date(paste(year, weekofyr, 1,sep = "-"), "%Y-%U-%u"),
-         end_date = begin_date+weeks(1))
+  mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", weekofyr)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1))
+
+```
+
+# Weather Data
+
+```{r, message=F}
+# Minnesota DNR Daily Date
+ # https://www.dnr.state.mn.us/climate/historical/daily-data.html?sid=mspthr&sname=Minneapolis/St%20Paul%20Threaded%20Record&sdate=2010-01-01&edate=por
+ # Station Name: Minneapolis/St Paul Threaded Record - Station ID: mspthr
+
+weather <- read_csv("dnr_weather.csv") %>%
+  mutate(year=isoyear(Date),
+         week=isoweek(Date),
+         precip.in = as.numeric(ifelse(`Precipitation (inches)`=="T", .001, `Precipitation (inches)`)),
+         snow.in = as.numeric(ifelse(`Snow (inches)`=="T", .001, `Snow (inches)`)),
+         tmax.f = `Maximum Temperature degrees (F)`) %>%
+  filter(year >= 2016 & year <= 2020) %>%
+  select(year, week, precip.in, snow.in, tmax.f) %>%
+  group_by(year, week) %>%
+  summarize(precip.in = mean(precip.in, na.rm = T), 
+            snow.in = mean(snow.in, na.rm = T), 
+            tmax.f = mean(tmax.f, na.rm = T))
+
+#join to series
+series <- series %>% left_join(weather, by = c("year","weekofyr"="week"))
+```
+
+```{r, eval=F, message=F, eval=F, include=F}
+#weatherData
+  #the scraper sometimes doesn't run, so I have saved successful scrapes locally for backup
+noaa_token <- "nrEVQsKalyfOauURFnZPpNZQwbAiPaSh"
+
+#list of ncdc stations with coverage over MPLS ZCTAs
+stations <- ncdc_stations(extent = as.vector(st_bbox(zcta[zcta$zcta %in% zcta_universe,]))[order(c(2,1,4,3))],
+              token = noaa_token, startdate = "2016-01-01", enddate = "2020-12-31") 
+
+ncdc_datasets(stationid=stations$data$id, token=noaa_token)
+
+datatypes <- c('PRCP','SNWD', 'TMAX') #can't get SNOW to work
+
+begin_date <- as.list(series$begin_date)
+end_date <- as.list(series$end_date)
+
+weather <- map2_df(.x = begin_date,
+                  .y = end_date,
+               ~ ncdc(datasetid='GHCND', 
+              datatypeid=datatypes,
+              stationid=ncdc_stations(extent = as.vector(st_bbox(zcta[zcta$zcta %in% zcta_universe,]))[order(c(2,1,4,3))],
+              token = noaa_token, startdate = .x, enddate = .y)$data$id,  
+              startdate = .x, 
+              enddate = .y, 
+              limit=1000, 
+              token = noaa_token))$data %>%
+  group_by(date, datatype) %>%
+  summarize(value = mean(value, na.rm = T)) %>%
+  pivot_wider(id_cols = date, names_from = datatype, values_from = value))
+
+
+write_csv(weather, "noaa_scrape.csv")
+
+weather <- read_csv("noaa_scrape.csv")
+
+
+weather_series <- weather %>% 
+ mutate(precip.in = (PRCP/10)*.0393701, #mm ti in
+       snow.in = ifelse(is.na(SNWD), 0, SNWD/10)*.0393701, #mm to in
+       tmax.f = TMAX/10, 
+       week = isoweek(date),
+       year = year(date)) %>%
+  select(year, week, precip.in, snow.in, tmax.f) 
+
+write_csv(weather_series, "weather_series.csv")
+
+weather_series <- read_csv("weather_series.csv")
+
+
+#join to series
+series <- series %>% left_join(weather_series, by = c("year","weekofyr"="week"))
+```
+
+## Sunset Data
+```{r, message=FALSE}
+#setting lat-lon for MPLS
+mpls_lonlat <- geocode("Minneapolis, MN", output = "latlon", source="google")
+
+#scrape sunset times for each begin date
+  #mutate to UTC-6 CST 
+  #calculate hours of darkness before midnight
+sun_series <- getSunlightTimes(date = seq(min(series$begin_date), 
+                               max(series$begin_date), 
+                               "days"),
+                               lat = 44.97775	,
+                               lon = -93.26501,
+                               keep = "sunset",
+                               tz = "UTC") %>%
+  mutate(sunset = sunset-hours(6),
+         midnight = as.POSIXlt(date+days(1), format = '%Y-%m-%d %H:%M:%S'),
+         dark = as.numeric(midnight-sunset), 
+         year = year(date), 
+         week = isoweek(date)) %>%
+  group_by(year, week) %>%
+  summarize(dark.before.12 = mean(dark, na.rm = T))
+
+
+#joining to series
+series <- series %>%
+  left_join(sun_series, by = c("year", "weekofyr"="week"))
+```
+
+## School Data
+```{r}
+#created manually from online MPLS Public School Calendars: https://mpls.k12.mn.us/calendars
+school <- series %>%
+  select(year, weekofyr, begin_date, end_date) %>%
+  mutate(days_in_week = as.numeric((end_date-begin_date))+1, 
+         days_in_school = NA_integer_)
+
+school[1,6] <- 5
+school[2,6] <- 4
+school[3,6] <- 3
+school[4,6] <- 5
+school[5,6] <- 5
+school[6,6] <- 4
+school[7,6] <- 4
+school[8,6] <- 5
+school[9,6] <- 5
+school[10,6] <- 4
+school[11,6] <- 4
+school[12,6] <- 5
+school[13,6] <- 0
+school[14,6] <- 5
+school[15,6] <- 5
+school[16,6] <- 5
+school[17,6] <- 5
+school[18,6] <- 5
+school[19,6] <- 5
+school[20,6] <- 5
+school[21,6] <- 5
+school[22,6] <- 4
+school[23,6] <- 2
+school[24,6] <- 0
+school[25,6] <- 0
+school[26,6] <- 0
+school[27,6] <- 0
+school[28,6] <- 0
+school[29,6] <- 0
+school[30,6] <- 0
+school[31,6] <- 0
+school[32,6] <- 0
+school[33,6] <- 0
+school[34,6] <- 0
+school[35,6] <- 5
+school[36,6] <- 4
+school[37,6] <- 5
+school[38,6] <- 5
+school[39,6] <- 5
+school[40,6] <- 5
+school[41,6] <- 5
+school[42,6] <- 2
+school[43,6] <- 5
+school[44,6] <- 3
+school[45,6] <- 5
+school[46,6] <- 5
+school[47,6] <- 2
+school[48,6] <- 5
+school[49,6] <- 5
+school[50,6] <- 5
+school[51,6] <- 0
+school[52,6] <- 0
+school[53,6] <- 4
+school[54,6] <- 5
+school[55,6] <- 4
+school[56,6] <- 4
+school[57,6] <- 4
+school[58,6] <- 5
+school[59,6] <- 4
+school[60,6] <- 4
+school[61,6] <- 5
+school[62,6] <- 5
+school[63,6] <- 5
+school[64,6] <- 5
+school[65,6] <- 3
+school[66,6] <- 0
+school[67,6] <- 5
+school[68,6] <- 5
+school[69,6] <- 5
+school[70,6] <- 5
+school[71,6] <- 5
+school[72,6] <- 5
+school[73,6] <- 5
+school[74,6] <- 4
+school[75,6] <- 5
+school[76,6] <- 3
+school[77,6] <- 0
+school[78,6] <- 0
+school[79,6] <- 0
+school[80,6] <- 0
+school[81,6] <- 0
+school[82,6] <- 0
+school[83,6] <- 0
+school[84,6] <- 0
+school[85,6] <- 0
+school[86,6] <- 0
+school[87,6] <- 5
+school[88,6] <- 4
+school[89,6] <- 5
+school[90,6] <- 5
+school[91,6] <- 5
+school[92,6] <- 5
+school[93,6] <- 5
+school[94,6] <- 2
+school[95,6] <- 5
+school[96,6] <- 3
+school[97,6] <- 5
+school[98,6] <- 5
+school[99,6] <- 2
+school[100,6] <- 5
+school[101,6] <- 5
+school[102,6] <- 5
+school[103,6] <- 5
+school[104,6] <- 0
+school[105,6] <- 0
+school[106,6] <- 0
+school[107,6] <- 5
+school[108,6] <- 4
+school[109,6] <- 3
+school[110,6] <- 5
+school[111,6] <- 5
+school[112,6] <- 4
+school[113,6] <- 4
+school[114,6] <- 5
+school[115,6] <- 5
+school[116,6] <- 5
+school[117,6] <- 5
+school[118,6] <- 4
+school[119,6] <- 0
+school[120,6] <- 5
+school[121,6] <- 5
+school[122,6] <- 5
+school[123,6] <- 5
+school[124,6] <- 5
+school[125,6] <- 5
+school[126,6] <- 5
+school[127,6] <- 4
+school[128,6] <- 5
+school[129,6] <- 0
+school[130,6] <- 0
+school[131,6] <- 0
+school[132,6] <- 0
+school[133,6] <- 0
+school[134,6] <- 0
+school[135,6] <- 0
+school[136,6] <- 0
+school[137,6] <- 0
+school[138,6] <- 0
+school[139,6] <- 0
+school[140,6] <- 5
+school[141,6] <- 4
+school[142,6] <- 5
+school[143,6] <- 5
+school[144,6] <- 5
+school[145,6] <- 5
+school[146,6] <- 5
+school[147,6] <- 2
+school[148,6] <- 5
+school[149,6] <- 3
+school[150,6] <- 5
+school[151,6] <- 5
+school[152,6] <- 2
+school[153,6] <- 5
+school[154,6] <- 5
+school[155,6] <- 5
+school[156,6] <- 5
+school[157,6] <- 0
+school[158,6] <- 0
+school[159,6] <- 5
+school[160,6] <- 5
+school[161,6] <- 2
+school[162,6] <- 5
+school[163,6] <- 5
+school[164,6] <- 4
+school[165,6] <- 4
+school[166,6] <- 5
+school[167,6] <- 5
+school[168,6] <- 5
+school[169,6] <- 5
+school[170,6] <- 4
+school[171,6] <- 0
+school[172,6] <- 5
+school[173,6] <- 5
+school[174,6] <- 5
+school[175,6] <- 5
+school[176,6] <- 5
+school[177,6] <- 5
+school[178,6] <- 5
+school[179,6] <- 4
+school[180,6] <- 5
+school[181,6] <- 0
+school[182,6] <- 0
+school[183,6] <- 0
+school[184,6] <- 0
+school[185,6] <- 0
+school[186,6] <- 0
+school[187,6] <- 0
+school[188,6] <- 0
+school[189,6] <- 0
+school[190,6] <- 0
+school[191,6] <- 0
+school[192,6] <- 0
+school[193,6] <- 4
+school[194,6] <- 5
+school[195,6] <- 5
+school[196,6] <- 5
+school[197,6] <- 5
+school[198,6] <- 5
+school[199,6] <- 2
+school[200,6] <- 5
+school[201,6] <- 4
+school[202,6] <- 5
+school[203,6] <- 5
+school[204,6] <- 5
+school[205,6] <- 2
+school[206,6] <- 5
+school[207,6] <- 5
+school[208,6] <- 5
+school[209,6] <- 0
+school[210,6] <- 0
+school[211,6] <- 5
+school[212,6] <- 4
+school[213,6] <- 4
+school[214,6] <- 5
+school[215,6] <- 5
+school[216,6] <- 5
+school[217,6] <- 3
+school[218,6] <- 5
+school[219,6] <- 5
+school[220,6] <- 5
+school[221,6] <- 5
+school[222,6] <- 4
+school[223,6] <- 0
+school[224,6] <- 5
+school[225,6] <- 5
+school[226,6] <- 5
+school[227,6] <- 5
+school[228,6] <- 5
+school[229,6] <- 5
+school[230,6] <- 5
+school[231,6] <- 4
+school[232,6] <- 5
+school[233,6] <- 0
+school[234,6] <- 0
+school[235,6] <- 0
+school[236,6] <- 0
+school[237,6] <- 0
+school[238,6] <- 0
+school[239,6] <- 0
+school[240,6] <- 0
+school[241,6] <- 0
+school[242,6] <- 0
+school[243,6] <- 0
+school[244,6] <- 0
+school[245,6] <- 4
+school[246,6] <- 5
+school[247,6] <- 5
+school[248,6] <- 5
+school[249,6] <- 5
+school[250,6] <- 5
+school[251,6] <- 3
+school[252,6] <- 4
+school[253,6] <- 5
+school[254,6] <- 4
+school[255,6] <- 5
+school[256,6] <- 5
+school[257,6] <- 2
+school[258,6] <- 5
+school[259,6] <- 5
+school[260,6] <- 5
+school[261,6] <- 0
+school[262,6] <- 0
+
+school <- school %>%
+  mutate(school = days_in_school/days_in_week)
 
 ```
 
@@ -259,75 +869,6 @@ ggplot(series)+
   theme(axis.text.x=element_text(angle=45, hjust=1)) 
 ```
 
-```{r firearm suicide plot, warning=FALSE}
-ggplot(series)+
-  geom_line(aes(x=begin_date, y=suicide_incid_c))+ 
-  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
-  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
-              linetype="dotted", color="red", size=1)+
-  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.033), 
-             label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Weekly Firearm Suicides, 2016-2020",
-       subtitle = "Source: Minnesota Hospital Association Discharges",
-       x = "Week",
-       y = "Firearm Suicides per 1,000 Residents")+
-  theme_minimal()+
-  theme(axis.text.x=element_text(angle=45, hjust=1)) 
-
-#are these so low because they don't end up in hospital?
-```
-
-```{r firearm legal interventions plot, warning=FALSE}
-ggplot(series)+
-  geom_line(aes(x=begin_date, y=legal_incid_c))+ 
-  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
-  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
-              linetype="dotted", color="red", size=1)+
-  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.033), 
-             label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Weekly Firearm Legal Interventions, 2016-2020",
-       subtitle = "Source: Minnesota Hospital Association Discharges",
-       x = "Week",
-       y = "Firearm Legal Interventions per 1,000 Residents")+
-  theme_minimal()+
-  theme(axis.text.x=element_text(angle=45, hjust=1)) 
-```
-
-```{r firearm unintentional plot, warning=FALSE}
-ggplot(series)+
-  geom_line(aes(x=begin_date, y=unintent_incid_c))+ 
-  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
-  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
-              linetype="dotted", color="red", size=1)+
-  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.033), 
-             label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Weekly Firearm Unintentional Injuries, 2016-2020",
-       subtitle = "Source: Minnesota Hospital Association Discharges",
-       x = "Week",
-       y = "Firearm Unintentional Injuries per 1,000 Residents")+
-  theme_minimal()+
-  theme(axis.text.x=element_text(angle=45, hjust=1)) 
-```
-
-```{r firearm undetermined plot, warning=FALSE}
-ggplot(series)+
-  geom_line(aes(x=begin_date, y=undeter_incid_c))+ 
-  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
-  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
-              linetype="dotted", color="red", size=1)+
-  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.033), 
-             label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Weekly Firearm Undetermined Injuries, 2016-2020",
-       subtitle = "Source: Minnesota Hospital Association Discharges",
-       x = "Week",
-       y = "Firearm Undetermined Injuries per 1,000 Residents")+
-  theme_minimal()+
-  theme(axis.text.x=element_text(angle=45, hjust=1)) 
-```
 
 ```{r use of force plot, warning=FALSE}
 ggplot(series)+
@@ -364,31 +905,24 @@ ggplot(series)+
 ```
 
 
-```{r ios plot}
-#need ois plot here; fix missings
-
-```
-
-```{r}
-pre <- series %>%
-  filter(year <= 2019) %>%
-  group_by(weekofyr) %>%
-  summarize(combined = mean(combined_incid_c, na.rm = T))
-
-post <- series %>%
-  filter(year >= 2020)  
-
-ggplot()+
-  geom_line(data = pre, aes(x=weekofyr, y=combined))+ 
-  geom_line(data = post, aes(x=weekofyr, y=combined_incid_c), color = "red")+
-   labs(title = "Weekly Hospital Firearm Cases Combined, 2016-2020",
-       subtitle = "Source: Minnesota Hospital Association ",
+```{r ois plot}
+ggplot(series)+
+  geom_line(aes(x=begin_date, y=off_inv_shooting_rate))+ 
+  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
+  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
+              linetype="dotted", color="red", size=1)+
+  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
+                 y=0.033), 
+             label = "George Floyd", show.legend = FALSE)+
+  labs(title = "Weekly Officer Involved Shootings, 2016-2020",
+       subtitle = "Source: MPD",
        x = "Week",
-       y = "Firearm Cases per 1,000 Residents")+
-  theme_minimal()
-
-
+       y = "Stops per 1,000 Residents")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, hjust=1)) 
 ```
+
+
 
 ## Time Series Analysis
 ```{r}
@@ -408,12 +942,15 @@ window_df <- function(df, outcome, end.date, start.date, end.pre.date) {
  
   ## select variables from data frame and filter
   
-  df.windowed.pre <- select(df, begin_date, year, weekofyr, y = outcome) %>%
+  df.windowed.pre <- select(df, begin_date, year, weekofyr, y = outcome, 
+                            tmax.f,snow.in,precip.in, dark.before.12,school) %>%
                      dplyr::filter(begin_date >= start.date,
                             begin_date <= end.pre.date)
-  df.windowed.post <- select(df, begin_date, year, weekofyr, y = outcome) %>%
+  df.windowed.post <- select(df, begin_date, year, weekofyr, y = outcome,
+                              tmax.f,snow.in,precip.in, dark.before.12,school) %>%
                      dplyr::filter(begin_date >= end.pre.date)
-  df.windowed.all <- select(df, begin_date, year, weekofyr, y = outcome) %>%
+  df.windowed.all <- select(df, begin_date, year, weekofyr, y = outcome,
+                             tmax.f,snow.in,precip.in, dark.before.12,school) %>%
                      dplyr::filter(begin_date >= start.date,
                             begin_date <= end.date)
   df.pre.agg <- df.windowed.pre %>% 
@@ -435,149 +972,148 @@ pre_2020 <- window_df(series,
                end.pre.date = "2020-01-01")
 
 ggplot()+
-  geom_line(data = as.data.frame(pre_2020[[4]]), aes(x=weekofyr, y=y))+ 
-  geom_line(data = as.data.frame(pre_2020[[2]]), aes(x=weekofyr, y=y), color = "red")+
+  geom_line(data = as.data.frame(pre_2020[[4]]), aes(x=weekofyr, y=y, color="2016-2019 Average"))+ 
+  geom_line(data = as.data.frame(pre_2020[[2]]), aes(x=weekofyr, y=y, color = "2020"))+
+  scale_color_manual(name = "Series", values = c("2016-2019 Average"="darkblue","2020"="red"))+
+  geom_vline(xintercept=isoweek("2020-05-25"), 
+              linetype="dotted", color="black", size=1)+
+  geom_label(aes(x=isoweek("2020-05-25")-7, y=0.033), 
+             label = "George Floyd", show.legend = FALSE)+
    labs(title = "Weekly Hospital Firearm Assaults, 2016-2020",
        subtitle = "Source: Minnesota Hospital Association ",
        x = "Week",
        y = "Firearm Assaults per 1,000 Residents")+
   theme_minimal()
-
-
-#models add in
-
 ```
 
-## ZCTA-Week Level Police Data
 
-```{r, warning=F, message=FALSE}
-#Minneapolis POlice Department - Use of Force Dahsboard
-uof_spatial <- read_csv("Police_Use_Of_Force.csv")  %>%
-  mutate(date=ymd_hms(ResponseDate),
-         year=year(date),
-         week=isoweek(date)) %>%
-  select(OBJECTID, year, week, X, Y, Race) %>%
-  st_as_sf(coords = c("X", "Y"), crs = "NAD83", remove=F) %>%
-  mutate(intersection = as.integer(st_intersects(geometry, mn_zcta)), 
-         zcta = ifelse(is.na(intersection), NA, mn_zcta$zcta[intersection])) %>%
-  st_drop_geometry() %>%
-  filter(!is.na(zcta) & year >= 2016) %>%
-  group_by(year, week, zcta, Race, .drop=F) %>%
-  tally(name = "use_of_force") %>%
-  filter(!is.na(Race) & Race!="not recorded") %>%
-  ungroup() %>%
-  complete(year, week, zcta=zcta_universe, Race, fill = list(use_of_force = 0)) %>%
-  arrange(year, week, zcta, Race) %>%
-  mutate(race = str_to_lower(Race)) %>%
-  select(-Race) %>%
-  pivot_wider(names_from = race, 
-              values_from = use_of_force,
-              values_fill = 0,
-              names_glue = "{race}_{.value}") %>%
-  mutate(total_use_of_force = asian_use_of_force+black_use_of_force+`native american_use_of_force`+
-           `other / mixed race_use_of_force`+`pacific islander_use_of_force`+unknown_use_of_force+           
-            white_use_of_force)
+```{r time series models, message=F}
 
-#MPD Stop Dashboard
-stop_spatial <- read_csv("Police_Stop_Data.csv") %>%
-  mutate(date=ymd_hms(responseDate),
-         year=year(date),
-         week=isoweek(date)) %>%
-  select(OBJECTID, year, week, lat, long, race) %>%
-  st_as_sf(coords = c("long", "lat"), crs = "NAD83", remove=F) %>%
-  mutate(intersection = as.integer(st_intersects(geometry, mn_zcta)), 
-         zcta = ifelse(is.na(intersection), NA, mn_zcta$zcta[intersection])) %>%
-  st_drop_geometry() %>%
-  filter(!is.na(zcta) & year >= 2016 & !zcta %in% c(55111,55113,55114)) %>%
-  group_by(year, week, zcta, race, .drop=F) %>%
-  tally(name = "police_stops") %>%
-   filter(!is.na(race) & race!="not recorded") %>%
-  ungroup() %>%
-  complete(year, week, zcta=zcta_universe, race, fill = list(police_stops = 0)) %>%
-  mutate(race = str_to_lower(race)) %>%
-  arrange(year, week, zcta, race) %>%
-  pivot_wider(names_from = race, 
-              values_from = police_stops,
-              values_fill = 0,
-              names_glue = "{race}_{.value}") %>%
-  mutate(total_police_stops = asian_police_stops+black_police_stops+
-         `east african_police_stops`+latino_police_stops+`native american_police_stops`+
-           other_police_stops+unknown_police_stops+white_police_stops)
+#morgan-pally intervention least squares models
+intervention.models <- function(dataset, outcome, end.date, start.date, end.pre.date) {
 
-ois_spatial <- read_csv("Police_Officer_Involved_Shootings.csv") %>%
-  mutate(date=ymd_hms(IncidentDate),
-         year=year(date),
-         week=isoweek(date)) %>%
-  select(OBJECTID, year, week, CenterLatitude, CenterLongitude, SubjectOfForceRace) %>%
-  rename(race = SubjectOfForceRace,
-         lat = CenterLatitude,
-         long = CenterLongitude) %>%
-  st_as_sf(coords = c("long", "lat"), crs = "NAD83", remove=F) %>%
-  mutate(intersection = as.integer(st_intersects(geometry, mn_zcta)), 
-         zcta = ifelse(is.na(intersection), NA, mn_zcta$zcta[intersection])) %>%
-  st_drop_geometry() %>%
-  filter(!is.na(zcta) & year >= 2016) %>%
-  group_by(year, week, zcta, race, .drop=F) %>%
-  tally(name = "police_shootings") %>%
-  filter(!is.na(race) & race!="not recorded") %>%
-  ungroup() %>%
-  complete(year=2016:2021, week=1:53, zcta=zcta_universe, race, fill = list(police_shootings = 0)) %>%
-  mutate(race = str_to_lower(race)) %>%
-  arrange(year, week, zcta, race) %>%
-  pivot_wider(names_from = race, 
-              values_from = police_shootings,
-              values_fill = 0,
-              names_glue = "{race}_{.value}") %>%
-  mutate(total_police_shootings = asian_police_shootings+black_police_shootings+
-         hispanic_police_shootings+other_police_shootings+
-           unknown_police_shootings+white_police_shootings)
+  ### Estimate five linear models from windowed dataset, return as a list
+  ###   calls on window_df() function
+  ### Inputs
+  ###  dataset: data frame with data to be modeled
+  ###  outcome: column number of a crime or arrest category (integer)
+  ###  end.date: last date for full time period (date format)
+  ###  start.date: first date for full time period (date format)
+  ###  end.pre.date: last date for pre-treatment period (date format)
+  ### Returns:
+  ###  list containing five linear models and mean predicted value for 
+  ###   the last 52 weeks of the pre-Ferguson period
 
-gun_panel <- gun_panel %>%
-  left_join(uof_spatial, by = c("year", "weekofyr"="week", "zipcode"="zcta")) %>%
-  left_join(stop_spatial, by = c("year", "weekofyr"="week", "zipcode"="zcta")) %>%
-  left_join(ois_spatial, by = c("year", "weekofyr"="week", "zipcode"="zcta"))
+  ## set up data, specifying outcome as i and setting ending date for window
+  ##  use window.df.and.zoo function defined elsewhere
   
+  w <- window_df(dataset, outcome, end.date, start.date, end.pre.date)
+  df.windowed.pre <- w[[1]]
+  df.windowed.all <- w[[2]]
+  
+  df.windowed.pre.original <- df.windowed.pre
+  
+  ## create linear time variables
+  
+  df.windowed.pre$t <- 1:length(df.windowed.pre$y)
+  df.windowed.all$t <- 1:length(df.windowed.all$y)
+  
+  ## create linear spline for temperature
+  
+  parameterize.spline <- function(x, c) ifelse (x > c, x - c, 0)
+  tmax.f.knots <- c(0, 50, 60, 70, 80) 
+  df.windowed.pre$tmax.f.spline <- outer(df.windowed.pre$tmax.f, 
+                                         tmax.f.knots, parameterize.spline)
+  df.windowed.all$tmax.f.spline <- outer(df.windowed.all$tmax.f, 
+                                         tmax.f.knots, parameterize.spline)
+
+  ## create spike and period type variables
+  
+  #post.floyd
+  df.windowed.all$post.floyd <- as.numeric(df.windowed.all$week.first >= as.Date("2020-05-25"))
+  
+  #three-month post.floyd
+  df.windowed.all$post.floyd.3 <- as.numeric(df.windowed.all$week.first >= as.Date("2020-05-25")+months(3))
+  
+  #stay at home order - covid
+  df.windowed.all$stay.at.home <- as.numeric(df.windowed.all$week.first >= as.Date("2020-03-28") &                                                                     df.windowed.all$week.first <= as.Date("2020-05-28"))
+  #state of emergency - covid
+   df.windowed.all$state.of.emerg <- as.numeric(df.windowed.all$week.first >= as.Date("2020-03-13"))
+
+  ## specify model, estimate, and store selected output
+  
+  naive.int.model.formula <- as.formula(paste("y ~ t + state.of.emerg + stay.at.home + 
+                                              post.floyd+post.floyd.3"))
+  covariate.model.formula <- as.formula(paste("y ~ t + tmax.f.spline + snow.in +
+                                              precip.in + dark.before.12 + school"))
+  full.int.model.formula <- as.formula(paste("y ~ t + 
+                                             state.of.emerg + stay.at.home + 
+                                              post.floyd + post.floyd.3 +
+                                             tmax.f.spline + snow.in +
+                                             precip.in + dark.before.12 + school"))
+  constrained.int.model.formula <- as.formula(paste("y.diff ~  
+                                                    state.of.emerg + stay.at.home + 
+                                              post.floyd + post.floyd.3"))
+  
+  ls.naive.int <- lm(naive.int.model.formula, df.windowed.all)
+  ls.pre <- lm(covariate.model.formula, df.windowed.pre)
+  ls.all <- lm(covariate.model.formula, df.windowed.all)
+  ls.full.int <- lm(full.int.model.formula, df.windowed.all)
+  df.windowed.all$y.predicted <- predict(ls.pre, df.windowed.all,
+                                         type = "response")
+  df.windowed.all$y.diff <- df.windowed.all$y - df.windowed.all$y.predicted
+  ls.constrained.int <- lm(constrained.int.model.formula, df.windowed.all)
+
+
+
+  ## return list
+  
+  return(list(ls.pre, ls.all, ls.naive.int, ls.constrained.int, ls.full.int))
+}
+
+
+intervention.models(series, 
+               outcome = "assault_incid_c",
+               end.date = "2020-12-31",
+               start.date = "2016-01-01",
+               end.pre.date = "2019-01-31")
+```
+
+```{r}
+plot.ts(series$assault_incid_c) 
+
+#post-floyd
+series$post_floyd <- as.numeric(series$begin_date >= as.Date("2020-05-25"))
+
+#three-month post-floyd
+series$post_floyd_3 <- as.numeric(series$begin_date >= as.Date("2020-05-25")+months(3))
+  
+#stay at home order - covid
+series$stay_at_home <- as.numeric(series$begin_date  >= as.Date("2020-03-28") &                                                                     series$begin_date  <= as.Date("2020-05-28"))
+#state of emergency - covid
+series$state_of_emerg <- as.numeric(series$begin_date  >= as.Date("2020-03-13"))
+
+ls <- lm(assault_incid_c~state_of_emerg+stay_at_home+post_floyd+post_floyd_3, data = series)
+
+acf2(resid(ls), max.lag = 53)
+
+series.ts <- ts(resid(ls), frequency = 53, start = c(2016,1))
+plot(series.ts)
+plot(decompose(series.ts))
+
+
+#testing for stationarity
+adf.test(series.ts) #alt hyp is stationarity; no diff needed
+
+sarima(ts(series$assault_incid_c, frequency = 53, start = c(2016,1)),p=1, d=0, q=0, 
+                                          xreg = cbind(series$state_of_emerg,
+                                                        series$stay_at_home,
+                                                        series$post_floyd,
+                                                        series$post_floyd_3))
+
+
+
+
 
 ```
 
-```{r prelim maps, message=FALSE}
-#aggregate to zip-level over years
-zip_level <- gun_panel %>%
-  mutate(post = ifelse(year >= 2020, "2016-2019", "2020")) %>%
-  group_by(zipcode, post) %>%
-  summarize(assault_tot = sum(assault_tot, na.rm = T),
-            unintent_tot = sum(unintent_tot, na.rm = T),
-            suicide_tot = sum(suicide_tot, na.rm = T),
-            undeter_tot = sum(undeter_tot, na.rm = T),
-            legal_tot = sum(legal_tot, na.rm = T),
-            combined_tot = sum(combined_tot, na.rm = T),
-            total_pop = sum(total_pop, na.rm = T)) %>%
-  mutate(assault_incid_c = (assault_tot/total_pop)*1000,
-         unintent_incid_c = (unintent_tot/total_pop)*1000,
-         suicide_incid_c = (suicide_tot/total_pop)*1000,
-         undeter_incid_c = (undeter_tot/total_pop)*1000,
-         legal_incid_c = (legal_tot/total_pop)*1000,
-         combined_incid_c = (combined_tot/total_pop)*1000) %>%
-  ungroup() %>%
-  left_join(mn_zcta, by = c("zipcode"="zcta"))
-
-
-ggplot(zip_level, aes(geometry = geometry, fill = assault_incid_c)) +
-  geom_sf() + 
-  coord_sf(crs = "+proj=merc")+
-  facet_wrap(~post)+
-  theme(axis.text = element_blank(),
-  axis.line = element_blank(),
-  axis.ticks = element_blank(),
-  panel.border = element_blank(),
-  panel.grid = element_blank(),
-  axis.title = element_blank(),
-  panel.background = element_blank(),
-  panel.grid.major = element_line(colour="transparent"), 
-  plot.subtitle = element_text(face="italic"),
-  strip.background = element_rect(fill = "white", 
-                colour = "black"))
-
-#may need to make sure all ZCTAs here are MPLS?
-
-```
