@@ -1,8 +1,10 @@
 ---
 title: "Gun Series"
 author: "Ryan Larson"
-date: "11/24/2020"
+date: "7/30/2021"
 output: pdf_document
+header-includes:
+- \usepackage{dcolumn}
 ---
 
 ```{r setup, include=FALSE, message=F}
@@ -24,6 +26,7 @@ library(ISOweek)
 library(ggmap)
 library(ggrepel)
 library(suncalc)
+library(stargazer)
 
 #finish TSA with seasonal covariates
 #make TSA table
@@ -271,88 +274,6 @@ panel <- panel %>%
          shoot_lag = dplyr::lag(total_police_shootings, 1))
 ```
 
-```{r prelim maps, message=FALSE}
-#aggregate to zip-level over years
-zip_level <- panel %>%
-  group_by(zcta, period) %>%
-  summarize(assault_tot = sum(assault_tot, na.rm = T),
-            unintent_tot = sum(unintent_tot, na.rm = T),
-            suicide_tot = sum(suicide_tot, na.rm = T),
-            undeter_tot = sum(undeter_tot, na.rm = T),
-            legal_tot = sum(legal_tot, na.rm = T),
-            combined_tot = sum(combined_tot, na.rm = T),
-            total_pop = sum(total_pop, na.rm = T)) %>%
-  mutate(assault_incid_c = (assault_tot/total_pop)*1000,
-         unintent_incid_c = (unintent_tot/total_pop)*1000,
-         suicide_incid_c = (suicide_tot/total_pop)*1000,
-         undeter_incid_c = (undeter_tot/total_pop)*1000,
-         legal_incid_c = (legal_tot/total_pop)*1000,
-         combined_incid_c = (combined_tot/total_pop)*1000) %>%
-  ungroup() %>%
-  st_drop_geometry() %>%
-  left_join(zcta, by = "zcta")
-
-#george floyd square
-gfs <- geocode("George Floyd Square, Minneapolis", output = "latlon") %>%
-  st_as_sf(coords = c("lon", "lat"), crs = "NAD83", remove=F) %>%
-  mutate(name = "George Floyd Square")
-
-ggplot() +
-  geom_sf(data = zip_level, aes(geometry = geometry, fill = assault_incid_c)) + 
-  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
-  geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
-  geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
-                  size = 2,
-                 fontface = "bold",
-                 nudge_x = 1, nudge_y = -1)+
-  facet_wrap(~period)+
-  scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure 2: Firearm Assault Rates by ZCTA and Period", 
-       subtitle = "MHA Hospital Discharge Data",
-       fill = "Incident Rate/1,000")+
-  theme(axis.text = element_blank(),
-  axis.line = element_blank(),
-  axis.ticks = element_blank(),
-  panel.border = element_blank(),
-  panel.grid = element_blank(),
-  axis.title = element_blank(),
-  panel.background = element_blank(),
-  panel.grid.major = element_line(colour="transparent"), 
-  plot.subtitle = element_text(face="italic"),
-  strip.background = element_rect(fill = "white", 
-                colour = "black"))
-```
-
-## Panel Analysis
-```{r panel analysis, message=F}
-fe_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
-                 as.factor(zcta), data = panel)
-summary(fe_model)
-
-fe_police_model <-  lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
-                         uof_lag+stops_lag+shoot_lag+
-                 as.factor(zcta), data = panel)
-summary(fe_police_model)
-
-fe_int_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+as.factor(zcta)+
-                     post_floyd:as.factor(zcta)+post_floyd_3:as.factor(zcta), data = panel)
-summary(fe_int_model)
-
-#map of post_floyd coefficients by zip? color just significant from 0?
-
-
-#random effects models
-library(lme4)
-library(lmerTest)
-
-re_model <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
-                   uof_lag+stops_lag+shoot_lag+
-                   total_pop+black_pop+na_pop+white_pop+hisp_pop+asian_pop+mar_fam+povlevel+med_age+
-                   ssi_snap+bach_degree+male+nowork_12+post_floyd:black_pop+
-                   post_floyd:nowork_12+
-                  (1|zcta), data = panel)
-summary(re_model)
-```
 
 # Time Series Construction - Week Level
 
@@ -430,19 +351,6 @@ series <- series %>%
   mutate(police_stops = ifelse(is.na(police_stops), 0, police_stops),
          police_stop_rate = (police_stops/total_pop)*1000)
 
-#New York Times COVID Case/Mortality Data
-covid_hennepin <- nytcovcounty %>%
-  mutate(week = isoweek(date), 
-         year = isoyear(date)) %>%
-  filter(county=="Hennepin" & state=="Minnesota" & year >=2019) %>%
-  group_by(year, week, .drop=F) %>%
-  summarize(covid_cases = sum(cases, na.rm = T),
-            covid_deaths = sum(deaths, na.rm = T))
-
-#filling 0s for pre-covid series
-series <- series %>% 
-  left_join(covid_hennepin, by = c("year", "weekofyr"="week")) %>%
-  mutate_at(vars(c(covid_cases, covid_deaths)), ~ifelse(is.na(.), 0, .))
 
 #creating date variable
 series <- series %>%
@@ -461,72 +369,21 @@ series <- series %>%
 weather <- read_csv("dnr_weather.csv") %>%
   mutate(year=isoyear(Date),
          week=isoweek(Date),
-         precip.in = as.numeric(ifelse(`Precipitation (inches)`=="T", .001, `Precipitation (inches)`)),
-         snow.in = as.numeric(ifelse(`Snow (inches)`=="T", .001, `Snow (inches)`)),
-         tmax.f = `Maximum Temperature degrees (F)`) %>%
+         precip_in = as.numeric(ifelse(`Precipitation (inches)`=="T", .001, `Precipitation (inches)`)),
+         snow_in = as.numeric(ifelse(`Snow (inches)`=="T", .001, `Snow (inches)`)),
+         tmax_f = `Maximum Temperature degrees (F)`) %>%
   filter(year >= 2016 & year <= 2020) %>%
-  select(year, week, precip.in, snow.in, tmax.f) %>%
+  select(year, week, precip_in, snow_in, tmax_f) %>%
   group_by(year, week) %>%
-  summarize(precip.in = mean(precip.in, na.rm = T), 
-            snow.in = mean(snow.in, na.rm = T), 
-            tmax.f = mean(tmax.f, na.rm = T))
+  summarize(precip_in = mean(precip_in, na.rm = T), 
+            snow_in = mean(snow_in, na.rm = T), 
+            tmax_f = mean(tmax_f, na.rm = T))
 
 #join to series
 series <- series %>% left_join(weather, by = c("year","weekofyr"="week"))
 ```
 
-```{r, eval=F, message=F, eval=F, include=F}
-#weatherData
-  #the scraper sometimes doesn't run, so I have saved successful scrapes locally for backup
-noaa_token <- "nrEVQsKalyfOauURFnZPpNZQwbAiPaSh"
 
-#list of ncdc stations with coverage over MPLS ZCTAs
-stations <- ncdc_stations(extent = as.vector(st_bbox(zcta[zcta$zcta %in% zcta_universe,]))[order(c(2,1,4,3))],
-              token = noaa_token, startdate = "2016-01-01", enddate = "2020-12-31") 
-
-ncdc_datasets(stationid=stations$data$id, token=noaa_token)
-
-datatypes <- c('PRCP','SNWD', 'TMAX') #can't get SNOW to work
-
-begin_date <- as.list(series$begin_date)
-end_date <- as.list(series$end_date)
-
-weather <- map2_df(.x = begin_date,
-                  .y = end_date,
-               ~ ncdc(datasetid='GHCND', 
-              datatypeid=datatypes,
-              stationid=ncdc_stations(extent = as.vector(st_bbox(zcta[zcta$zcta %in% zcta_universe,]))[order(c(2,1,4,3))],
-              token = noaa_token, startdate = .x, enddate = .y)$data$id,  
-              startdate = .x, 
-              enddate = .y, 
-              limit=1000, 
-              token = noaa_token))$data %>%
-  group_by(date, datatype) %>%
-  summarize(value = mean(value, na.rm = T)) %>%
-  pivot_wider(id_cols = date, names_from = datatype, values_from = value))
-
-
-write_csv(weather, "noaa_scrape.csv")
-
-weather <- read_csv("noaa_scrape.csv")
-
-
-weather_series <- weather %>% 
- mutate(precip.in = (PRCP/10)*.0393701, #mm ti in
-       snow.in = ifelse(is.na(SNWD), 0, SNWD/10)*.0393701, #mm to in
-       tmax.f = TMAX/10, 
-       week = isoweek(date),
-       year = year(date)) %>%
-  select(year, week, precip.in, snow.in, tmax.f) 
-
-write_csv(weather_series, "weather_series.csv")
-
-weather_series <- read_csv("weather_series.csv")
-
-
-#join to series
-series <- series %>% left_join(weather_series, by = c("year","weekofyr"="week"))
-```
 
 ## Sunset Data
 ```{r, message=FALSE}
@@ -549,7 +406,7 @@ sun_series <- getSunlightTimes(date = seq(min(series$begin_date),
          year = year(date), 
          week = isoweek(date)) %>%
   group_by(year, week) %>%
-  summarize(dark.before.12 = mean(dark, na.rm = T))
+  summarize(dark_before_12 = mean(dark, na.rm = T))
 
 
 #joining to series
@@ -829,7 +686,10 @@ school[261,6] <- 0
 school[262,6] <- 0
 
 school <- school %>%
-  mutate(school = days_in_school/days_in_week)
+  mutate(school = days_in_school/days_in_week) %>%
+  select(year, weekofyr, school)
+
+series <- series %>% left_join(school, by = c("year", "weekofyr"))
 
 ```
 
@@ -842,278 +702,203 @@ ggplot(series)+
   geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
               linetype="dotted", color="red", size=1)+
   geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.033), 
+                 y=0.050), 
              label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Weekly Firearm Assaults, 2016-2020",
-       subtitle = "Source: Minnesota Hospital Association Discharges",
+  labs(title = "Figure 1: Weekly Firearm Assaults, 2016-2020",
+       subtitle = "MHA Hospital Data",
        x = "Week",
-       y = "Firearm Assaults per 1,000 Residents")+
+       y = "Rate per 1,000 Residents")+
   theme_minimal()+
-  theme(axis.text.x=element_text(angle=45, hjust=1)) 
+    theme(axis.text.x=element_text(angle=45, hjust=1)) 
 ```
-
-```{r firearm combined plot, warning=FALSE}
-ggplot(series)+
-  geom_line(aes(x=begin_date, y=combined_incid_c))+ 
-  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
-  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
-              linetype="dotted", color="red", size=1)+
-  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.033), 
-             label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Weekly Firearm Cases, 2016-2020",
-       subtitle = "Source: Minnesota Hospital Association Discharges",
-       x = "Week",
-       y = "Firearm Cases per 1,000 Residents")+
-  theme_minimal()+
-  theme(axis.text.x=element_text(angle=45, hjust=1)) 
-```
-
-
-```{r use of force plot, warning=FALSE}
-ggplot(series)+
-  geom_line(aes(x=begin_date, y=use_of_force_rate))+ 
-  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
-  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
-              linetype="dotted", color="red", size=1)+
-  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.033), 
-             label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Weekly Uses of Force, 2016-2020",
-       subtitle = "Source: MPD",
-       x = "Week",
-       y = "Uses of Force per 1,000 Residents")+
-  theme_minimal()+
-  theme(axis.text.x=element_text(angle=45, hjust=1)) 
-```
-
-```{r police stops plot, warning=FALSE}
-ggplot(series)+
-  geom_line(aes(x=begin_date, y=police_stop_rate))+ 
-  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
-  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
-              linetype="dotted", color="red", size=1)+
-  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.033), 
-             label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Weekly Police Stops, 2016-2020",
-       subtitle = "Source: MPD",
-       x = "Week",
-       y = "Stops per 1,000 Residents")+
-  theme_minimal()+
-  theme(axis.text.x=element_text(angle=45, hjust=1)) 
-```
-
-
-```{r ois plot}
-ggplot(series)+
-  geom_line(aes(x=begin_date, y=off_inv_shooting_rate))+ 
-  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
-  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
-              linetype="dotted", color="red", size=1)+
-  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.033), 
-             label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Weekly Officer Involved Shootings, 2016-2020",
-       subtitle = "Source: MPD",
-       x = "Week",
-       y = "Stops per 1,000 Residents")+
-  theme_minimal()+
-  theme(axis.text.x=element_text(angle=45, hjust=1)) 
-```
-
-
 
 ## Time Series Analysis
-```{r}
-window_df <- function(df, outcome, end.date, start.date, end.pre.date) {
-
-  ### Function to generate windowed data frame objects
-  ###   for a full time period (start through end)
-  ###   and for a pre-treatment period (start through pre)
-  ### Inputs
-  ###  df: data frame to be windowed
-  ###  outcome: column number of a crime or arrest category (integer)
-  ###  end.date: last date for full time period (date format)
-  ###  start.date: first date for full time period (date format)
-  ###  end.pre.date: last date for pre-treatment period (date format)
-  ### Returns:
-  ###  list containing 2 data frame objects 
- 
-  ## select variables from data frame and filter
-  
-  df.windowed.pre <- select(df, begin_date, year, weekofyr, y = outcome, 
-                            tmax.f,snow.in,precip.in, dark.before.12,school) %>%
-                     dplyr::filter(begin_date >= start.date,
-                            begin_date <= end.pre.date)
-  df.windowed.post <- select(df, begin_date, year, weekofyr, y = outcome,
-                              tmax.f,snow.in,precip.in, dark.before.12,school) %>%
-                     dplyr::filter(begin_date >= end.pre.date)
-  df.windowed.all <- select(df, begin_date, year, weekofyr, y = outcome,
-                             tmax.f,snow.in,precip.in, dark.before.12,school) %>%
-                     dplyr::filter(begin_date >= start.date,
-                            begin_date <= end.date)
-  df.pre.agg <- df.windowed.pre %>% 
-    group_by(weekofyr) %>%
-    summarize(y = mean(y, na.rm = T))
-    
-  
-  ## return list
-  
-  list.df <- list(df.windowed.pre, df.windowed.post, df.windowed.all, df.pre.agg)
-  
-  return(list.df)
-}
-
-pre_2020 <- window_df(series, 
-               outcome = "assault_incid_c",
-               end.date = "2020-12-31",
-               start.date = "2016-01-01",
-               end.pre.date = "2020-01-01")
-
-ggplot()+
-  geom_line(data = as.data.frame(pre_2020[[4]]), aes(x=weekofyr, y=y, color="2016-2019 Average"))+ 
-  geom_line(data = as.data.frame(pre_2020[[2]]), aes(x=weekofyr, y=y, color = "2020"))+
-  scale_color_manual(name = "Series", values = c("2016-2019 Average"="darkblue","2020"="red"))+
-  geom_vline(xintercept=isoweek("2020-05-25"), 
-              linetype="dotted", color="black", size=1)+
-  geom_label(aes(x=isoweek("2020-05-25")-7, y=0.033), 
-             label = "George Floyd", show.legend = FALSE)+
-   labs(title = "Weekly Hospital Firearm Assaults, 2016-2020",
-       subtitle = "Source: Minnesota Hospital Association ",
-       x = "Week",
-       y = "Firearm Assaults per 1,000 Residents")+
-  theme_minimal()
-```
-
 
 ```{r time series models, message=F}
 
-#morgan-pally intervention least squares models
-intervention.models <- function(dataset, outcome, end.date, start.date, end.pre.date) {
+series <- series %>%
+  mutate(t = 1:length(assault_incid_c),
+         post_floyd = as.numeric(begin_date >= as.Date("2020-05-25")),
+         post_floyd_3 = as.numeric(begin_date >= as.Date("2020-05-25")+months(3)),
+         stay_at_home = as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28")),
+         state_of_emerg = as.numeric(begin_date >= as.Date("2020-03-13")))
+  
+ts <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                         tmax_f+snow_in+precip_in+dark_before_12+school, 
+                         data = series) 
+summary(ts)
 
-  ### Estimate five linear models from windowed dataset, return as a list
-  ###   calls on window_df() function
-  ### Inputs
-  ###  dataset: data frame with data to be modeled
-  ###  outcome: column number of a crime or arrest category (integer)
-  ###  end.date: last date for full time period (date format)
-  ###  start.date: first date for full time period (date format)
-  ###  end.pre.date: last date for pre-treatment period (date format)
-  ### Returns:
-  ###  list containing five linear models and mean predicted value for 
-  ###   the last 52 weeks of the pre-Ferguson period
+acf2(resid(ts), max.lag = 7)
 
-  ## set up data, specifying outcome as i and setting ending date for window
-  ##  use window.df.and.zoo function defined elsewhere
-  
-  w <- window_df(dataset, outcome, end.date, start.date, end.pre.date)
-  df.windowed.pre <- w[[1]]
-  df.windowed.all <- w[[2]]
-  
-  df.windowed.pre.original <- df.windowed.pre
-  
-  ## create linear time variables
-  
-  df.windowed.pre$t <- 1:length(df.windowed.pre$y)
-  df.windowed.all$t <- 1:length(df.windowed.all$y)
-  
-  ## create linear spline for temperature
-  
-  parameterize.spline <- function(x, c) ifelse (x > c, x - c, 0)
-  tmax.f.knots <- c(0, 50, 60, 70, 80) 
-  df.windowed.pre$tmax.f.spline <- outer(df.windowed.pre$tmax.f, 
-                                         tmax.f.knots, parameterize.spline)
-  df.windowed.all$tmax.f.spline <- outer(df.windowed.all$tmax.f, 
-                                         tmax.f.knots, parameterize.spline)
+ts_ar1<- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                         tmax_f+snow_in+precip_in+dark_before_12+school+
+                         dplyr::lag(assault_incid_c, 1), data = series)
+summary(ts_ar1)
 
-  ## create spike and period type variables
-  
-  #post.floyd
-  df.windowed.all$post.floyd <- as.numeric(df.windowed.all$week.first >= as.Date("2020-05-25"))
-  
-  #three-month post.floyd
-  df.windowed.all$post.floyd.3 <- as.numeric(df.windowed.all$week.first >= as.Date("2020-05-25")+months(3))
-  
-  #stay at home order - covid
-  df.windowed.all$stay.at.home <- as.numeric(df.windowed.all$week.first >= as.Date("2020-03-28") &                                                                     df.windowed.all$week.first <= as.Date("2020-05-28"))
-  #state of emergency - covid
-   df.windowed.all$state.of.emerg <- as.numeric(df.windowed.all$week.first >= as.Date("2020-03-13"))
+acf2(resid(ts_ar1), max.lag = 7)
 
-  ## specify model, estimate, and store selected output
-  
-  naive.int.model.formula <- as.formula(paste("y ~ t + state.of.emerg + stay.at.home + 
-                                              post.floyd+post.floyd.3"))
-  covariate.model.formula <- as.formula(paste("y ~ t + tmax.f.spline + snow.in +
-                                              precip.in + dark.before.12 + school"))
-  full.int.model.formula <- as.formula(paste("y ~ t + 
-                                             state.of.emerg + stay.at.home + 
-                                              post.floyd + post.floyd.3 +
-                                             tmax.f.spline + snow.in +
-                                             precip.in + dark.before.12 + school"))
-  constrained.int.model.formula <- as.formula(paste("y.diff ~  
-                                                    state.of.emerg + stay.at.home + 
-                                              post.floyd + post.floyd.3"))
-  
-  ls.naive.int <- lm(naive.int.model.formula, df.windowed.all)
-  ls.pre <- lm(covariate.model.formula, df.windowed.pre)
-  ls.all <- lm(covariate.model.formula, df.windowed.all)
-  ls.full.int <- lm(full.int.model.formula, df.windowed.all)
-  df.windowed.all$y.predicted <- predict(ls.pre, df.windowed.all,
-                                         type = "response")
-  df.windowed.all$y.diff <- df.windowed.all$y - df.windowed.all$y.predicted
-  ls.constrained.int <- lm(constrained.int.model.formula, df.windowed.all)
-
-
-
-  ## return list
-  
-  return(list(ls.pre, ls.all, ls.naive.int, ls.constrained.int, ls.full.int))
-}
-
-
-intervention.models(series, 
-               outcome = "assault_incid_c",
-               end.date = "2020-12-31",
-               start.date = "2016-01-01",
-               end.pre.date = "2019-01-31")
 ```
 
-```{r}
-plot.ts(series$assault_incid_c) 
-
-#post-floyd
-series$post_floyd <- as.numeric(series$begin_date >= as.Date("2020-05-25"))
-
-#three-month post-floyd
-series$post_floyd_3 <- as.numeric(series$begin_date >= as.Date("2020-05-25")+months(3))
-  
-#stay at home order - covid
-series$stay_at_home <- as.numeric(series$begin_date  >= as.Date("2020-03-28") &                                                                     series$begin_date  <= as.Date("2020-05-28"))
-#state of emergency - covid
-series$state_of_emerg <- as.numeric(series$begin_date  >= as.Date("2020-03-13"))
-
-ls <- lm(assault_incid_c~state_of_emerg+stay_at_home+post_floyd+post_floyd_3, data = series)
-
-acf2(resid(ls), max.lag = 53)
-
-series.ts <- ts(resid(ls), frequency = 53, start = c(2016,1))
-plot(series.ts)
-plot(decompose(series.ts))
-
-
-#testing for stationarity
-adf.test(series.ts) #alt hyp is stationarity; no diff needed
-
-sarima(ts(series$assault_incid_c, frequency = 53, start = c(2016,1)),p=1, d=0, q=0, 
-                                          xreg = cbind(series$state_of_emerg,
-                                                        series$stay_at_home,
-                                                        series$post_floyd,
-                                                        series$post_floyd_3))
-
-
-
+```{r, results='asis', message=FALSE}
+stargazer(ts_ar1,
+          title = "Interrupted Time Series Model of Firearm Assaults",
+          covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
+                               "Post-Treatment", "Post-Treatment 3 Months", "AR(1)"),
+          dep.var.caption = "Firearm Assaults",
+          dep.var.labels = "Rate per 1,000",
+          model.numbers = FALSE,
+          single.row = TRUE,
+          align = T,
+          omit = c("tmax_f", "snow_in", "precip_in",
+                   "dark_before_12", "school"),
+          omit.stat = "adj.rsq",
+          star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
+          notes.label = "Model includes controls for seasonality.")
 
 
 ```
+
+
+
+```{r prelim maps, message=FALSE}
+#aggregate to zip-level over years
+zip_level <- panel %>%
+  group_by(zcta, period) %>%
+  summarize(assault_tot = sum(assault_tot, na.rm = T),
+            unintent_tot = sum(unintent_tot, na.rm = T),
+            suicide_tot = sum(suicide_tot, na.rm = T),
+            undeter_tot = sum(undeter_tot, na.rm = T),
+            legal_tot = sum(legal_tot, na.rm = T),
+            combined_tot = sum(combined_tot, na.rm = T),
+            total_pop = sum(total_pop, na.rm = T)) %>%
+  mutate(assault_incid_c = (assault_tot/total_pop)*1000,
+         unintent_incid_c = (unintent_tot/total_pop)*1000,
+         suicide_incid_c = (suicide_tot/total_pop)*1000,
+         undeter_incid_c = (undeter_tot/total_pop)*1000,
+         legal_incid_c = (legal_tot/total_pop)*1000,
+         combined_incid_c = (combined_tot/total_pop)*1000) %>%
+  ungroup() %>%
+  st_drop_geometry() %>%
+  left_join(zcta, by = "zcta")
+
+#george floyd square
+gfs <- geocode("George Floyd Square, Minneapolis", output = "latlon") %>%
+  st_as_sf(coords = c("lon", "lat"), crs = "NAD83", remove=F) %>%
+  mutate(name = "George Floyd Square")
+
+ggplot() +
+  geom_sf(data = zip_level, aes(geometry = geometry, fill = assault_incid_c)) + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
+  geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
+                  size = 2,
+                 fontface = "bold",
+                 nudge_x = 1, nudge_y = -1)+
+  facet_wrap(~period)+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "Figure 2: Firearm Assault Rates by ZCTA and Period", 
+       subtitle = "MHA Hospital Discharge Data",
+       fill = "Incident Rate/1,000")+
+  theme(axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_blank(),
+  panel.grid.major = element_line(colour="transparent"), 
+  plot.subtitle = element_text(face="italic"),
+  strip.background = element_rect(fill = "white", 
+                colour = "black"))
+```
+
+## Panel Analysis
+```{r panel analysis, message=F, echo=FALSE}
+
+fe_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                 as.factor(zcta), data = panel)
+summary(fe_model)
+
+fe_full_model <-  lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                         uof_lag+stops_lag+shoot_lag+
+                 as.factor(zcta), data = panel)
+summary(fe_full_model)
+acf2(resid(fe_full_model)) #autocorrelation not an issue
+
+fe_int_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+as.factor(zcta)+
+                     post_floyd:as.factor(zcta)+post_floyd_3:as.factor(zcta), data = panel)
+summary(fe_int_model)
+```
+
+
+```{r, message=F, results='asis'}
+stargazer(fe_full_model,
+          title = "Fixed Effects Interrupted Time Series Model of Firearm Assaults",
+          covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
+                               "Post-Treatment", "Post-Treatment 3 Months",
+                               "MPD Use of Force t-1", "MPD Stops t-1","MPD Officer Involved Shootings t-1"),
+          dep.var.caption = "Firearm Assaults",
+          dep.var.labels = "Rate per 1,000",
+          model.numbers = FALSE,
+          single.row = TRUE,
+          align = T,
+          omit = "zcta",
+          omit.stat = "adj.rsq",
+          star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
+          add.lines = list(c("ZCTA FE", "Yes")))
+
+
+```
+
+```{r, message=F}
+#maps of post_floyd and post_floyd_3 coefficients by zip - colored divergently
+coef <- broom::tidy(fe_int_model$coefficients) %>%
+  filter(str_detect(names, "post_floyd")) %>%
+  mutate(period = ifelse(str_detect(names, "post_floyd_3"), "3+ Months Post-Treatment", "0-3 Months Post-Treatment"),
+         main_effect = ifelse(period=="3+ Months Post-Treatment", round(-0.0301406,2), round(-0.5604477,2)),
+         zcta = as.numeric(str_sub(names, -5)),
+         zcta = as.numeric(ifelse(is.na(zcta), "55401", zcta)),
+         interaction_effect = ifelse(zcta=="55401", 0, round(x,2)),
+         coef = main_effect+interaction_effect) %>%
+  select(zcta, period, coef, main_effect, interaction_effect) %>%
+  arrange(zcta, period)
+
+#creating period rows in other spatial layers
+coef_zip_level <- zip_level %>%
+  filter(period!="Pre-Treatment") %>%
+  left_join(coef, by = c("zcta", "period"))
+coef_gfs <- gfs
+coef_gfs[2,] <- gfs[1,]
+coef_gfs$period <- c("3+ Months Post-Treatment", "0-3 Months Post-Treatment")
+coef_mpls <- mpls
+coef_mpls[2,] <- mpls[1,]
+coef_mpls$period <- c("3+ Months Post-Treatment", "0-3 Months Post-Treatment")
+
+
+ggplot() +
+  geom_sf(data = coef_zip_level, aes(geometry = geometry, fill = coef)) + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  geom_sf(data = coef_gfs, aes(geometry = geometry), color = "black")+
+  geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
+                  size = 2,
+                 fontface = "bold",
+                 nudge_x = 1, nudge_y = -1)+
+  scale_fill_gradient2(trans="reverse")+
+  facet_wrap(~period)+
+  labs(title = "Figure 3: Treament Effects by ZCTA", 
+       fill = "Coef.")+
+  theme(axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_blank(),
+  panel.grid.major = element_line(colour="transparent"), 
+  plot.subtitle = element_text(face="italic"),
+  strip.background = element_rect(fill = "white", 
+                colour = "black"))+
+  guides(fill = guide_colorbar(reverse = TRUE))
+```
+
 
