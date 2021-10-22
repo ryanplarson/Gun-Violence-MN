@@ -28,25 +28,12 @@ library(ggrepel)
 library(suncalc)
 library(stargazer)
 
-#finish TSA with seasonal covariates
-#make TSA table
-#finalize maps
-#test further RE cross-level interactions
-#FE and RE regression table
-
-
-
 setwd("C:/Users/DELL/Documents/UMN/UMN Projects/Chris RA 18_19/Gun Violence MN")
 google_key <- readRDS("C:/Users/DELL/Documents/R/Rworkingdirectory/google_api_key.rds")
 register_google(key = google_key)
 
-#create Morgan et. al. controls = dark.before.12, tmax.f, precip.in, snow.in, season, school
-
 #Covid timelines
   #https://docs.google.com/spreadsheets/d/1zu9qEWI8PsOI_i8nI_S29HDGHlIp2lfVMsGxpQ5tvAQ/edit#gid=973655443
-
-#get updated VERA jail data:
-  #https://raw.githubusercontent.com/vera-institute/jail-population-data/master/jail_population.csv
 ```
 
 # Base Panel Construction - ZCTA-Week Level
@@ -257,15 +244,15 @@ panel <- panel %>%
 
 #creating period indicators for panel
 panel <- panel %>%
-  mutate(post_floyd = ifelse(begin_date >= as.Date("2020-05-25"), T, F),
-         post_floyd_3 = ifelse(begin_date >= (as.Date("2020-05-25")+months(3)), T, F),
-         stay_at_home = ifelse( begin_date >= as.Date("2020-03-28"), T, F),
-         state_of_emerg = ifelse( begin_date >= as.Date("2020-03-13"), T, F),
+  mutate(post_floyd = as.numeric(begin_date >= as.Date("2020-05-25")),
+         post_floyd_3 = as.numeric(begin_date >= as.Date("2020-05-25")+months(3)),
+         stay_at_home = as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28")),
+         state_of_emerg = as.numeric(begin_date >= as.Date("2020-03-13")),
          period = factor(case_when(
-           post_floyd==F & post_floyd_3==F ~ "Pre-Treatment",
-           post_floyd==T & post_floyd_3==F ~ "0-3 Months Post-Treatment",
-           post_floyd==T & post_floyd_3==T ~ "3+ Months Post-Treatment"),
-           levels = c("Pre-Treatment", "0-3 Months Post-Treatment", "3+ Months Post-Treatment"))) %>%
+           post_floyd==0 & post_floyd_3==0 ~ "Pre-Killing",
+           post_floyd>=1 & post_floyd_3==0 ~ "0-3 Months Post-Killing",
+           post_floyd>=1 & post_floyd_3>=1 ~ "3+ Months Post-Killing"),
+           levels = c("Pre-Killing", "0-3 Months Post-Killing", "3+ Months Post-Killing"))) %>%
   group_by(zcta) %>%
   arrange(year, weekofyr) %>%
   mutate(t = row_number(),
@@ -704,7 +691,7 @@ ggplot(series)+
   geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
                  y=0.050), 
              label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Figure 1: Weekly Firearm Assaults, 2016-2020",
+  labs(title = "Figure 1: Weekly Firearm Assault Injuries, 2016-2020",
        subtitle = "MHA Hospital Data",
        x = "Week",
        y = "Rate per 1,000 Residents")+
@@ -721,7 +708,10 @@ series <- series %>%
          post_floyd = as.numeric(begin_date >= as.Date("2020-05-25")),
          post_floyd_3 = as.numeric(begin_date >= as.Date("2020-05-25")+months(3)),
          stay_at_home = as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28")),
-         state_of_emerg = as.numeric(begin_date >= as.Date("2020-03-13")))
+         state_of_emerg = as.numeric(begin_date >= as.Date("2020-03-13")),
+         uof_lag=lag(use_of_force_rate,1),
+         stops_lag = lag(police_stop_rate,1),
+         shoot_lag = lag(off_inv_shooting_rate,1))
   
 ts <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
                          tmax_f+snow_in+precip_in+dark_before_12+school, 
@@ -737,28 +727,49 @@ summary(ts_ar1)
 
 acf2(resid(ts_ar1), max.lag = 7)
 
+ts_pol <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                         tmax_f+snow_in+precip_in+dark_before_12+school+
+                         uof_lag+stops_lag+shoot_lag,
+                         data = series) 
+summary(ts_pol)
+
+acf2(resid(ts_pol), max.lag = 7)
+
+ts_ar1_pol<- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                         tmax_f+snow_in+precip_in+dark_before_12+school+
+                  uof_lag+stops_lag+shoot_lag+
+                         dplyr::lag(assault_incid_c, 1), data = series)
+
+
+summary(ts_ar1_pol)
+
+acf2(resid(ts_ar1_pol), max.lag = 7)
+
 ```
 
-```{r, results='asis', message=FALSE}
-stargazer(ts_ar1,
-          title = "Interrupted Time Series Model of Firearm Assaults",
+```{r, results='asis', message=FALSE, include = F}
+stargazer(ts_ar1, ts_ar1_pol,
+          title = "Interrupted Time Series Model of Firearm Assault Injuries",
           covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
-                               "Post-Treatment", "Post-Treatment 3 Months", "AR(1)"),
-          dep.var.caption = "Firearm Assaults",
+                               "Post-Killing", "Post-Killing 3 Months",  
+                               "MPD Use of Force t-1", "MPD Stops t-1",
+                               "MPD Officer Involved Shootings t-1",
+                               "AR(1)"),
+          dep.var.caption = "Firearm Assault Injuries",
           dep.var.labels = "Rate per 1,000",
-          model.numbers = FALSE,
+          model.numbers = TRUE,
           single.row = TRUE,
           align = T,
           omit = c("tmax_f", "snow_in", "precip_in",
                    "dark_before_12", "school"),
           omit.stat = "adj.rsq",
           star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
-          notes.label = "Model includes controls for seasonality.")
+          notes.label = "Models include controls for seasonality.")
 
 
 ```
 
-
+# ZCTA-Week Level Analysis
 
 ```{r prelim maps, message=FALSE}
 #aggregate to zip-level over years
@@ -781,6 +792,7 @@ zip_level <- panel %>%
   st_drop_geometry() %>%
   left_join(zcta, by = "zcta")
 
+
 #george floyd square
 gfs <- geocode("George Floyd Square, Minneapolis", output = "latlon") %>%
   st_as_sf(coords = c("lon", "lat"), crs = "NAD83", remove=F) %>%
@@ -796,7 +808,7 @@ ggplot() +
                  nudge_x = 1, nudge_y = -1)+
   facet_wrap(~period)+
   scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure 2: Firearm Assault Rates by ZCTA and Period", 
+  labs(title = "Figure 2: Firearm Assault Injury Rates by ZCTA and Period", 
        subtitle = "MHA Hospital Discharge Data",
        fill = "Incident Rate/1,000")+
   theme(axis.text = element_blank(),
@@ -814,38 +826,73 @@ ggplot() +
 
 ## Panel Analysis
 ```{r panel analysis, message=F, echo=FALSE}
+#merging in seasonal indicators
+
+season <- series %>% select(year, weekofyr, tmax_f,snow_in,precip_in,dark_before_12,school)
+panel <- panel %>% left_join(season, by = c("year", "weekofyr"))
+
 
 fe_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                tmax_f+snow_in+precip_in+dark_before_12+school+
                  as.factor(zcta), data = panel)
 summary(fe_model)
 
 fe_full_model <-  lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                       tmax_f+snow_in+precip_in+dark_before_12+school+
                          uof_lag+stops_lag+shoot_lag+
                  as.factor(zcta), data = panel)
 summary(fe_full_model)
 acf2(resid(fe_full_model)) #autocorrelation not an issue
 
-fe_int_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+as.factor(zcta)+
+fe_int_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                     tmax_f+snow_in+precip_in+dark_before_12+school+
+                     as.factor(zcta)+
                      post_floyd:as.factor(zcta)+post_floyd_3:as.factor(zcta), data = panel)
 summary(fe_int_model)
 ```
 
 
-```{r, message=F, results='asis'}
-stargazer(fe_full_model,
-          title = "Fixed Effects Interrupted Time Series Model of Firearm Assaults",
+```{r, message=F, results='asis', include = F}
+stargazer(fe_model, fe_full_model,
+          title = "Fixed Effects Interrupted Time Series Model of Firearm Assault Injuries",
           covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
-                               "Post-Treatment", "Post-Treatment 3 Months",
-                               "MPD Use of Force t-1", "MPD Stops t-1","MPD Officer Involved Shootings t-1"),
-          dep.var.caption = "Firearm Assaults",
+                               "Post-Killing", "Post-Killing 3 Months",
+                               "MPD Use of Force t-1", "MPD Stops t-1",
+                               "MPD Officer Involved Shootings t-1"),
+          dep.var.caption = "Firearm Assault Injuries",
           dep.var.labels = "Rate per 1,000",
-          model.numbers = FALSE,
+          model.numbers = TRUE,
           single.row = TRUE,
           align = T,
-          omit = "zcta",
+          omit = c("zcta", "tmax_f", "snow_in","precip_in","dark_before_12","school"),
           omit.stat = "adj.rsq",
           star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
-          add.lines = list(c("ZCTA FE", "Yes")))
+          add.lines = list(c("ZCTA FE", "Yes")),
+          notes.label = "Models include controls for seasonality.")
+
+
+```
+
+
+```{r, message=F, results='asis'}
+stargazer(ts_ar1_pol, fe_full_model,
+          title = "Interrupted Time Series Models of Firearm Assault Injuries",
+          covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
+                               "Post-Killing", "Post-Killing 3 Months",
+                               "MPD Use of Force t-1", "MPD Stops t-1",
+                               "MPD Officer Involved Shootings t-1", 
+                                "AR(1)"),
+          dep.var.caption = "Firearm Assault Injuries",
+          dep.var.labels = "Rate per 1,000",
+          column.labels = c("Week-Level", "ZCTA-Week-Level"),
+          model.numbers = TRUE,
+          single.row = TRUE,
+          align = T,
+          omit = c("zcta", "tmax_f", "snow_in","precip_in","dark_before_12","school"),
+          omit.stat = "adj.rsq",
+          star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
+          add.lines = list(c("ZCTA FE", "No", "Yes")),
+          notes.label = "Models include controls for seasonality.")
 
 
 ```
@@ -854,8 +901,8 @@ stargazer(fe_full_model,
 #maps of post_floyd and post_floyd_3 coefficients by zip - colored divergently
 coef <- broom::tidy(fe_int_model$coefficients) %>%
   filter(str_detect(names, "post_floyd")) %>%
-  mutate(period = ifelse(str_detect(names, "post_floyd_3"), "3+ Months Post-Treatment", "0-3 Months Post-Treatment"),
-         main_effect = ifelse(period=="3+ Months Post-Treatment", round(-0.0301406,2), round(-0.5604477,2)),
+  mutate(period = ifelse(str_detect(names, "post_floyd_3"), "3+ Months Post-Killing", "0-3 Months Post-Killing"),
+         main_effect = ifelse(period=="3+ Months Post-Killing", round(-0.0301406,2), round(-0.5604477,2)),
          zcta = as.numeric(str_sub(names, -5)),
          zcta = as.numeric(ifelse(is.na(zcta), "55401", zcta)),
          interaction_effect = ifelse(zcta=="55401", 0, round(x,2)),
@@ -865,14 +912,14 @@ coef <- broom::tidy(fe_int_model$coefficients) %>%
 
 #creating period rows in other spatial layers
 coef_zip_level <- zip_level %>%
-  filter(period!="Pre-Treatment") %>%
+  filter(period!="Pre-Killing") %>%
   left_join(coef, by = c("zcta", "period"))
 coef_gfs <- gfs
 coef_gfs[2,] <- gfs[1,]
-coef_gfs$period <- c("3+ Months Post-Treatment", "0-3 Months Post-Treatment")
+coef_gfs$period <- c("3+ Months Post-Killing", "0-3 Months Post-Killing")
 coef_mpls <- mpls
 coef_mpls[2,] <- mpls[1,]
-coef_mpls$period <- c("3+ Months Post-Treatment", "0-3 Months Post-Treatment")
+coef_mpls$period <- c("3+ Months Post-Killing", "0-3 Months Post-Killing")
 
 
 ggplot() +
@@ -885,7 +932,7 @@ ggplot() +
                  nudge_x = 1, nudge_y = -1)+
   scale_fill_gradient2(trans="reverse")+
   facet_wrap(~period)+
-  labs(title = "Figure 3: Treament Effects by ZCTA", 
+  labs(title = "Figure 3: Treatment Effects by ZCTA", 
        fill = "Coef.")+
   theme(axis.text = element_blank(),
   axis.line = element_blank(),
