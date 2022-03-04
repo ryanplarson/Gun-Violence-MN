@@ -1,0 +1,348 @@
+---
+title: "MPD Crime Proximal to UMN"
+author: "Ryan Larson"
+date: "10/12/2021"
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE, message=F}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(readr)
+library(lubridate)
+library(ggplot2)
+library(tidycensus)
+library(sf)
+library(ggmap)
+library(purrr)
+library(imputeTS)
+library(ggrepel)
+library(gdalUtilities)
+library(ISOweek)
+
+
+setwd("C:/Users/DELL/Documents/UMN/UMN Projects/Chris RA/Gun Violence MN")
+google_key <- readRDS("C:/Users/DELL/Documents/R/Rworkingdirectory/google_api_key.rds")
+register_google(key = google_key)
+```
+
+# Data Setup
+
+```{r, message = F, warning=FALSE}
+#Minneapolis Data
+#5-year ACS data 
+census_api_key("ecda17575f4d914b502c70f2bae7a5f3d253792d")
+
+year <- lst(2013, 2014, 2015, 2016, 2017, 2018, 2019)
+
+acs <- map(
+  year,
+  ~ get_acs(geography = "block group",
+               state = "MN",
+               variables = c("B01001_001E"),
+               output = "wide",
+               survey = "acs5",
+               year = .x, 
+            geometry = T),  
+  .id = "year") %>%
+  map2(year, ~mutate(.x, year=.y)) # add year id to each element of list
+
+mn <- reduce(acs, rbind) %>%
+  dplyr::select(GEOID, year, block_group=NAME, pop=B01001_001E) %>%
+  arrange(block_group, year) 
+
+#creating block_group=years for LOCF
+  #just change year to carry last observation forward, then append
+mn_2020 <- mn %>%
+  filter(year==2019) %>%
+  dplyr::select(-year) %>%
+  mutate(year=2020)
+
+mn_2021 <- mn %>%
+  filter(year==2019) %>%
+  dplyr::select(-year) %>%
+  mutate(year=2021)
+
+mn_locf <- mn %>%
+  rbind(mn_2020) %>%
+  rbind(mn_2021) %>%
+  arrange(block_group, year) %>%
+  st_transform("WGS84")
+
+
+#block_group data for filtering
+mn_bg <- get_acs(geography = "block group",
+               state = "MN",
+               variables = c("B01001_001E"),
+               output = "wide",
+               survey = "acs5",
+               year = 2019, 
+            geometry = T) %>%
+  st_transform("WGS84")
+
+#minneapolis shapefile (source: openminneapolis.gov)
+mpls <- st_read("mpls_city-shp/16cdbbfa-ad10-493c-afaf-52b61f2e76e42020329-1-180h9ap.whbo.shp") %>%
+   st_set_crs(st_crs(mn_bg))
+```
+
+```{r, message=FALSE, warning=FALSE}
+#MPD Crime Data
+
+#pre-pims
+mpd_2013 <- read_csv("Police_Incidents_2013.csv") 
+mpd_2014 <- read_csv("Police_Incidents_2014.csv") 
+mpd_2015 <- read_csv("Police_Incidents_2015.csv") 
+mpd_2016 <- read_csv("Police_Incidents_2016.csv") 
+mpd_2017 <- read_csv("Police_Incidents_2017.csv") 
+mpd_2018a <- read_csv("Police_Incidents_2018.csv")
+
+#pims
+mpd_2018b <- read_csv("Police_Incidents_2018_PIMS.csv") 
+mpd_2019 <- read_csv("Police_Incidents_2019.csv") 
+mpd_2020 <- read_csv("Police_Incidents_2020.csv") 
+mpd_2021 <- read_csv("Police_Incidents_2021.csv")
+
+pre_pims_base <- mpd_2013 %>%
+  rbind(mpd_2014) %>%
+  rbind(mpd_2015) %>%
+  rbind(mpd_2016) %>%
+  rbind(mpd_2017) %>%
+  rbind(mpd_2018a) %>%
+  rename(reportedDate = ReportedDate,
+         centerLong = Long,
+         centerLat = Lat) %>%
+  dplyr::select(reportedDate, centerLong, centerLat, UCRCode)
+
+post_pims_base <- mpd_2018b %>%
+  rbind(mpd_2019) %>%
+  rbind(mpd_2020) %>%
+  rbind(mpd_2021) %>%
+  dplyr::select(reportedDate, centerLong, centerLat, UCRCode)
+
+mpd_base <- pre_pims_base %>%
+  rbind(post_pims_base) %>%
+  mutate(date=ymd_hms(reportedDate),
+         year=isoyear(date),
+         week=isoweek(date)) %>%
+  dplyr::select(year, week, centerLat, centerLong) %>%
+   st_as_sf(coords = c("centerLong", "centerLat"), crs = "WGS84", remove=F) %>%
+  mutate(intersection = as.integer(as.character(st_intersects(geometry, mn_bg))), 
+         block_group = ifelse(is.na(intersection), NA, mn_bg$GEOID[intersection])) %>%
+  st_drop_geometry() %>%
+  count(year, week, block_group, name = "crime") 
+
+mpd_serious_base <- pre_pims_base %>%
+  rbind(post_pims_base) %>%
+  mutate(date=ymd_hms(reportedDate),
+         year=isoyear(date),
+         week=isoweek(date)) %>%
+  dplyr::select(year, week, centerLat, centerLong, UCRCode) %>%
+   st_as_sf(coords = c("centerLong", "centerLat"), crs = "WGS84", remove=F) %>%
+  mutate(intersection = as.integer(as.character(st_intersects(geometry, mn_bg))), 
+         block_group = ifelse(is.na(intersection), NA, mn_bg$GEOID[intersection])) %>%
+  st_drop_geometry() %>%
+  count(year, week, block_group, UCRCode, name = "crime") %>%
+  mutate(UCRCode = as.numeric(UCRCode)) %>%
+  filter(UCRCode <= 5) %>%
+  group_by(year, week, block_group) %>%
+  summarize(crime = sum(crime, na.rm = T))
+
+mpd_bg_20_21 <- mpd_base %>%
+  filter(year >= 2020) %>%
+  group_by(block_group) %>%
+  summarize(crime = sum(crime, na.rm = T))
+
+mpd_bg_20_21_serious <- mpd_serious_base %>%
+  filter(year >= 2020) %>%
+  group_by(block_group) %>%
+  summarize(crime = sum(crime, na.rm = T))
+```
+
+
+```{r}
+#find UMN minneapolis campus 
+umn_latlon <- geocode("University of Minnesota, Minneapolis", output = "latlon") %>%
+  st_as_sf(coords = c("lon", "lat"), crs="WGS84", remove=F) %>%
+  mutate(name = "UMN")
+
+umn_east_bank <- geocode("University of Minnesota East Bank, Minneapolis", output = "latlon") %>%
+  st_as_sf(coords = c("lon", "lat"), crs="WGS84", remove=F) %>%
+  mutate(name = "UMN East Bank")
+
+umn_west_bank <- geocode("University of Minnesota Social Science Building, Minneapolis", output = "latlon") %>%
+  st_as_sf(coords = c("lon", "lat"), crs="WGS84",remove=F) %>%
+  mutate(name = "UMN West Bank")
+
+#filter those block_groups within a .5 mile of UMN & inside MPLS
+mn_bg_umn <- mn_bg %>% 
+  filter(st_is_within_distance(geometry, umn_latlon, dist = 5280/2, sparse = FALSE) &
+         st_intersects(geometry, mpls, sparse = FALSE))
+
+
+#merge on mpd data at block group level
+mn_bg_umn_crime <- mn_bg_umn %>%
+  left_join(mpd_bg_20_21, by = c("GEOID"="block_group")) %>%
+  mutate(crime_rate = (crime/B01001_001E)*100000) %>% #FYI this is 2020 and 2021 crime using 2019 pop denominator
+  filter(!is.na(crime)) #effectively filters out St. Paul intersecting block_groups
+
+mn_bg_umn_crime_serious <- mn_bg_umn %>%
+  left_join(mpd_bg_20_21_serious, by = c("GEOID"="block_group")) %>%
+  mutate(crime_rate = (crime/B01001_001E)*100000) %>% #FYI this is 2020 and 2021 crime using 2019 pop denominator
+  filter(!is.na(crime)) #effectively filters out St. Paul intersecting block_groups
+
+bg_intersect <- unique(mn_bg_umn_crime$GEOID)
+
+#UMN shapefile
+st_layers(dsn = "UMN_BaseMapData.gdb")
+
+ensure_multipolygons <- function(X) {
+    tmp1 <- tempfile(fileext = ".gpkg")
+    tmp2 <- tempfile(fileext = ".gpkg")
+    st_write(X, tmp1)
+    ogr2ogr(tmp1, tmp2, f = "GPKG", nlt = "MULTIPOLYGON")
+    Y <- st_read(tmp2)
+    st_sf(st_drop_geometry(X), geom = st_geometry(Y))
+}
+
+umn_shape <- st_read(dsn = "UMN_BaseMapData.gdb", layer = "UMN_Building_Polygon") %>%
+  ensure_multipolygons() %>%
+  filter(TRI_CAMPUS_NAME=="Minneapolis Campus (01)" & SITE_BUILDING!="01-156") %>% #civil engineering building error
+  filter(st_is_within_distance(geom, umn_latlon, dist = 5280/2, sparse=FALSE)) %>%
+  filter(st_intersects(geom, mpls, sparse = F))
+```
+
+
+```{r}
+ggplot()+
+  geom_sf(data = mn_bg_umn_crime, aes(geometry = geometry, fill = crime_rate))+
+  geom_sf(data = umn_shape, aes(geometry = geom), color = "red")+
+  geom_sf(data = umn_east_bank, aes(geometry = geometry), color = "black")+
+  geom_sf(data = umn_west_bank, aes(geometry = geometry), color = "black")+
+  geom_text_repel(data = umn_east_bank, aes(x=lon, y=lat, label = name),
+                  size = 2,
+                 fontface = "bold",
+                 nudge_x = -1, nudge_y = 1)+
+  geom_text_repel(data = umn_west_bank, aes(x=lon, y=lat, label = name),
+                  size = 2,
+                 fontface = "bold",
+                 nudge_x = -1, nudge_y = -1)+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "MPD Crime Incidents by Block Group, 2020-October 11th, 2021", 
+       subtitle = "Within Block Groups .5 mile of UMN Minneapolis Campus",
+       fill = "Crime Rate/100,000")+
+  theme(axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_blank(),
+  panel.grid.major = element_line(colour="transparent"), 
+  plot.subtitle = element_text(face="italic"),
+  strip.background = element_rect(fill = "white", 
+                colour = "black"))
+
+ggsave("umn_crime_map.png")
+
+ggplot()+
+  geom_sf(data = mn_bg_umn_crime_serious, aes(geometry = geometry, fill = crime_rate))+
+  geom_sf(data = umn_shape, aes(geometry = geom), color = "red")+
+  geom_sf(data = umn_east_bank, aes(geometry = geometry), color = "black")+
+  geom_sf(data = umn_west_bank, aes(geometry = geometry), color = "black")+
+  geom_text_repel(data = umn_east_bank, aes(x=lon, y=lat, label = name),
+                  size = 2,
+                 fontface = "bold",
+                 nudge_x = -1, nudge_y = 1)+
+  geom_text_repel(data = umn_west_bank, aes(x=lon, y=lat, label = name),
+                  size = 2,
+                 fontface = "bold",
+                 nudge_x = -1, nudge_y = -1)+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "MPD 'Serious' Crime Incidents by Block Group, 2020-October 11th, 2021", 
+       subtitle = "Within Block Groups .5 mile of UMN Minneapolis Campus",
+       fill = "Crime Rate/100,000")+
+  theme(axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_blank(),
+  panel.grid.major = element_line(colour="transparent"), 
+  plot.subtitle = element_text(face="italic"),
+  strip.background = element_rect(fill = "white", 
+                colour = "black"))
+
+ggsave("umn_serious_crime_map.png")
+
+```
+
+
+
+```{r}
+#pops
+mn_locf_year <- mn_locf %>%
+  st_drop_geometry() %>%
+  dplyr::select(GEOID, year, pop) %>%
+  filter(GEOID %in% bg_intersect) %>%
+  group_by(year) %>%
+  summarize(pop = sum(pop, na.rm = T))
+
+mpd_base_umn <- mpd_base %>%
+   filter(block_group %in% bg_intersect) %>%
+  dplyr::select(year, week, block_group, crime) %>%
+  group_by(year, week) %>%
+  summarize(crime = sum(crime, na.rm  = T)) %>%
+    left_join(mn_locf_year, by = "year") %>%
+  mutate(crime_rate = (crime/pop)*100000) %>%
+   mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1))
+
+mpd_base_umn_serious <- mpd_serious_base %>%
+   filter(block_group %in% bg_intersect) %>%
+  dplyr::select(year, week, block_group, crime) %>%
+  group_by(year, week) %>%
+  summarize(crime = sum(crime, na.rm  = T)) %>%
+    left_join(mn_locf_year, by = "year") %>%
+  mutate(crime_rate = (crime/pop)*100000) %>%
+   mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1))
+
+ggplot(mpd_base_umn)+
+  geom_line(aes(x=begin_date, y=crime_rate))+ 
+  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
+  labs(title = "Weekly MPD Crime Incidents",
+       subtitle = "Within  Block Groups .5 mile of UMN Minneapolis Campus ",
+       x = "Week",
+       y = "Rate per 100,000 Residents")+
+  theme_minimal()+
+    theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  geom_smooth(aes(x=begin_date, y=crime_rate))+
+  theme(plot.subtitle = element_text(face="italic"))
+
+ggsave("umn_crime_time.png", width = 6, height = 4)
+
+ggplot(mpd_base_umn_serious)+
+  geom_line(aes(x=begin_date, y=crime_rate))+ 
+  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
+  labs(title = "Weekly MPD 'Serious' Crime Incidents",
+       subtitle = "Within  Block Groups .5 mile of UMN Minneapolis Campus ",
+       x = "Week",
+       y = "Rate per 100,000 Residents")+
+  theme_minimal()+
+    theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  geom_smooth(aes(x=begin_date, y=crime_rate))+
+  theme(plot.subtitle = element_text(face="italic"))
+
+ggsave("umn_crime_time_serious.png", width = 6, height = 4)
+
+
+
+
+
+
+
+```
+
