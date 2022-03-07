@@ -902,7 +902,7 @@ stargazer(ts_ar1_pol, fe_full_model,
 coef <- broom::tidy(fe_int_model$coefficients) %>%
   filter(str_detect(names, "post_floyd")) %>%
   mutate(period = ifelse(str_detect(names, "post_floyd_3"), "3+ Months Post-Killing", "0-3 Months Post-Killing"),
-         main_effect = ifelse(period=="3+ Months Post-Killing", round(-0.0301406,2), round(-0.5604477,2)),
+         main_effect = ifelse(period=="3+ Months Post-Killing", round(0.3399083,2), round(-0.5604477,2)),
          zcta = as.numeric(str_sub(names, -5)),
          zcta = as.numeric(ifelse(is.na(zcta), "55401", zcta)),
          interaction_effect = ifelse(zcta=="55401", 0, round(x,2)),
