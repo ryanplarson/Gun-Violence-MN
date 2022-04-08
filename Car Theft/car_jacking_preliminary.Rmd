@@ -1,0 +1,134 @@
+---
+title: "Car Jacking MPLS"
+author: "Ryan Larson"
+date: "4/8/2022"
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE, message=F}
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(tidycensus)
+library(sf)
+library(purrr)
+library(ggmap)
+library(stargazer)
+library(stringr)
+library(lubridate)
+library(ISOweek)
+
+
+google_key <- readRDS("C:/Users/DELL/Documents/R/Rworkingdirectory/google_api_key.rds")
+register_google(key = google_key)
+```
+
+# Spatial Data
+
+```{r, message=FALSE, warning=FALSE}
+#Get Minneapolis ZCTA Geographies
+zcta <- get_acs(geography = "zcta", 
+                variables = "B01001_001E",
+                output = "wide",
+                survey = "acs5",
+                year = 2019,
+                geometry = T) 
+
+#Minneapolis Shapefile
+mpls <- st_read("Data/mpls_city-shp/16cdbbfa-ad10-493c-afaf-52b61f2e76e42020329-1-180h9ap.whbo.shp") %>%
+   st_transform(st_crs(zcta))
+
+#spatial filter to MPLS ZCTAs
+  #calculating area of intersection
+  #keeping ZCTAs with 2+ percent coverage
+mpls_zcta <- zcta %>%
+  st_filter(mpls, .predicate = st_intersects) %>%
+  mutate(GEOID = as.numeric(GEOID),
+         zcta_area = as.numeric(st_area(.)),
+         zcta_area_sqkm = zcta_area*.000001, 
+         zcta_area_sqmi = zcta_area_sqkm*.386102,
+         intersection_area = as.numeric(st_area(st_intersection(., mpls))),
+         perc_intersection = intersection_area/zcta_area*100) %>%
+  filter(perc_intersection >= 2) 
+```
+
+# Open Minneapolis Carjacking Data
+
+```{r, message=FALSE}
+#open minneapolis crime data 2019-4/7 (date of download)
+cj_spatial <- read_csv("Car Theft/crime_data.csv")  %>%
+  filter(Offense=="Carjacking - Subset of Robbery") %>% #filter carjackings
+  mutate(date=ymd_hms(Occurred_Date),
+         year=isoyear(date),
+         week=isoweek(date)) %>%
+  select(OBJECTID, year, week, Latitude, Longitude) %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = "NAD83", remove=F) %>%
+  st_join(mpls_zcta) %>% #spatial join ZCTA 
+  rename(zcta = GEOID) %>%
+  st_drop_geometry() %>%
+  filter(!is.na(zcta)) %>%
+  group_by(year, week, zcta, .drop=F) %>%
+  tally(name = "car_jack") %>%
+  ungroup() %>%
+  complete(year, week, zcta=mpls_zcta$GEOID, fill = list(car_jack = 0)) %>%
+  filter(!(year==2022 & week >= 14) & !(year==2021 & week==53)) %>% #removing unobserved/redundant completions
+  arrange(zcta, year, week) %>%
+  left_join(mpls_zcta, by = c("zcta" = "GEOID")) %>%
+  mutate(car_jack_rate = car_jack/B01001_001E*1000) %>%
+  st_as_sf()
+```
+
+# MPLS Carjackings by Week
+
+```{r}
+#aggregate to week over ZCTAs
+cj_week <- cj_spatial %>%
+  group_by(year, week) %>%
+  summarize(car_jack = sum(car_jack, na.rm = T),
+             total_pop = sum(B01001_001E, na.rm = T)) %>%
+  mutate(car_jack_rate = (car_jack/total_pop)*1000,
+         begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1)) 
+  
+ggplot(cj_week)+
+  geom_line(aes(x=begin_date, y=car_jack_rate))+ 
+  scale_x_date(date_labels = "%b-%Y", 
+               limits = c(min(cj_week$begin_date), max(cj_week$begin_date)))+
+  geom_vline(xintercept=cj_week$begin_date[cj_week$year==2020 & cj_week$week==isoweek(date("2020-05-25"))], 
+              linetype="dotted", color="red", size=1)+
+  geom_label(aes(x=cj_week$begin_date[cj_week$year==2020 & cj_week$week==isoweek(date("2020-05-25"))],
+                 y=0.050), 
+             label = "George Floyd", show.legend = FALSE)+
+  labs(title = "Figure X: Weekly Minneapolis Carjackings, 1/1/2019-4/7/2022",
+       subtitle = "openminneapolis Crime Data",
+       x = "Week",
+       y = "Rate per 1,000 Residents")+
+  theme_minimal()+
+    theme(axis.text.x=element_text(angle=45, hjust=1)) 
+
+```
+
+
+# MPLS ZCTA Carjackings Map
+
+```{r}
+#aggregate to ZCTA-Year level
+cj_zip_year <- cj_spatial %>%
+  group_by(zcta, year) %>%
+  summarize(car_jack = sum(car_jack, na.rm = T),
+            total_pop = sum(B01001_001E, na.rm = T)) %>%
+  mutate(car_jack_rate = (car_jack/total_pop)*1000)
+
+
+ggplot() +
+  geom_sf(data = cj_zip_year, aes(geometry = geometry, fill = car_jack_rate)) + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  facet_wrap(~year)+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "Figure X: Weekly Minneapolis Carjacking Rates", 
+       subtitle = "openminneapolis Crime Data",
+       fill = "Rate/1,000 Residents")+
+  theme_void()
+```
