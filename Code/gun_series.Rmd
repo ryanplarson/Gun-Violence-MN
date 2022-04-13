@@ -34,6 +34,16 @@ register_google(key = google_key)
 
 #Covid timelines
   #https://docs.google.com/spreadsheets/d/1zu9qEWI8PsOI_i8nI_S29HDGHlIp2lfVMsGxpQ5tvAQ/edit#gid=973655443
+
+
+
+#maps of racial composition and median hh income?
+#RE interaction model forefront
+
+#potential reviewers
+#https://www.cceb.med.upenn.edu/bio/douglas-j-wiebe-phd
+#https://www.dellchildrens.net/services-and-programs/research-clinical-trials/trauma-and-injury-research-center/meet-the-staff/
+
 ```
 
 # Base Panel Construction - ZCTA-Week Level
@@ -849,6 +859,36 @@ fe_int_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post
                      as.factor(zcta)+
                      post_floyd:as.factor(zcta)+post_floyd_3:as.factor(zcta), data = panel)
 summary(fe_int_model)
+
+#random effects specifications
+library(lme4)
+library(lmerTest)
+
+panel <- panel %>%
+  mutate(state_of_emerg = as.factor(state_of_emerg),
+         stay_at_home = as.factor(stay_at_home),
+         post_floyd = as.factor(post_floyd),
+         post_floyd_3 = as.factor(post_floyd_3))
+
+#base model
+re_model <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                tmax_f+snow_in+precip_in+dark_before_12+school+
+                 (1|zcta), data = panel)
+summary(re_model)
+
+#interaction model
+re_int <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+post_floyd_3+
+                tmax_f+snow_in+precip_in+dark_before_12+school+black_pop+male+
+                post_floyd:black_pop:male+post_floyd_3:black_pop+
+                 (1|zcta), data = panel)
+summary(re_int)
+
+library(sjPlot)
+plot_model(re_int, 
+           type = "int", 
+           ci.lvl = 0.95,
+           mdrt.values = "meansd")
 ```
 
 
