@@ -1,0 +1,264 @@
+---
+title: "Car Jacking MPLS - Tract"
+author: "Ryan Larson"
+date: "4/8/2022"
+output: pdf_document
+---
+
+
+
+```{r setup, include=FALSE, message=F}
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(tidycensus)
+library(sf)
+library(purrr)
+library(ggmap)
+library(stargazer)
+library(stringr)
+library(lubridate)
+library(ISOweek)
+library(zoo)
+
+#TO DO!
+
+#descriptive paper: over-time; tracts over time
+#build dataset at the incident level; spatially join tract information 
+#collective efficacy: any purchase on this? 
+#time-varying indicators of pandemic, school closures, institution closures, social safety net
+#analysis of discrepancies between incidents and charges
+#compare to homicides
+#media stuff - coverage is responsible to rates in which places
+
+
+
+google_key <- readRDS("C:/Users/DELL/Documents/R/Rworkingdirectory/google_api_key.rds")
+register_google(key = google_key)
+```
+
+# Spatial Data
+
+```{r, message=FALSE, warning=FALSE}
+#Minneapolis Shapefile
+mpls <- st_read("Data/mpls_city-shp/16cdbbfa-ad10-493c-afaf-52b61f2e76e42020329-1-180h9ap.whbo.shp") %>%
+   st_transform(st_crs(mpls_neighb))
+
+
+#MPLS tracts
+tracts <- get_acs(geography = "tract", 
+                  state = "MN",
+                variables = "B01001_001E",
+                output = "wide",
+                survey = "acs5",
+                year = 2020,
+                geometry = T) 
+
+mpls_tract <- tracts %>%
+  st_filter(mpls, .predicate = st_intersects) %>%
+  mutate(GEOID = as.numeric(GEOID),
+         tract_area = as.numeric(st_area(.)),
+         tract_area_sqkm = tract_area*.000001, 
+         tract_area_sqmi = tract_area_sqkm*.386102,
+         intersection_area = as.numeric(st_area(st_intersection(., mpls))),
+         perc_intersection = intersection_area/tract_area*100) %>%
+  filter(perc_intersection >= 2) %>%
+  select(-starts_with("B01001"))
+```
+
+# Open Minneapolis Carjacking Data
+
+```{r, message=FALSE}
+#open minneapolis crime data 2019-4/7 (date of download)
+cj_spatial <- read_csv("Car Jacking/crime_data.csv")  %>%
+  filter(Offense=="Carjacking - Subset of Robbery") %>% #filter carjackings
+  mutate(date=ymd_hms(Occurred_Date),
+         year=isoyear(date),
+         week=isoweek(date)) %>%
+  select(OBJECTID, year, week, Latitude, Longitude) %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = "NAD83", remove=F) %>%
+  st_join(mpls_tract) %>% #spatial join neighborhoods
+  st_drop_geometry() %>%
+  filter(!is.na(NAME)) %>%
+  group_by(year, week, NAME, .drop=F) %>%
+  tally(name = "car_jack") %>%
+  ungroup() %>%
+  complete(year, week, NAME=mpls_tract$NAME, fill = list(car_jack = 0)) %>%
+  filter(!(year==2022 & week >= 14) & #removing unobserved/redundant completions
+           !(year==2021 & week==53) & #removing unobserved/redundant completions
+           !(year==2020 & week < 36)) %>% #removing weeks before Sept. 2020, isoweek 36
+  arrange(NAME, year, week) %>%
+  left_join(mpls_tract, by = "NAME") %>%
+  #mutate(car_jack_rate = car_jack/B01001_001E*1000) %>%
+  st_as_sf()
+```
+
+# MPLS Carjackings by Week
+
+```{r}
+#aggregate to week over tracts
+cj_week <- cj_spatial %>%
+  group_by(year, week) %>%
+  summarize(car_jack = sum(car_jack, na.rm = T)) %>%
+  mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1)) 
+  
+ggplot(cj_week)+
+  geom_line(aes(x=begin_date, y=car_jack))+ 
+  scale_x_date(date_labels = "%b-%Y", 
+               limits = c(min(cj_week$begin_date), max(cj_week$begin_date)))+
+  labs(title = "Figure X: Weekly Minneapolis Carjackings, 8/31/2020-4/7/2022",
+       subtitle = "openminneapolis Crime Data",
+       x = "Week",
+       y = "Weekly Rate")+
+  theme_minimal()+
+    theme(axis.text.x=element_text(angle=45, hjust=1)) 
+
+```
+
+
+# MPLS ZCTA Carjackings Map
+
+```{r}
+#aggregate to neighborhood-year level
+cj_tract_year <- cj_spatial %>%
+  group_by(NAME, year) %>%
+  summarize(car_jack = sum(car_jack, na.rm = T),
+            weeks = n(),
+            car_jack_rate = car_jack/weeks) 
+
+
+ggplot() +
+  geom_sf(data = cj_tract_year, aes(geometry = geometry, fill = car_jack_rate)) + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  facet_wrap(~year)+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "Figure X: Minneapolis Carjacking Rates by Year", 
+       subtitle = "openminneapolis Crime Data",
+       fill = "Weekly Rate")+
+  theme_void()
+```
+
+# ACS Covariates
+
+```{r}
+acs_vars <- load_variables(2020, "acs5", cache = TRUE)
+
+View(acs_vars)
+
+year <- lst(2019, 2020)
+
+acs <- map_dfr(
+  year,
+  ~ get_acs(geography = "tract", 
+            state = "MN",
+               variables = c("B01001_001E", "B03002_003E", "B03002_004E", "B03002_005E",
+                             "B03002_006E", "B03002_007E", "B03002_008E", "B03002_009E",
+                             "B03002_010E", "B03002_011E", "B03002_012E", "B23025_002E",
+                             "B23025_005E", "B17001_002E", "B19057_002E", "B11003_015E", 
+                             "B06009_002E", "B06009_005E", "C24010_001E", "C24010_003E",
+                             "C24010_039E", "B11001_003E", "B01001_002E", "B05001_006E",
+                             "B01001_003E", "B01001_004E", "B01001_005E", "B01001_006E",
+                             "B01001_007E", "B01001_008E", "B01001_009E", "B01001_010E",
+                             "B01001_011E", "B01001_012E", "B01001_013E", "B01001_014E",
+                             "B01001_015E", "B01001_016E", "B01001_017E", "B01001_018E",
+                             "B01001_019E", "B01001_020E", "B01001_021E", "B01001_022E",
+                             "B01001_023E", "B01001_024E", "B01001_025E", "B01001_027E",
+                             "B01001_028E", "B01001_029E", "B01001_030E", "B01001_031E",
+                             "B01001_032E", "B01001_033E", "B01001_034E", "B01001_035E",
+                             "B01001_036E", "B01001_037E", "B01001_038E", "B01001_039E",
+                             "B01001_040E", "B01001_041E", "B01001_042E", "B01001_043E",
+                             "B01001_044E", "B01001_045E", "B01001_046E", "B01001_047E", 
+                             "B01001_048E", "B01001_049E", "B07001_017E", "B25003_002E",
+                             "B05002_013E", "B19013_001E"),
+               output = "wide",
+               survey = "acs5",
+               year = .x),  .id = "year") %>%
+  rename(total_pop = B01001_001E, white_pop = B03002_003E, black_pop = B03002_004E,
+         na_pop = B03002_005E, asian_pop = B03002_006E, hpi_pop = B03002_007E,
+         other_pop = B03002_008E, biracial_pop = B03002_009E, biracial_other_pop = B03002_010E,
+         biracial_three_pop = B03002_011E, hisp_pop = B03002_012E, total_ilf = B23025_002E,
+         unemp = B23025_005E, povlevel = B17001_002E, pub_assist = B19057_002E,
+         female_hh = B11003_015E, no_hs_dip = B06009_002E, bach_degree = B06009_005E,
+         total_employed = C24010_001E, employed_mbsa_male = C24010_003E,
+         employed_mbsa_female = C24010_039E, mar_fam = B11001_003E, male = B01001_002E,
+         noncitizen = B05001_006E,
+        age_m_5_under = B01001_003E, age_m_5_9 = B01001_004E, age_m_10_14 = B01001_005E, 
+        age_m_15_17 = B01001_006E, age_m_18_19 = B01001_007E, age_m_20 = B01001_008E,
+        age_m_21 = B01001_009E, age_m_22_24 = B01001_010E, age_m_25_29 = B01001_011E, 
+        age_m_30_34 = B01001_012E, age_m_35_39 = B01001_013E, age_m_40_44 = B01001_014E,
+        age_m_45_49 = B01001_015E, age_m_50_54 = B01001_016E, age_m_55_59 = B01001_017E, 
+        age_m_60_61 = B01001_018E, age_m_62_64 = B01001_019E, age_m_65_66 = B01001_020E,
+        age_m_67_69 = B01001_021E, age_m_70_74 = B01001_022E, age_m_75_79 = B01001_023E, 
+        age_m_80_84 = B01001_024E, age_m_85_plus = B01001_025E, age_f_5_under = B01001_027E,
+        age_f_5_9 = B01001_028E, age_f_10_14 = B01001_029E, age_f_15_17 = B01001_030E, 
+        age_f_18_19 = B01001_031E, age_f_20 = B01001_032E, age_f_21 = B01001_033E,
+        age_f_22_24 = B01001_034E, age_f_25_29 = B01001_035E, age_f_30_34 = B01001_036E, 
+        age_f_35_39 = B01001_037E, age_f_40_44 = B01001_038E, age_f_45_49 = B01001_039E,
+        age_f_50_54 = B01001_040E, age_f_55_59 = B01001_041E, age_f_60_61 = B01001_042E, 
+        age_f_62_64 = B01001_043E, age_f_65_66 = B01001_044E, age_f_67_69 = B01001_045E, 
+        age_f_70_74 = B01001_046E, age_f_75_79 = B01001_047E, age_f_80_84 = B01001_048E, 
+        age_f_85_plus = B01001_049E, res_mob = B07001_017E, 
+        own_hh = B25003_002E, foreign = B05002_013E,
+        med_hh_inc = B19013_001E) %>%
+  select(-ends_with("M", ignore.case = F), -GEOID) %>%
+  select(NAME, everything()) %>%
+  mutate(year = as.numeric(year),
+         white_prop = white_pop/total_pop,
+         black_prop = black_pop/total_pop,
+         na_prop = na_pop/total_pop,
+         asian_prop = asian_pop/total_pop,
+         hpi_prop = hpi_pop/total_pop,
+         other_prop = other_pop/total_pop,
+         biracial_prop = (biracial_pop+biracial_other_pop+biracial_three_pop)/total_pop,
+         hisp_prop = hisp_pop/total_pop,
+         white_perc = 100*white_pop/total_pop,
+         black_perc = 100*black_pop/total_pop,
+         na_perc = 100*na_pop/total_pop,
+         asian_perc = 100*asian_pop/total_pop,
+         hpi_perc = 100*hpi_pop/total_pop,
+         other_perc = 100*other_pop/total_pop,
+         biracial_perc = 100*(biracial_pop+biracial_other_pop+biracial_three_pop)/total_pop,
+         hisp_perc = 100*hisp_pop/total_pop,
+         unemp_rate = 100*unemp/total_ilf, 
+         pov_rate = 100*povlevel/total_pop,
+         pub_assist_rate = 100*pub_assist/total_pop,
+         female_hh_rate = 100*female_hh/total_pop,
+         no_hs_dip_rate = 100*no_hs_dip/total_pop,
+         bach_degree_rate = 100*bach_degree/total_pop,
+         employed_mbsa = employed_mbsa_male+employed_mbsa_female,
+         employed_mbsa_rate = 100*employed_mbsa/total_employed,
+         mar_fam_rate = 100*mar_fam/total_pop, 
+         male_rate = 100*male/total_pop,
+         noncitizen_rate = 100*noncitizen/total_pop,
+         race_eth_hetero  = 1-(white_prop^2+black_prop^2+na_prop^2+asian_prop^2+
+                       hpi_prop^2+other_prop^2+other_prop^2+biracial_prop^2+hisp_prop^2),
+         age_below_18_perc = 100*(age_m_5_under+age_f_5_under+age_m_5_9+
+                                  age_f_5_9+age_m_10_14+age_f_10_14+age_m_15_17+
+                                  age_f_15_17)/total_pop,
+         age_19_29_perc = 100*(age_m_18_19+age_f_18_19+age_m_20+age_f_20+age_m_21+age_f_21+
+                          age_m_22_24+age_f_22_24+age_m_25_29+age_f_25_29)/total_pop,
+         age_30_49_perc = 100*(age_m_30_34+age_f_30_34+age_m_35_39+age_f_35_39+
+                               age_m_40_44+age_f_40_44+age_m_45_49+age_f_45_49)/total_pop,
+         age_50_69_perc = 100*(age_m_50_54+age_f_50_54+age_m_55_59+age_f_55_59+
+                               age_m_60_61+age_f_60_61+age_m_62_64+age_f_62_64+
+                               age_m_65_66+age_f_65_66+age_m_67_69+age_f_67_69)/total_pop,
+         age_70_plus_perc = 100*(age_m_70_74+age_f_70_74+age_m_75_79+age_f_75_79+
+                                 age_m_80_84+age_f_80_84+age_m_85_plus+age_f_85_plus)/total_pop,
+         res_mob_rate = 100-100*res_mob/total_pop,
+         own_hh_rate = 100*own_hh/total_pop,
+         foreign_rate = 100*foreign/total_pop) 
+
+
+#LOCF imputation of 2020 until 2020 ACS release (12/9/2021)
+#LOCF imputation of 2020 until 2020 ACS release (12/9/2021)
+acs_2122 <- acs %>%
+  complete(NAME, year = 2019:2022) %>%
+  group_by(NAME) %>%
+  mutate_at(vars(-NAME, -year), 
+            funs(if(sum(is.na(.))>1) {.} else{na_interpolation(., option = "linear")})) %>%
+  filter(year==2021|year==2022)
+
+acs_imp <- acs %>% 
+  rbind(acs_2122)

@@ -6,6 +6,7 @@ output: pdf_document
 ---
 
 
+
 ```{r setup, include=FALSE, message=F}
 library(dplyr)
 library(tidyr)
@@ -19,6 +20,12 @@ library(stargazer)
 library(stringr)
 library(lubridate)
 library(ISOweek)
+
+#TO DO!
+
+#time-varying indicators of pandemic, school closures, institution closures, social safety net
+#analysis of discrepancies between incidents and charges
+
 
 
 google_key <- readRDS("C:/Users/DELL/Documents/R/Rworkingdirectory/google_api_key.rds")
@@ -48,7 +55,7 @@ cj_spatial <- read_csv("Car Jacking/crime_data.csv")  %>%
          week=isoweek(date)) %>%
   select(OBJECTID, year, week, Latitude, Longitude) %>%
   st_as_sf(coords = c("Longitude", "Latitude"), crs = "NAD83", remove=F) %>%
-  st_join(mpls_neighb) %>% #spatial join ZCTA 
+  st_join(mpls_neighb) %>% #spatial join neighborhoods
   st_drop_geometry() %>%
   filter(!is.na(BDNAME)) %>%
   group_by(year, week, BDNAME, .drop=F) %>%
@@ -67,7 +74,7 @@ cj_spatial <- read_csv("Car Jacking/crime_data.csv")  %>%
 # MPLS Carjackings by Week
 
 ```{r}
-#aggregate to week over ZCTAs
+#aggregate to week over neighborhoods
 cj_week <- cj_spatial %>%
   group_by(year, week) %>%
   summarize(car_jack = sum(car_jack, na.rm = T)) %>%
@@ -81,7 +88,7 @@ ggplot(cj_week)+
   labs(title = "Figure X: Weekly Minneapolis Carjackings, 8/31/2020-4/7/2022",
        subtitle = "openminneapolis Crime Data",
        x = "Week",
-       y = "Rate per 1,000 Residents")+
+       y = "Weekly Rate")+
   theme_minimal()+
     theme(axis.text.x=element_text(angle=45, hjust=1)) 
 
@@ -91,7 +98,7 @@ ggplot(cj_week)+
 # MPLS ZCTA Carjackings Map
 
 ```{r}
-#aggregate to ZCTA-Year level
+#aggregate to neighborhood-year level
 cj_nb_year <- cj_spatial %>%
   group_by(BDNAME, year) %>%
   summarize(car_jack = sum(car_jack, na.rm = T),
