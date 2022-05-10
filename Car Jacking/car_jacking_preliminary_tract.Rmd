@@ -27,7 +27,7 @@ library(zoo)
 #descriptive paper: over-time; tracts over time
 #build dataset at the incident level; spatially join tract information 
 #collective efficacy: any purchase on this? 
-#time-varying indicators of pandemic, school closures, institution closures, social safety net
+#time-varying indicators of pandemic, school closures, institution closures, social safety net, pandemic checks
 #analysis of discrepancies between incidents and charges
 #compare to homicides
 #media stuff - coverage is responsible to rates in which places
@@ -41,19 +41,18 @@ register_google(key = google_key)
 # Spatial Data
 
 ```{r, message=FALSE, warning=FALSE}
-#Minneapolis Shapefile
-mpls <- st_read("Data/mpls_city-shp/16cdbbfa-ad10-493c-afaf-52b61f2e76e42020329-1-180h9ap.whbo.shp") %>%
-   st_transform(st_crs(mpls_neighb))
-
-
-#MPLS tracts
+#MN tracts
 tracts <- get_acs(geography = "tract", 
                   state = "MN",
                 variables = "B01001_001E",
                 output = "wide",
                 survey = "acs5",
                 year = 2020,
-                geometry = T) 
+                geometry = T)
+
+#Minneapolis Shapefile
+mpls <- st_read("Data/mpls_city-shp/16cdbbfa-ad10-493c-afaf-52b61f2e76e42020329-1-180h9ap.whbo.shp") %>%
+   st_transform(st_crs(tracts))
 
 mpls_tract <- tracts %>%
   st_filter(mpls, .predicate = st_intersects) %>%
@@ -64,90 +63,13 @@ mpls_tract <- tracts %>%
          intersection_area = as.numeric(st_area(st_intersection(., mpls))),
          perc_intersection = intersection_area/tract_area*100) %>%
   filter(perc_intersection >= 2) %>%
-  select(-starts_with("B01001"))
-```
-
-# Open Minneapolis Carjacking Data
-
-```{r, message=FALSE}
-#open minneapolis crime data 2019-4/7 (date of download)
-cj_spatial <- read_csv("Car Jacking/crime_data.csv")  %>%
-  filter(Offense=="Carjacking - Subset of Robbery") %>% #filter carjackings
-  mutate(date=ymd_hms(Occurred_Date),
-         year=isoyear(date),
-         week=isoweek(date)) %>%
-  select(OBJECTID, year, week, Latitude, Longitude) %>%
-  st_as_sf(coords = c("Longitude", "Latitude"), crs = "NAD83", remove=F) %>%
-  st_join(mpls_tract) %>% #spatial join neighborhoods
-  st_drop_geometry() %>%
-  filter(!is.na(NAME)) %>%
-  group_by(year, week, NAME, .drop=F) %>%
-  tally(name = "car_jack") %>%
-  ungroup() %>%
-  complete(year, week, NAME=mpls_tract$NAME, fill = list(car_jack = 0)) %>%
-  filter(!(year==2022 & week >= 14) & #removing unobserved/redundant completions
-           !(year==2021 & week==53) & #removing unobserved/redundant completions
-           !(year==2020 & week < 36)) %>% #removing weeks before Sept. 2020, isoweek 36
-  arrange(NAME, year, week) %>%
-  left_join(mpls_tract, by = "NAME") %>%
-  #mutate(car_jack_rate = car_jack/B01001_001E*1000) %>%
-  st_as_sf()
-```
-
-# MPLS Carjackings by Week
-
-```{r}
-#aggregate to week over tracts
-cj_week <- cj_spatial %>%
-  group_by(year, week) %>%
-  summarize(car_jack = sum(car_jack, na.rm = T)) %>%
-  mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
-         end_date = begin_date+weeks(1)-days(1)) 
-  
-ggplot(cj_week)+
-  geom_line(aes(x=begin_date, y=car_jack))+ 
-  scale_x_date(date_labels = "%b-%Y", 
-               limits = c(min(cj_week$begin_date), max(cj_week$begin_date)))+
-  labs(title = "Figure X: Weekly Minneapolis Carjackings, 8/31/2020-4/7/2022",
-       subtitle = "openminneapolis Crime Data",
-       x = "Week",
-       y = "Weekly Rate")+
-  theme_minimal()+
-    theme(axis.text.x=element_text(angle=45, hjust=1)) 
-
-```
-
-
-# MPLS ZCTA Carjackings Map
-
-```{r}
-#aggregate to neighborhood-year level
-cj_tract_year <- cj_spatial %>%
-  group_by(NAME, year) %>%
-  summarize(car_jack = sum(car_jack, na.rm = T),
-            weeks = n(),
-            car_jack_rate = car_jack/weeks) 
-
-
-ggplot() +
-  geom_sf(data = cj_tract_year, aes(geometry = geometry, fill = car_jack_rate)) + 
-  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
-  facet_wrap(~year)+
-  scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure X: Minneapolis Carjacking Rates by Year", 
-       subtitle = "openminneapolis Crime Data",
-       fill = "Weekly Rate")+
-  theme_void()
+  select(-"B01001_001M")
 ```
 
 # ACS Covariates
 
 ```{r}
-acs_vars <- load_variables(2020, "acs5", cache = TRUE)
-
-View(acs_vars)
-
-year <- lst(2019, 2020)
+year <- lst(2017, 2018, 2019, 2020)
 
 acs <- map_dfr(
   year,
@@ -202,7 +124,7 @@ acs <- map_dfr(
         age_f_85_plus = B01001_049E, res_mob = B07001_017E, 
         own_hh = B25003_002E, foreign = B05002_013E,
         med_hh_inc = B19013_001E) %>%
-  select(-ends_with("M", ignore.case = F), -GEOID) %>%
+  select(-ends_with("M", ignore.case = F)) %>%
   select(NAME, everything()) %>%
   mutate(year = as.numeric(year),
          white_prop = white_pop/total_pop,
@@ -250,15 +172,172 @@ acs <- map_dfr(
          own_hh_rate = 100*own_hh/total_pop,
          foreign_rate = 100*foreign/total_pop) 
 
+#aggregate over years to tract-level
+acs_agg <- acs %>%
+  select(-year) %>%
+  group_by(GEOID) %>%
+  summarise_if(is.numeric, mean, na.rm = TRUE)
 
-#LOCF imputation of 2020 until 2020 ACS release (12/9/2021)
-#LOCF imputation of 2020 until 2020 ACS release (12/9/2021)
-acs_2122 <- acs %>%
-  complete(NAME, year = 2019:2022) %>%
-  group_by(NAME) %>%
-  mutate_at(vars(-NAME, -year), 
-            funs(if(sum(is.na(.))>1) {.} else{na_interpolation(., option = "linear")})) %>%
-  filter(year==2021|year==2022)
+#population denominators
+pop_denom <- acs %>%
+  select(NAME, year, total_pop) 
 
-acs_imp <- acs %>% 
-  rbind(acs_2122)
+pop_denom_21 <- acs %>%
+  filter(year==2020) %>%
+  select(NAME, year, total_pop) %>%
+  mutate(year = 2021)
+
+pop_denom_locf <- pop_denom %>% rbind(pop_denom_21)
+```
+
+# Open Minneapolis Carjacking Data
+
+```{r, message=FALSE}
+#open minneapolis crime data 2019-4/7 (date of download)
+cj_spatial <- read_csv("Car Jacking/crime_data.csv")  %>%
+  filter(Offense=="Carjacking - Subset of Robbery") %>% #filter carjackings
+  mutate(date=ymd_hms(Occurred_Date),
+         year=isoyear(date),
+         week=isoweek(date)) %>%
+  select(OBJECTID, year, week, Latitude, Longitude) %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = "NAD83", remove=F) %>%
+  st_join(mpls_tract) %>% #spatial join neighborhoods
+  st_drop_geometry() %>%
+  filter(!is.na(NAME)) %>%
+  group_by(year, week, NAME, .drop=F) %>%
+  tally(name = "car_jack") %>%
+  ungroup() %>%
+  complete(year, week, NAME=mpls_tract$NAME, fill = list(car_jack = 0)) %>%
+  filter(!(year==2022 & week >= 14) & #removing unobserved/redundant completions
+           !(year==2021 & week==53) & #removing unobserved/redundant completions
+           !(year==2020 & week < 36)) %>% #removing weeks before Sept. 2020, isoweek 36
+  arrange(NAME, year, week) %>%
+  left_join(mpls_tract, by = "NAME") %>%
+  left_join(pop_denom_locf, by = c("NAME", "year")) %>%
+  mutate(car_jack_rate = car_jack/B01001_001E*1000) %>%
+  st_as_sf()
+```
+
+
+# MPLS Carjackings by Week
+
+```{r}
+#aggregate to week over tracts
+cj_week <- cj_spatial %>%
+  group_by(year, week) %>%
+  summarize(car_jack = sum(car_jack, na.rm = T),
+            total_pop = sum(B01001_001E, na.rm = T)) %>%
+  mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1),
+         car_jack_rate = car_jack/total_pop*1000) 
+  
+ggplot(cj_week)+
+  geom_line(aes(x=begin_date, y=car_jack_rate))+ 
+  scale_x_date(date_labels = "%b-%Y", 
+               limits = c(min(cj_week$begin_date), max(cj_week$begin_date)))+
+  labs(title = "Figure X: Weekly Minneapolis Carjackings, 8/31/2020-4/7/2022",
+       subtitle = "openminneapolis Crime Data",
+       x = "Week",
+       y = "Weekly Carjacking Rate/ 1,000")+
+  theme_minimal()+
+    theme(axis.text.x=element_text(angle=45, hjust=1)) 
+
+```
+
+
+# MPLS ZCTA Carjackings Map
+
+```{r}
+#aggregate to neighborhood-year level
+cj_tract_year <- cj_spatial %>%
+  group_by(NAME, year) %>%
+  summarize(car_jack = sum(car_jack, na.rm = T),
+            total_pop = sum(B01001_001E, na.rm = T),
+            car_jack_rate = car_jack/total_pop*1000) 
+
+
+ggplot() +
+  geom_sf(data = cj_tract_year, aes(geometry = geometry, fill = car_jack_rate)) + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  facet_wrap(~year)+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "Figure X: Minneapolis Carjacking Rates by Tract and Year", 
+       subtitle = "openminneapolis Crime Data",
+       fill = "Weekly Rate/ 1,000")+
+  theme_void()
+```
+
+
+
+# Expanded MPLS Carjacking (Crime Incidents) Data
+
+```{r}
+cj_exp <- read_csv("Car Jacking/MPDdata_051022.csv") %>%
+   mutate(date=mdy_hm(reporteddate),
+         year=isoyear(date),
+         week=isoweek(date)) %>%
+  select(CaseNumber, year, week, latitude, longitude) %>%
+  distinct(CaseNumber, .keep_all = TRUE) %>%
+  drop_na(latitude, longitude) %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = "NAD83", remove=F) %>%
+  st_join(mpls_tract) %>% #spatial join neighborhoods
+  st_drop_geometry() %>%
+  group_by(year, week, GEOID, .drop=F) %>%
+  tally(name = "car_jack") %>%
+  ungroup() %>%
+  complete(year, week, GEOID=mpls_tract$GEOID, fill = list(car_jack = 0)) %>%
+  filter(!(year==2021 & week==53)) %>% 
+  arrange(GEOID, year, week) %>%
+  left_join(mpls_tract, by = "GEOID") %>%
+  left_join(pop_denom_locf, by = c("NAME", "year")) %>%
+  mutate(car_jack_rate = car_jack/B01001_001E*1000) %>%
+  st_as_sf()
+```
+
+# MPLS Carjackings by Week - MPD Extended Data
+
+```{r}
+#aggregate to week over tracts
+cj_exp_week <- cj_exp %>%
+  group_by(year, week) %>%
+  summarize(car_jack = sum(car_jack, na.rm = T),
+            total_pop = sum(B01001_001E, na.rm = T)) %>%
+  mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1),
+         car_jack_rate = car_jack/total_pop*1000) 
+  
+ggplot(cj_exp_week)+
+  geom_line(aes(x=begin_date, y=car_jack_rate))+ 
+  scale_x_date(date_labels = "%b-%Y", 
+               limits = c(min(cj_exp_week$begin_date), max(cj_exp_week$begin_date)))+
+  labs(title = "Figure X: Weekly Minneapolis Carjackings, 8/31/2020-4/7/2022",
+       subtitle = "openminneapolis Crime Data",
+       x = "Week",
+       y = "Weekly Carjacking Rate/ 1,000")+
+  theme_minimal()+
+    theme(axis.text.x=element_text(angle=45, hjust=1)) 
+```
+
+
+# MPLS ZCTA Carjackings Map - MPD Extended Data
+
+```{r}
+#aggregate to neighborhood-year level
+cj_exp_tract_year <- cj_exp %>%
+  group_by(NAME, year) %>%
+  summarize(car_jack = sum(car_jack, na.rm = T),
+            total_pop = sum(B01001_001E, na.rm = T),
+            car_jack_rate = car_jack/total_pop*1000) 
+
+
+ggplot() +
+  geom_sf(data = cj_exp_tract_year, aes(geometry = geometry, fill = car_jack_rate)) + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  facet_grid(~year)+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "Figure X: Minneapolis Carjacking Rates by Tract and Year", 
+       subtitle = "openminneapolis Crime Data",
+       fill = "Weekly Rate/ 1,000")+
+  theme_void()
+```
+
