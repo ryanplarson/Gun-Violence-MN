@@ -136,21 +136,22 @@ mpls <- st_read("Data/mpls_city-shp/16cdbbfa-ad10-493c-afaf-52b61f2e76e42020329-
 
 #zctas that intersect MPLS
 zcta_intersect <- zcta %>%
-  filter(ifelse(lengths(st_intersects(., mpls)) > 0, 1, 0)==1) %>%
-  select(zcta)
+ st_filter(mpls, .predicate = st_intersects) %>%
+  mutate(zcta_area = as.numeric(st_area(.)),
+         zcta_area_sqkm = zcta_area*.000001, 
+         zcta_area_sqmi = zcta_area_sqkm*.386102,
+         intersection_area = as.numeric(st_area(st_intersection(., mpls))),
+         perc_intersection = round(intersection_area/zcta_area*100,2)) %>%
+  filter(perc_intersection >= 2)
 
-#which zctas are not in hosp data but still intersect MPLS
-setdiff(unique(zcta_intersect$zcta), unique(hosp_zcta$zipcode))
-
-#joining to panel, filter to those ZCTAs intersecting MPLS
-panel <- zcta %>%
-  left_join(hosp_panel, by = c("zcta"="zipcode")) %>%
-  filter(ifelse(lengths(st_intersects(., mpls)) > 0, 1, 0)==1 & 
-           zcta >= 55401)  #queen contiguity
+#filter hospital panel
+panel <- hosp_panel %>%
+  filter(zipcode %in% zcta_intersect$zcta) %>%
+  mutate(zcta = zipcode)
 
 #creating date bookends
 panel <- panel %>%
-  group_by(zcta, year) %>%
+  group_by(zipcode, year) %>%
   mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", weekofyr)), 1,sep = "-")),
          end_date = begin_date+weeks(1)-days(1))
 
@@ -293,8 +294,7 @@ hosp_series <- panel %>%
          legal_incid_c = (legal_tot/total_pop)*1000,
          combined_incid_c = (combined_tot/total_pop)*1000) %>%
   ungroup() %>%
-  mutate(week_id = row_number()) %>%
-  st_drop_geometry()
+  mutate(week_id = row_number()) 
 ```
 
 ## Police Data Week-Level
@@ -345,8 +345,7 @@ stop <- read_csv("Data/Police_Stop_Data.csv") %>%
 #merge onto series
 series <- series %>% 
   left_join(stop, by = c("year", "weekofyr"="week")) %>%
-  mutate(police_stops = ifelse(is.na(police_stops), 0, police_stops),
-         police_stop_rate = (police_stops/total_pop)*1000)
+  mutate(police_stop_rate = (police_stops/total_pop)*1000)
 
 
 #creating date variable
@@ -715,10 +714,10 @@ ggplot(series)+
 
 series <- series %>%
   mutate(t = 1:length(assault_incid_c),
-         post_floyd = as.numeric(begin_date >= as.Date("2020-05-25")),
-         post_floyd_3 = as.numeric(begin_date >= as.Date("2020-05-25")+months(3)),
-         stay_at_home = as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28")),
-         state_of_emerg = as.numeric(begin_date >= as.Date("2020-03-13")),
+         post_floyd = as.factor(as.numeric(begin_date >= as.Date("2020-05-25"))),
+         post_floyd_3 = as.factor(as.numeric(begin_date >= as.Date("2020-05-25")+months(3))),
+         stay_at_home = as.factor(as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28"))),
+         state_of_emerg = as.factor(as.numeric(begin_date >= as.Date("2020-03-13"))),
          uof_lag=lag(use_of_force_rate,1),
          stops_lag = lag(police_stop_rate,1),
          shoot_lag = lag(off_inv_shooting_rate,1))
@@ -799,7 +798,6 @@ zip_level <- panel %>%
          legal_incid_c = (legal_tot/total_pop)*1000,
          combined_incid_c = (combined_tot/total_pop)*1000) %>%
   ungroup() %>%
-  st_drop_geometry() %>%
   left_join(zcta, by = "zcta")
 
 
@@ -821,7 +819,8 @@ ggplot() +
   labs(title = "Figure 2: Firearm Assault Injury Rates by ZCTA and Period", 
        subtitle = "MHA Hospital Discharge Data",
        fill = "Incident Rate/1,000")+
-  theme(axis.text = element_blank(),
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
   axis.line = element_blank(),
   axis.ticks = element_blank(),
   panel.border = element_blank(),
@@ -870,25 +869,36 @@ panel <- panel %>%
          post_floyd = as.factor(post_floyd),
          post_floyd_3 = as.factor(post_floyd_3))
 
-#base model
-re_model <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+#RE base model
+re_base <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+post_floyd_3+
                 tmax_f+snow_in+precip_in+dark_before_12+school+
+                 uof_lag+stops_lag+shoot_lag+
                  (1|zcta), data = panel)
-summary(re_model)
+summary(re_base)
 
 #interaction model
 re_int <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+
                  post_floyd+post_floyd_3+
-                tmax_f+snow_in+precip_in+dark_before_12+school+black_pop+male+
-                post_floyd:black_pop:male+post_floyd_3:black_pop+
+                tmax_f+snow_in+precip_in+dark_before_12+school+
+                 uof_lag+stops_lag+shoot_lag+
+                 black_pop+
+                post_floyd:black_pop+
                  (1|zcta), data = panel)
 summary(re_int)
 
 library(sjPlot)
+
+
 plot_model(re_int, 
-           type = "int", 
+           terms = c("post_floyd", "black_pop"),
+           type = "pred", 
            ci.lvl = 0.95,
-           mdrt.values = "meansd")
+           mdrt.values = "meansd",
+           title = "Figure 3: Post-Killing X Percent Black Interaction Plot",
+           axis.title = c("Post-Killing","Gun Assault Rate per 1,000"))+
+  theme_sjplot()+
+  ggplot2::labs(colour = "Percent Black")
 ```
 
 
@@ -915,24 +925,32 @@ stargazer(fe_model, fe_full_model,
 
 
 ```{r, message=F, results='asis'}
-stargazer(ts_ar1_pol, fe_full_model,
+class(re_base) <- "lmerMod"
+class(re_int) <- "lmerMod"
+
+stargazer(ts_ar1_pol, re_base, re_int,
           title = "Interrupted Time Series Models of Firearm Assault Injuries",
           covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
                                "Post-Killing", "Post-Killing 3 Months",
                                "MPD Use of Force t-1", "MPD Stops t-1",
                                "MPD Officer Involved Shootings t-1", 
-                                "AR(1)"),
+                                "AR(1)",
+                               "Percent Black",
+                               "Post-Killing X Percent Black"),
+          header = F,
           dep.var.caption = "Firearm Assault Injuries",
           dep.var.labels = "Rate per 1,000",
-          column.labels = c("Week-Level", "ZCTA-Week-Level"),
+          model.names = FALSE,
+          column.labels = c("AR(1) TSR", "RE HLM","RE HLM +Int."),
           model.numbers = TRUE,
-          single.row = TRUE,
+          single.row = F,
           align = T,
-          omit = c("zcta", "tmax_f", "snow_in","precip_in","dark_before_12","school"),
-          omit.stat = "adj.rsq",
+          omit = c("tmax_f", "snow_in","precip_in","dark_before_12","school"),
+          omit.stat = c("adj.rsq"),
           star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
-          add.lines = list(c("ZCTA FE", "No", "Yes")),
-          notes.label = "Models include controls for seasonality.")
+          add.lines = list(c("SD(ZCTA)", "", .826, .642),
+                           c("SD(Residual)", "", 30.010, 5.461)),
+          notes.label = "Models include controls ,for seasonality.")
 
 
 ```
@@ -1098,7 +1116,6 @@ ggplot(mpd_series)+
 
 mpls_pops_zcta <- panel %>%
   select(zcta, year, weekofyr, total_pop) %>%
-  st_drop_geometry() %>%
   ungroup() %>%
   complete(zcta, year = 2016:2021, weekofyr = 1:52) %>%
   arrange(zcta, year, weekofyr) %>%
@@ -1152,7 +1169,8 @@ ggplot() +
   labs(title = "Figure 5: Murder Rates by ZCTA and Period", 
        subtitle = "MPD Data",
        fill = "Murder Rate/1,000")+
-  theme(axis.text = element_blank(),
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
   axis.line = element_blank(),
   axis.ticks = element_blank(),
   panel.border = element_blank(),
