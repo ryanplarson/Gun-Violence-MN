@@ -23,7 +23,7 @@ library(ISOweek)
 library(zoo)
 
 #TO DO!
-
+#old
 #descriptive paper: over-time; tracts over time
 #build dataset at the incident level; spatially join tract information 
 #collective efficacy: any purchase on this? 
@@ -31,6 +31,14 @@ library(zoo)
 #analysis of discrepancies between incidents and charges
 #compare to homicides
 #media stuff - coverage is responsible to rates in which places
+
+#figure out how to deal with tract changes in 2020 - X
+
+# Research Q: what tracts experienced what kind of increase?
+#is the rate/count above a certain threshold - any vs. none
+#DV: none-to-any; multinomial?
+
+#Dv: media attention - following raw change vs. different types of change in certain places
 
 
 
@@ -64,16 +72,120 @@ mpls_tract <- tracts %>%
          perc_intersection = intersection_area/tract_area*100) %>%
   filter(perc_intersection >= 2) %>%
   select(-"B01001_001M")
+
 ```
 
 # ACS Covariates
 
 ```{r}
-year <- lst(2017, 2018, 2019, 2020)
+acs_17 <- get_acs(
+  geography = "tract",
+  variables = c("B01001_001E"),
+  year = 2017,
+  state = "MN",
+  county = "Hennepin",
+  geometry = TRUE) %>% 
+  select(estimate)
 
-acs <- map_dfr(
-  year,
-  ~ get_acs(geography = "tract", 
+acs_18 <- get_acs(
+  geography = "tract",
+  variables = c("B01001_001E"),
+  year = 2018,
+  state = "MN",
+  county = "Hennepin",
+  geometry = TRUE
+) %>%
+select(estimate)
+
+acs_19 <- get_acs(
+  geography = "tract",
+  variables = c("B01001_001E"),
+  year = 2019,
+  state = "MN",
+  county = "Hennepin",
+  geometry = TRUE
+) %>%
+select(estimate)
+
+
+acs_20 <- get_acs(
+  geography = "tract",
+  variables = c("B01001_001E"),
+  year = 2020,
+  state = "MN",
+  county = "Hennepin",
+  geometry = TRUE
+ )
+
+library(tigris)
+
+hennepin_blocks <- blocks(
+  "MN",
+  "Hennepin",
+  year = 2020
+)
+
+#2017 ACS interpolation
+acs_1720 <- interpolate_pw(
+  from = acs_17,
+  to = acs_20,
+  to_id = "GEOID",
+  weights = hennepin_blocks,
+  weight_column = "POP20",
+  crs = 26993,
+  extensive = TRUE) %>%
+  mutate(year = 2017) 
+
+#2018 ACS interpolation
+acs_1820 <- interpolate_pw(
+  from = acs_18,
+  to = acs_20,
+  to_id = "GEOID",
+  weights = hennepin_blocks,
+  weight_column = "POP20",
+  crs = 26993,
+  extensive = TRUE) %>%
+  mutate(year = 2018)
+
+
+#2019 ACS interpolation
+acs_1920 <- interpolate_pw(
+  from = acs_19,
+  to = acs_20,
+  to_id = "GEOID",
+  weights = hennepin_blocks,
+  weight_column = "POP20",
+  crs = 26993,
+  extensive = TRUE) %>%
+  mutate(year = 2019)
+
+
+pop_denoms <- acs_20 %>%
+  st_transform(crs = 26993) %>%
+  mutate(year = 2020) %>%
+  select(-moe, -variable, -NAME) %>%
+  rbind(acs_1720, acs_1820, acs_1920) %>%
+  filter(GEOID %in% mpls_tract$GEOID)
+
+#2021+2022: LOCF
+pop_denom_21 <- pop_denoms %>%
+  filter(year==2020) %>%
+  select(GEOID, year, estimate) %>%
+  mutate(year = 2021) 
+
+pop_denom_22 <- pop_denoms %>%
+  filter(year==2020) %>%
+  select(GEOID, year, estimate) %>%
+  mutate(year = 2022) 
+
+pop_denom_locf <- pop_denoms %>% 
+  rbind(pop_denom_21, pop_denom_22) %>%
+  rename(total_pop = estimate) %>%
+  mutate(GEOID = as.numeric(GEOID)) %>%
+  st_drop_geometry()
+
+#ACS 2020 L-2 covariates
+acs_2020 <- get_acs(geography = "tract", 
             state = "MN",
                variables = c("B01001_001E", "B03002_003E", "B03002_004E", "B03002_005E",
                              "B03002_006E", "B03002_007E", "B03002_008E", "B03002_009E",
@@ -96,7 +208,8 @@ acs <- map_dfr(
                              "B05002_013E", "B19013_001E"),
                output = "wide",
                survey = "acs5",
-               year = .x),  .id = "year") %>%
+               year = 2020) %>%
+  select(-ends_with("M", ignore.case = F)) %>%
   rename(total_pop = B01001_001E, white_pop = B03002_003E, black_pop = B03002_004E,
          na_pop = B03002_005E, asian_pop = B03002_006E, hpi_pop = B03002_007E,
          other_pop = B03002_008E, biracial_pop = B03002_009E, biracial_other_pop = B03002_010E,
@@ -124,10 +237,7 @@ acs <- map_dfr(
         age_f_85_plus = B01001_049E, res_mob = B07001_017E, 
         own_hh = B25003_002E, foreign = B05002_013E,
         med_hh_inc = B19013_001E) %>%
-  select(-ends_with("M", ignore.case = F)) %>%
-  select(NAME, everything()) %>%
-  mutate(year = as.numeric(year),
-         white_prop = white_pop/total_pop,
+  mutate(white_prop = white_pop/total_pop,
          black_prop = black_pop/total_pop,
          na_prop = na_pop/total_pop,
          asian_prop = asian_pop/total_pop,
@@ -171,23 +281,6 @@ acs <- map_dfr(
          res_mob_rate = 100-100*res_mob/total_pop,
          own_hh_rate = 100*own_hh/total_pop,
          foreign_rate = 100*foreign/total_pop) 
-
-#aggregate over years to tract-level
-acs_agg <- acs %>%
-  select(-year) %>%
-  group_by(GEOID) %>%
-  summarise_if(is.numeric, mean, na.rm = TRUE)
-
-#population denominators
-pop_denom <- acs %>%
-  select(NAME, year, total_pop) 
-
-pop_denom_21 <- acs %>%
-  filter(year==2020) %>%
-  select(NAME, year, total_pop) %>%
-  mutate(year = 2021)
-
-pop_denom_locf <- pop_denom %>% rbind(pop_denom_21)
 ```
 
 # Open Minneapolis Carjacking Data
@@ -203,18 +296,18 @@ cj_spatial <- read_csv("Car Jacking/crime_data.csv")  %>%
   st_as_sf(coords = c("Longitude", "Latitude"), crs = "NAD83", remove=F) %>%
   st_join(mpls_tract) %>% #spatial join neighborhoods
   st_drop_geometry() %>%
-  filter(!is.na(NAME)) %>%
-  group_by(year, week, NAME, .drop=F) %>%
+  filter(!is.na(GEOID)) %>%
+  group_by(year, week, GEOID, .drop=F) %>%
   tally(name = "car_jack") %>%
   ungroup() %>%
-  complete(year, week, NAME=mpls_tract$NAME, fill = list(car_jack = 0)) %>%
+  complete(year, week, GEOID=mpls_tract$GEOID, fill = list(car_jack = 0)) %>%
   filter(!(year==2022 & week >= 14) & #removing unobserved/redundant completions
            !(year==2021 & week==53) & #removing unobserved/redundant completions
            !(year==2020 & week < 36)) %>% #removing weeks before Sept. 2020, isoweek 36
-  arrange(NAME, year, week) %>%
-  left_join(mpls_tract, by = "NAME") %>%
-  left_join(pop_denom_locf, by = c("NAME", "year")) %>%
-  mutate(car_jack_rate = car_jack/B01001_001E*1000) %>%
+  arrange(GEOID, year, week) %>%
+  left_join(mpls_tract, by = "GEOID") %>%
+  left_join(pop_denom_locf, by = c("GEOID", "year")) %>%
+  mutate(car_jack_rate = car_jack/total_pop*1000) %>%
   st_as_sf()
 ```
 
@@ -226,7 +319,7 @@ cj_spatial <- read_csv("Car Jacking/crime_data.csv")  %>%
 cj_week <- cj_spatial %>%
   group_by(year, week) %>%
   summarize(car_jack = sum(car_jack, na.rm = T),
-            total_pop = sum(B01001_001E, na.rm = T)) %>%
+            total_pop = sum(total_pop, na.rm = T)) %>%
   mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
          end_date = begin_date+weeks(1)-days(1),
          car_jack_rate = car_jack/total_pop*1000) 
@@ -250,7 +343,7 @@ ggplot(cj_week)+
 ```{r}
 #aggregate to neighborhood-year level
 cj_tract_year <- cj_spatial %>%
-  group_by(NAME, year) %>%
+  group_by(GEOID, year) %>%
   summarize(car_jack = sum(car_jack, na.rm = T),
             total_pop = sum(B01001_001E, na.rm = T),
             car_jack_rate = car_jack/total_pop*1000) 
@@ -282,6 +375,7 @@ cj_exp <- read_csv("Car Jacking/MPDdata_051022.csv") %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = "NAD83", remove=F) %>%
   st_join(mpls_tract) %>% #spatial join neighborhoods
   st_drop_geometry() %>%
+  drop_na(GEOID) %>%
   group_by(year, week, GEOID, .drop=F) %>%
   tally(name = "car_jack") %>%
   ungroup() %>%
@@ -289,8 +383,8 @@ cj_exp <- read_csv("Car Jacking/MPDdata_051022.csv") %>%
   filter(!(year==2021 & week==53)) %>% 
   arrange(GEOID, year, week) %>%
   left_join(mpls_tract, by = "GEOID") %>%
-  left_join(pop_denom_locf, by = c("NAME", "year")) %>%
-  mutate(car_jack_rate = car_jack/B01001_001E*1000) %>%
+  left_join(pop_denom_locf, by = c("GEOID", "year")) %>%
+  mutate(car_jack_rate = car_jack/total_pop*1000) %>%
   st_as_sf()
 ```
 
@@ -301,7 +395,7 @@ cj_exp <- read_csv("Car Jacking/MPDdata_051022.csv") %>%
 cj_exp_week <- cj_exp %>%
   group_by(year, week) %>%
   summarize(car_jack = sum(car_jack, na.rm = T),
-            total_pop = sum(B01001_001E, na.rm = T)) %>%
+            total_pop = sum(total_pop, na.rm = T)) %>%
   mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
          end_date = begin_date+weeks(1)-days(1),
          car_jack_rate = car_jack/total_pop*1000) 
@@ -310,8 +404,7 @@ ggplot(cj_exp_week)+
   geom_line(aes(x=begin_date, y=car_jack_rate))+ 
   scale_x_date(date_labels = "%b-%Y", 
                limits = c(min(cj_exp_week$begin_date), max(cj_exp_week$begin_date)))+
-  labs(title = "Figure X: Weekly Minneapolis Carjackings, 8/31/2020-4/7/2022",
-       subtitle = "openminneapolis Crime Data",
+  labs(title = "Figure X: Weekly Minneapolis Carjackings, 1/1/2017-12/31/2021",
        x = "Week",
        y = "Weekly Carjacking Rate/ 1,000")+
   theme_minimal()+
@@ -336,8 +429,28 @@ ggplot() +
   facet_grid(~year)+
   scale_fill_distiller(palette = "Spectral")+
   labs(title = "Figure X: Minneapolis Carjacking Rates by Tract and Year", 
-       subtitle = "openminneapolis Crime Data",
        fill = "Weekly Rate/ 1,000")+
   theme_void()
+```
+
+# Spatial Heterogeneity in Car Jackings
+
+
+```{r, message=F}
+cj_exp_year_acs <- cj_exp_tract_year %>%
+  left_join(acs, by = c("NAME", "year")) %>%
+  mutate(yearzero = year-2017,
+         pov_rate_center = scale(pov_rate, center = T, scale = T),
+         white_perc_center = scale(white_perc, center = T, scale = T),
+         black_perc_center = scale(black_perc, center = T, scale = T))
+
+library(plm)
+
+fe <- plm(car_jack_rate~as.factor(yearzero)*white_perc+med_hh_inc, 
+          data = cj_exp_year_acs,
+          index = c("NAME", "year"), model = "within", effect = "individual")
+summary(fe)
+
+
 ```
 
