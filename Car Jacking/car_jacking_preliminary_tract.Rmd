@@ -32,7 +32,6 @@ library(zoo)
 #compare to homicides
 #media stuff - coverage is responsible to rates in which places
 
-#figure out how to deal with tract changes in 2020 - X
 
 # Research Q: what tracts experienced what kind of increase?
 #is the rate/count above a certain threshold - any vs. none
@@ -404,6 +403,13 @@ ggplot(cj_exp_week)+
   geom_line(aes(x=begin_date, y=car_jack_rate))+ 
   scale_x_date(date_labels = "%b-%Y", 
                limits = c(min(cj_exp_week$begin_date), max(cj_exp_week$begin_date)))+
+  geom_vline(xintercept=cj_exp_week$begin_date[cj_exp_week$year==2020 & 
+                                                 cj_exp_week$week==isoweek(date("2020-09-22"))], 
+              linetype="dotted", color="red", size=1)+
+   geom_label(aes(x=cj_exp_week$begin_date[cj_exp_week$year==2020 &
+                                             cj_exp_week$week==isoweek(date("2020-09-22"))],
+                 y=0.050), 
+             label = "Code Change", show.legend = FALSE)+
   labs(title = "Figure X: Weekly Minneapolis Carjackings, 1/1/2017-12/31/2021",
        x = "Week",
        y = "Weekly Carjacking Rate/ 1,000")+
@@ -417,10 +423,11 @@ ggplot(cj_exp_week)+
 ```{r}
 #aggregate to neighborhood-year level
 cj_exp_tract_year <- cj_exp %>%
-  group_by(NAME, year) %>%
+  group_by(GEOID, year) %>%
   summarize(car_jack = sum(car_jack, na.rm = T),
             total_pop = sum(B01001_001E, na.rm = T),
-            car_jack_rate = car_jack/total_pop*1000) 
+            car_jack_rate = car_jack/total_pop*1000) %>%
+  mutate(GEOID = as.character(GEOID))
 
 
 ggplot() +
@@ -438,19 +445,57 @@ ggplot() +
 
 ```{r, message=F}
 cj_exp_year_acs <- cj_exp_tract_year %>%
-  left_join(acs, by = c("NAME", "year")) %>%
+  left_join(acs_2020, by = c("GEOID")) %>%
+  ungroup() %>%
   mutate(yearzero = year-2017,
-         pov_rate_center = scale(pov_rate, center = T, scale = T),
-         white_perc_center = scale(white_perc, center = T, scale = T),
-         black_perc_center = scale(black_perc, center = T, scale = T))
+         pov_rate_center = pov_rate-mean(pov_rate, na.rm = T),
+         white_perc_center = scale(white_perc, center = T, scale = F),
+         black_perc_center = scale(black_perc, center = T, scale = F),
+         anyjack = ifelse(car_jack==0, 0, 1))
 
-library(plm)
+library(lme4)
+library(lmerTest)
 
-fe <- plm(car_jack_rate~as.factor(yearzero)*white_perc+med_hh_inc, 
-          data = cj_exp_year_acs,
-          index = c("NAME", "year"), model = "within", effect = "individual")
-summary(fe)
+efa_vars <- cj_exp_year_acs %>%
+  select(pov_rate, pub_assist_rate, female_hh_rate, 
+         unemp_rate, age_below_18_perc, black_perc, 
+         foreign_rate, hisp_perc, res_mob_rate, own_hh_rate) %>%
+  st_drop_geometry()
+
+fit <- factanal(efa_vars, factors = 3, rotation = "promax")
+print(fit, digits = 2, cutoff = .6, sort = T)
+
+library(lavaan)
+
+cd_model_1  <- ' cd =~ unemp_rate + pov_rate +  female_hh_rate + no_hs_dip_rate + black_perc 
+                  black_perc ~~ unemp_rate'  
+
+cfa_cd <- cfa(cd_model_1, data = cj_exp_year_acs, std.lv = T)
+modificationindices(cfa_cd)
+summary(cfa_cd, fit.measures=TRUE, standardized = T)
+cd_predict <- as.vector(lavPredict(cfa_cd, newdata = cj_exp_year_acs))
+cj_exp_year_acs$conc_dis <- cd_predict
 
 
+re <- lmer(car_jack_rate~as.factor(yearzero)*black_perc+
+             (1|NAME), 
+          data = cj_exp_year_acs)
+summary(re)
+
+
+re_logit <- glmer(anyjack ~ as.factor(yearzero)*black_perc + (1|NAME), 
+                  data = cj_exp_year_acs, family = binomial)
+summary(re_logit)
+
+
+re_cd <- lmer(car_jack_rate~as.factor(yearzero)*conc_dis+
+             (1|NAME), 
+          data = cj_exp_year_acs)
+summary(re)
+
+
+re_logit_cd <- glmer(anyjack ~ as.factor(yearzero)*conc_dis + (1|NAME), 
+                  data = cj_exp_year_acs, family = binomial)
+summary(re_logit)
 ```
 
