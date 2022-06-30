@@ -39,6 +39,12 @@ library(zoo)
 
 #Dv: media attention - following raw change vs. different types of change in certain places
 
+#t-tests of variables between strib coverage and no coverage
+#build # media mentions outcome variables
+#time-series weekly model predicting media mentions, counts in advantaged vs. disadvantaged places
+  #multinomial predictors (0-1, 1-few, few-many?)
+#(months/quarters for the plot) 
+
 
 
 google_key <- readRDS("C:/Users/DELL/Documents/R/Rworkingdirectory/google_api_key.rds")
@@ -440,6 +446,137 @@ ggplot() +
   theme_void()
 ```
 
+#  MPLS Murder (Crime Incidents) Data
+
+```{r}
+#pre-pims
+mpd_2016 <- read_csv("Data/Police_Incidents_2016.csv") 
+mpd_2017 <- read_csv("Data/Police_Incidents_2017.csv") 
+mpd_2018a <- read_csv("Data/Police_Incidents_2018.csv")
+
+#pims
+mpd_2018b <- read_csv("Data/Police_Incidents_2018_PIMS.csv") 
+mpd_2019 <- read_csv("Data/Police_Incidents_2019.csv") 
+mpd_2020 <- read_csv("Data/Police_Incidents_2020.csv") 
+mpd_2021 <- read_csv("Data/Police_Incidents_2021.csv")
+
+pre_pims_base <- mpd_2016 %>%
+  rbind(mpd_2017) %>%
+  rbind(mpd_2018a) %>%
+  rename(reportedDate = ReportedDate,
+         centerLong = Long,
+         centerLat = Lat) %>%
+  select(FID, centerLong, centerLat, Offense, reportedDate) %>%
+  rename(OBJECTID = FID, 
+         X = centerLong, 
+         Y = centerLat, 
+         offense = Offense)
+
+post_pims_base <- mpd_2018b %>%
+  rbind(mpd_2019) %>%
+  rbind(mpd_2020) %>%
+  rbind(mpd_2021) %>%
+  select(OBJECTID, X, Y, offense, reportedDate)
+
+mpd <- pre_pims_base %>%
+  rbind(post_pims_base) 
+
+#aggregate homicides to tract-week
+homicide <- mpd %>%
+  mutate(date=ymd_hms(reportedDate),
+         year=isoyear(date),
+         week=isoweek(date)) %>%
+  filter(offense=="MURDR" & year!=2016 & year!=2015 & year!=2022) %>% #filter homicides
+  select(OBJECTID, year, week, Y, X) %>%
+  st_as_sf(coords = c("X", "Y"), crs = "NAD83", remove=F) %>%
+  st_join(mpls_tract) %>% #spatial join neighborhoods
+  st_drop_geometry() %>%
+  filter(!is.na(GEOID)) %>%
+  group_by(year, week, GEOID, .drop=F) %>%
+  tally(name = "homicide") %>%
+  ungroup() %>%
+  complete(year, week, GEOID=mpls_tract$GEOID, fill = list(homicide = 0)) %>%
+  filter(!(year==2021 & week==53)) %>% 
+  arrange(GEOID, year, week) %>%
+  left_join(mpls_tract, by = "GEOID") %>%
+  left_join(pop_denom_locf, by = c("GEOID", "year")) %>%
+  mutate(homicide_rate = homicide/total_pop*1000) %>%
+  st_as_sf()
+```
+
+# MPLS Murder by Week 
+
+```{r}
+#aggregate to week over tracts
+homicide_week <- homicide %>%
+  group_by(year, week) %>%
+  summarize(homicide = sum(homicide, na.rm = T),
+            total_pop = sum(total_pop, na.rm = T)) %>%
+  mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1),
+         homicide_rate = homicide/total_pop*1000) 
+  
+ggplot(homicide_week)+
+  geom_line(aes(x=begin_date, y=homicide_rate))+ 
+  scale_x_date(date_labels = "%b-%Y", 
+               limits = c(min(homicide_week$begin_date), max(homicide_week$begin_date)))+
+     labs(title = "Figure X: Weekly Minneapolis Homicide, 1/1/2017-12/31/2021",
+       x = "Week",
+       y = "Weekly Homicide Rate/ 1,000")+
+  theme_minimal()+
+    theme(axis.text.x=element_text(angle=45, hjust=1)) 
+```
+# MPLS ZCTA Carjackings Map - MPD Extended Data
+
+```{r}
+#aggregate to neighborhood-year level
+homicide_tract_year <- homicide %>%
+  group_by(GEOID, year) %>%
+  summarize(homicide = sum(homicide, na.rm = T),
+            total_pop = sum(B01001_001E, na.rm = T),
+            homicide_rate = homicide/total_pop*1000) %>%
+  mutate(GEOID = as.character(GEOID))
+
+
+ggplot() +
+  geom_sf(data = homicide_tract_year, aes(geometry = geometry, fill = homicide_rate)) + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  facet_grid(~year)+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "Figure X: Minneapolis Homicide Rates by Tract and Year", 
+       fill = "Weekly Rate/ 1,000")+
+  theme_void()
+```
+# Spatial Correlation of Carjackings and Homicide
+
+```{r}
+library(sfdep)
+
+hom_2021 <- homicide_tract_year %>%
+  filter(year==2021)
+
+cj_2021 <- cj_exp_tract_year %>%
+  filter(year==2021)
+
+#hom_2021_sp <- as(hom_2021, "Spatial")
+
+nb <- st_contiguity(hom_2021, queen=TRUE)
+wt <-  st_weights(nb, style = "W")
+global_moran(hom_2021$homicide_rate, nb, wt)
+global_moran_test(
+  hom_2021$homicide_rate,
+  nb,
+  wt,
+  alternative = "greater",
+  randomization = TRUE)
+
+global_moran_test(
+  cj_2021$car_jack_rate,
+  nb,
+  wt,
+  alternative = "greater",
+  randomization = TRUE)
+```
 # Spatial Heterogeneity in Car Jackings
 
 
