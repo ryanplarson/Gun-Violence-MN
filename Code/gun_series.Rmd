@@ -715,57 +715,14 @@ ggplot(series)+
   geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
                  y=0.050), 
              label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Figure 1: Weekly Firearm Unintentional Injuries, 2016-2020",
+  labs(title = "Figure A1: Weekly Firearm Unintentional Injuries, 2016-2020",
        subtitle = "MHA Hospital Data",
        x = "Week",
        y = "Rate per 1,000 Residents")+
   theme_minimal()+
     theme(axis.text.x=element_text(angle=45, hjust=1)) 
 
-ggplot(series)+
-  geom_line(aes(x=begin_date, y=suicide_incid_c))+ 
-  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
-  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
-              linetype="dotted", color="red", size=1)+
-  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.050), 
-             label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Figure 1: Weekly Firearm Suicide Injuries, 2016-2020",
-       subtitle = "MHA Hospital Data",
-       x = "Week",
-       y = "Rate per 1,000 Residents")+
-  theme_minimal()+
-    theme(axis.text.x=element_text(angle=45, hjust=1)) 
 
-ggplot(series)+
-  geom_line(aes(x=begin_date, y=undeter_incid_c))+ 
-  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
-  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
-              linetype="dotted", color="red", size=1)+
-  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.050), 
-             label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Figure 1: Weekly Firearm Undetermined Injuries, 2016-2020",
-       subtitle = "MHA Hospital Data",
-       x = "Week",
-       y = "Rate per 1,000 Residents")+
-  theme_minimal()+
-    theme(axis.text.x=element_text(angle=45, hjust=1)) 
-
-ggplot(series)+
-  geom_line(aes(x=begin_date, y=legal_incid_c))+ 
-  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
-  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
-              linetype="dotted", color="red", size=1)+
-  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.050), 
-             label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Figure 1: Weekly Firearm Legal Injuries, 2016-2020",
-       subtitle = "MHA Hospital Data",
-       x = "Week",
-       y = "Rate per 1,000 Residents")+
-  theme_minimal()+
-    theme(axis.text.x=element_text(angle=45, hjust=1)) 
 ```
 
 ## Time Series Analysis
@@ -813,6 +770,11 @@ ts_ar1_pol<- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_fl
 summary(ts_ar1_pol)
 
 acf2(resid(ts_ar1_pol), max.lag = 7)
+
+ts_ar1_pol_unintent <- lm(unintent_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+                         tmax_f+snow_in+precip_in+dark_before_12+school+
+                  uof_lag+stops_lag+shoot_lag+
+                         dplyr::lag(assault_incid_c, 1), data = series)
 
 ```
 
@@ -891,6 +853,32 @@ ggplot() +
   plot.subtitle = element_text(face="italic"),
   strip.background = element_rect(fill = "white", 
                 colour = "black"))
+
+ggplot() +
+  geom_sf(data = zip_level, aes(geometry = geometry, fill = unintent_incid_c)) + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
+  geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
+                  size = 2,
+                 fontface = "bold",
+                 nudge_x = 1, nudge_y = -1)+
+  facet_wrap(~period)+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "Figure A2: Firearm Unintentional Injury Rates by ZCTA and Period", 
+       subtitle = "MHA Hospital Discharge Data",
+       fill = "Incident Rate/1,000")+
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_blank(),
+  panel.grid.major = element_line(colour="transparent"), 
+  plot.subtitle = element_text(face="italic"),
+  strip.background = element_rect(fill = "white", 
+                colour = "black"))
 ```
 
 ## Panel Analysis
@@ -937,6 +925,13 @@ re_base <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+
                  (1|zcta), data = panel)
 summary(re_base)
 
+re_base_unintent <- lmer(unintent_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+post_floyd_3+
+                tmax_f+snow_in+precip_in+dark_before_12+school+
+                 uof_lag+stops_lag+shoot_lag+
+                 (1|zcta), data = panel)
+summary(re_base_unintent)
+
 #interaction model
 re_int <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+
                  post_floyd+post_floyd_3+
@@ -947,6 +942,16 @@ re_int <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+
                  (1|zcta), data = panel)
 summary(re_int)
 
+#interaction model
+re_int_unintent <- lmer(unintent_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+post_floyd_3+
+                tmax_f+snow_in+precip_in+dark_before_12+school+
+                 uof_lag+stops_lag+shoot_lag+
+                 black_pop+
+                post_floyd:black_pop+
+                 (1|zcta), data = panel)
+summary(re_int_unintent)
+
 library(sjPlot)
 
 
@@ -956,6 +961,16 @@ plot_model(re_int,
            ci.lvl = 0.95,
            mdrt.values = "meansd",
            title = "Figure 3: Post-Killing X Percent Black Interaction Plot",
+           axis.title = c("Post-Killing","Gun Assault Rate per 1,000"))+
+  theme_sjplot()+
+  ggplot2::labs(colour = "Percent Black")
+
+plot_model(re_int_unintent, 
+           terms = c("post_floyd", "black_pop"),
+           type = "pred", 
+           ci.lvl = 0.95,
+           mdrt.values = "meansd",
+           title = "Figure A3: Post-Killing X Percent Black Interaction Plot",
            axis.title = c("Post-Killing","Gun Assault Rate per 1,000"))+
   theme_sjplot()+
   ggplot2::labs(colour = "Percent Black")
@@ -999,6 +1014,37 @@ stargazer(ts_ar1_pol, re_base, re_int,
                                "Post-Killing X Percent Black"),
           header = F,
           dep.var.caption = "Firearm Assault Injuries",
+          dep.var.labels = "Rate per 1,000",
+          model.names = FALSE,
+          column.labels = c("AR(1) TSR", "RE HLM","RE HLM +Int."),
+          model.numbers = TRUE,
+          single.row = F,
+          align = T,
+          omit = c("tmax_f", "snow_in","precip_in","dark_before_12","school"),
+          omit.stat = c("adj.rsq"),
+          star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
+          add.lines = list(c("SD(ZCTA)", "", .826, .642),
+                           c("SD(Residual)", "", 30.010, 5.461)),
+          notes.label = "Models include controls ,for seasonality.")
+
+
+```
+
+```{r, message=F, results='asis'}
+class(re_base_unintent) <- "lmerMod"
+class(re_int_unintent) <- "lmerMod"
+
+stargazer(ts_ar1_pol_unintent, re_base_unintent, re_int_unintent,
+          title = "Interrupted Time Series Models of Firearm Unintentional Injuries",
+          covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
+                               "Post-Killing", "Post-Killing 3 Months",
+                               "MPD Use of Force t-1", "MPD Stops t-1",
+                               "MPD Officer Involved Shootings t-1", 
+                                "AR(1)",
+                               "Percent Black",
+                               "Post-Killing X Percent Black"),
+          header = F,
+          dep.var.caption = "Firearm Unintentional Injuries",
           dep.var.labels = "Rate per 1,000",
           model.names = FALSE,
           column.labels = c("AR(1) TSR", "RE HLM","RE HLM +Int."),
