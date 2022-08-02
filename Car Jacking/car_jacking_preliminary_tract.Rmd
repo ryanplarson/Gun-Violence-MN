@@ -410,12 +410,12 @@ ggplot(cj_exp_week)+
   scale_x_date(date_labels = "%b-%Y", 
                limits = c(min(cj_exp_week$begin_date), max(cj_exp_week$begin_date)))+
   geom_vline(xintercept=cj_exp_week$begin_date[cj_exp_week$year==2020 & 
-                                                 cj_exp_week$week==isoweek(date("2020-09-22"))], 
+                                                 cj_exp_week$week==isoweek(date("2020-05-25"))], 
               linetype="dotted", color="red", size=1)+
    geom_label(aes(x=cj_exp_week$begin_date[cj_exp_week$year==2020 &
-                                             cj_exp_week$week==isoweek(date("2020-09-22"))],
+                                             cj_exp_week$week==isoweek(date("2020-05-25"))],
                  y=0.050), 
-             label = "Code Change", show.legend = FALSE)+
+             label = "George Floyd", show.legend = FALSE)+
   labs(title = "Figure X: Weekly Minneapolis Carjackings, 1/1/2017-12/31/2021",
        x = "Week",
        y = "Weekly Carjacking Rate/ 1,000")+
@@ -526,7 +526,7 @@ ggplot(homicide_week)+
   theme_minimal()+
     theme(axis.text.x=element_text(angle=45, hjust=1)) 
 ```
-# MPLS ZCTA Carjackings Map - MPD Extended Data
+# MPLS ZCTA Murder Map - MPD Extended Data
 
 ```{r}
 #aggregate to neighborhood-year level
@@ -547,38 +547,90 @@ ggplot() +
        fill = "Weekly Rate/ 1,000")+
   theme_void()
 ```
-# Spatial Correlation of Carjackings and Homicide
+# Dispersion of Change from 2017-2019 to 2020-2021
+
+## Car Jacking
+
+```{r}
+library(crimedispersion)
+
+prepost_cj <- cj_exp_tract_year %>%
+  mutate(pre_post = ifelse(year < 2020, "pre", "post")) %>%
+  group_by(GEOID, pre_post) %>%
+  summarize(car_jack = sum(car_jack, na.rm = T),
+            total_pop = sum(total_pop, na.rm = T)) %>%
+  mutate(car_jack_rate = car_jack/total_pop*1000) %>%
+  select(GEOID, pre_post, car_jack, car_jack_rate) %>% 
+  pivot_wider(names_from = pre_post, values_from = c(car_jack, car_jack_rate))
+
+output <- crimedispersion(as.data.frame(prepost_cj), 'GEOID', 'car_jack_pre', 'car_jack_post')
+
+ouput_data <- output[[1]]
+n_remove <- output[[3]]
+odi <- output[[4]] #ratio of n removed to n overall
+ncdi <- output[[5]] #ratio of areas not contributing to overall increase but still increase to overall n
+
+output[[2]]
+```
+
+## Homicide
+
+```{r}
+prepost_hom <- homicide_tract_year %>%
+  mutate(pre_post = ifelse(year < 2020, "pre", "post")) %>%
+  group_by(GEOID, pre_post) %>%
+  summarize(homicide = sum(homicide, na.rm = T),
+            total_pop = sum(total_pop, na.rm = T)) %>%
+  mutate(homicide_rate = homicide/total_pop*1000) %>%
+  select(GEOID, pre_post, homicide, homicide_rate) %>% 
+  pivot_wider(names_from = pre_post, values_from = c(homicide, homicide_rate))
+
+output_homicide <- crimedispersion(as.data.frame(prepost_hom), 'GEOID', 'homicide_pre', 'homicide_post')
+
+ouput_data <- output_homicide[[1]]
+n_remove <- output_homicide[[3]]
+odi <- output_homicide[[4]] #ratio of n removed to n overall
+ncdi <- output_homicide[[5]] #ratio of areas not contributing to overall increase but still increase to overall n
+
+output_homicide[[2]]
+```
+
+# Spatial Correlation *Change* in Carjackings and Homicide
 
 ```{r}
 library(sfdep)
 
-hom_2021 <- homicide_tract_year %>%
-  filter(year==2021)
+cj_delta <- prepost_cj %>%
+  mutate(delta = car_jack_post-car_jack_pre) %>%
+  st_sf()
 
-cj_2021 <- cj_exp_tract_year %>%
-  filter(year==2021)
-
-#hom_2021_sp <- as(hom_2021, "Spatial")
-
-nb <- st_contiguity(hom_2021, queen=TRUE)
+nb <- st_contiguity(cj_delta, queen=TRUE)
 wt <-  st_weights(nb, style = "W")
-global_moran(hom_2021$homicide_rate, nb, wt)
+global_moran(cj_delta$delta, nb, wt)
 global_moran_test(
-  hom_2021$homicide_rate,
+  cj_delta$delta,
   nb,
   wt,
   alternative = "greater",
   randomization = TRUE)
 
-global_moran_test(
-  cj_2021$car_jack_rate,
-  nb,
-  wt,
-  alternative = "greater",
-  randomization = TRUE)
+#LISA
+
+cj_lisa <-  local_moran(cj_delta$delta,
+                       nb = nb,
+                       wt = wt) %>%
+  mutate(mean_p = ifelse(p_ii <= 0.05, as.character(mean), "Non Sig."))
+
+cj_delta %>% cbind(cj_lisa) %>%
+  ggplot(aes(fill = mean_p)) +
+  geom_sf() +
+  geom_sf(lwd = 0.2, color = "black") +
+  theme_void() +
+  scale_fill_manual(values = c("#1C4769", "#24975E", "#EACA97", "#B20016"))
 ```
-# Spatial Heterogeneity in Car Jackings
 
+
+# Spatial Heterogeneity in Car Jackings
 
 ```{r, message=F}
 cj_exp_year_acs <- cj_exp_tract_year %>%

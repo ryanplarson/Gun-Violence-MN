@@ -715,7 +715,7 @@ ggplot(series)+
   geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
                  y=0.050), 
              label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Figure A1: Weekly Firearm Unintentional Injuries, 2016-2020",
+  labs(title = "Figure A3: Weekly Firearm Unintentional Injuries, 2016-2020",
        subtitle = "MHA Hospital Data",
        x = "Week",
        y = "Rate per 1,000 Residents")+
@@ -864,7 +864,7 @@ ggplot() +
                  nudge_x = 1, nudge_y = -1)+
   facet_wrap(~period)+
   scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure A2: Firearm Unintentional Injury Rates by ZCTA and Period", 
+  labs(title = "Figure A4: Firearm Unintentional Injury Rates by ZCTA and Period", 
        subtitle = "MHA Hospital Discharge Data",
        fill = "Incident Rate/1,000")+
   theme(axis.text.x = element_blank(),
@@ -970,8 +970,8 @@ plot_model(re_int_unintent,
            type = "pred", 
            ci.lvl = 0.95,
            mdrt.values = "meansd",
-           title = "Figure A3: Post-Killing X Percent Black Interaction Plot",
-           axis.title = c("Post-Killing","Gun Assault Rate per 1,000"))+
+           title = "Figure A5: Post-Killing X Percent Black Interaction Plot",
+           axis.title = c("Post-Killing","Unintentional Firearm Injuriy Rate per 1,000"))+
   theme_sjplot()+
   ggplot2::labs(colour = "Percent Black")
 ```
@@ -987,7 +987,7 @@ stargazer(fe_model, fe_full_model,
           dep.var.caption = "Firearm Assault Injuries",
           dep.var.labels = "Rate per 1,000",
           model.numbers = TRUE,
-          single.row = TRUE,
+          single.row = F,
           align = T,
           omit = c("zcta", "tmax_f", "snow_in","precip_in","dark_before_12","school"),
           omit.stat = "adj.rsq",
@@ -1017,18 +1017,25 @@ stargazer(ts_ar1_pol, re_base, re_int,
           dep.var.labels = "Rate per 1,000",
           model.names = FALSE,
           column.labels = c("AR(1) TSR", "RE HLM","RE HLM +Int."),
-          model.numbers = TRUE,
+          report = "vcs",
+          ci=TRUE, 
+          ci.level=0.95, 
+          ci.separator = "|",
+          notes = "95\\% Confidence Intervals in parentheses",
           single.row = F,
-          align = T,
           omit = c("tmax_f", "snow_in","precip_in","dark_before_12","school"),
           omit.stat = c("adj.rsq"),
-          star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
+          #star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
           add.lines = list(c("SD(ZCTA)", "", .826, .642),
                            c("SD(Residual)", "", 30.010, 5.461)),
-          notes.label = "Models include controls ,for seasonality.")
+          notes.label = "Models include controls ,for seasonality.",
+          notes.append = F)
 
 
 ```
+
+\setcounter{table}{0}
+\renewcommand{\thetable}{A\arabic{table}}
 
 ```{r, message=F, results='asis'}
 class(re_base_unintent) <- "lmerMod"
@@ -1049,14 +1056,20 @@ stargazer(ts_ar1_pol_unintent, re_base_unintent, re_int_unintent,
           model.names = FALSE,
           column.labels = c("AR(1) TSR", "RE HLM","RE HLM +Int."),
           model.numbers = TRUE,
+          report = "vcs",
+          ci=TRUE, 
+          ci.level=0.95, 
+          ci.separator = "|",
+          notes = "95\\% Confidence Intervals in parentheses",
           single.row = F,
           align = T,
           omit = c("tmax_f", "snow_in","precip_in","dark_before_12","school"),
           omit.stat = c("adj.rsq"),
-          star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
+         #star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
           add.lines = list(c("SD(ZCTA)", "", .826, .642),
                            c("SD(Residual)", "", 30.010, 5.461)),
-          notes.label = "Models include controls ,for seasonality.")
+          notes.label = "Models include controls ,for seasonality.",
+          notes.append = F)
 
 
 ```
@@ -1205,7 +1218,7 @@ ggplot(mpd_series)+
                  y=0.0150), 
              label = "George Floyd", show.legend = FALSE)+
   scale_y_continuous(limits = c(0,.015))+
-  labs(title = "Figure 4: Weekly Murder Rate, 2016-2021",
+  labs(title = "Figure A1: Weekly Murder Rate, 2016-2021",
        subtitle = "MPD Data",
        x = "Week",
        y = "Rate per 1,000 Residents", 
@@ -1272,7 +1285,7 @@ ggplot() +
                  nudge_x = 1, nudge_y = -1)+
   facet_wrap(~period)+
   scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure 5: Murder Rates by ZCTA and Period", 
+  labs(title = "Figure A2: Murder Rates by ZCTA and Period", 
        subtitle = "MPD Data",
        fill = "Murder Rate/1,000")+
   theme(axis.text.x = element_blank(),
