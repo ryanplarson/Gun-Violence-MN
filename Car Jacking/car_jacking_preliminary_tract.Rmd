@@ -735,7 +735,6 @@ series <- series %>%
 
 ```
 
-```
 
 # RE CJ Models
 
@@ -775,11 +774,20 @@ summary(re)
 
 #build in police covariates
 #what other covariates do we need here?
+  #crude model - no post-treatment control
+#businesses - crime generators
 #percent single males
 #percent "isolated" youth
+#similar story with homicide?
+#FE models
 
 re_logit_cd <- glmer(anyjack ~ as.factor(yearzero)*conc_dis + (1|NAME), 
                   data = cj_exp_year_acs, family = binomial)
 summary(re_logit)
 ```
+
+
+
+
+
 
