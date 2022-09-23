@@ -47,8 +47,9 @@ library(zoo)
 
 
 set.seed(7188)
-google_key <- readRDS("C:/Users/DELL/Documents/R/Rworkingdirectory/google_api_key.rds")
+google_key <- readRDS("C:/Users/rlarson21/Documents/R/Rworkingdirectory/google_api_key.rds")
 register_google(key = google_key)
+census_api_key("ecda17575f4d914b502c70f2bae7a5f3d253792d")
 ```
 
 # Spatial Data
@@ -77,7 +78,6 @@ mpls_tract <- tracts %>%
          perc_intersection = intersection_area/tract_area*100) %>%
   filter(perc_intersection >= 2) %>%
   select(-"B01001_001M")
-
 ```
 
 # ACS Covariates
@@ -370,7 +370,7 @@ ggplot() +
 # Expanded MPLS Carjacking (Crime Incidents) Data
 
 ```{r}
-cj_exp <- read_csv("Car Jacking/MPDdata_051022.csv") %>%
+cj_exp <- read_csv("Data/MPDdata_082422.csv") %>%
    mutate(date=mdy_hm(reporteddate),
          year=isoyear(date),
          week=isoweek(date)) %>%
@@ -403,24 +403,35 @@ cj_exp_week <- cj_exp %>%
             total_pop = sum(total_pop, na.rm = T)) %>%
   mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
          end_date = begin_date+weeks(1)-days(1),
-         car_jack_rate = car_jack/total_pop*1000) 
-  
+         car_jack_rate = car_jack/total_pop*1000, 
+         pre_post_floyd = ifelse(end_date <= as.Date("2020-05-25"), 0, 1)) %>%
+  filter(end_date <= as.Date("2022-08-20")) 
+
+pre_mean <- mean(cj_exp_week$car_jack_rate[cj_exp_week$pre_post_floyd==0], na.rm = T)
+post_mean <- mean(cj_exp_week$car_jack_rate[cj_exp_week$pre_post_floyd==1], na.rm = T)
+
+c(pre_mean, post_mean)
+post_mean/pre_mean
+
+
 ggplot(cj_exp_week)+
   geom_line(aes(x=begin_date, y=car_jack_rate))+ 
-  scale_x_date(date_labels = "%b-%Y", 
+  scale_x_date(date_labels = "%b-%Y", date_breaks = "15 weeks",
                limits = c(min(cj_exp_week$begin_date), max(cj_exp_week$begin_date)))+
   geom_vline(xintercept=cj_exp_week$begin_date[cj_exp_week$year==2020 & 
                                                  cj_exp_week$week==isoweek(date("2020-05-25"))], 
               linetype="dotted", color="red", size=1)+
    geom_label(aes(x=cj_exp_week$begin_date[cj_exp_week$year==2020 &
                                              cj_exp_week$week==isoweek(date("2020-05-25"))],
-                 y=0.050), 
+                 y=0.065), 
              label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Figure X: Weekly Minneapolis Carjackings, 1/1/2017-12/31/2021",
+  labs(title = "Figure 1: Weekly Minneapolis Carjackings, 1/1/2017-8/20/2022",
        x = "Week",
        y = "Weekly Carjacking Rate/ 1,000")+
   theme_minimal()+
     theme(axis.text.x=element_text(angle=45, hjust=1)) 
+
+ggsave(filename = "Car Jacking/Figures for PAA/fig1.png", bg="white", width = 10, height = 8)
 ```
 
 
@@ -441,9 +452,12 @@ ggplot() +
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
   facet_grid(~year)+
   scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure X: Minneapolis Carjacking Rates by Tract and Year", 
+  labs(title = "Figure 2: Minneapolis Carjacking Rates by Tract and Year", 
        fill = "Weekly Rate/ 1,000")+
-  theme_void()
+  theme_void()+
+  theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
+
+ggsave(filename = "Car Jacking/Figures for PAA/fig2.png", bg="white", width = 10, height = 8)
 ```
 
 #  MPLS Murder (Crime Incidents) Data
@@ -459,6 +473,8 @@ mpd_2018b <- read_csv("Data/Police_Incidents_2018_PIMS.csv")
 mpd_2019 <- read_csv("Data/Police_Incidents_2019.csv") 
 mpd_2020 <- read_csv("Data/Police_Incidents_2020.csv") 
 mpd_2021 <- read_csv("Data/Police_Incidents_2021.csv")
+mpd_2022 <- read_csv("Data/Police_Incidents_2022.csv")
+
 
 pre_pims_base <- mpd_2016 %>%
   rbind(mpd_2017) %>%
@@ -476,6 +492,7 @@ post_pims_base <- mpd_2018b %>%
   rbind(mpd_2019) %>%
   rbind(mpd_2020) %>%
   rbind(mpd_2021) %>%
+  rbind(mpd_2022) %>%
   select(OBJECTID, X, Y, offense, reportedDate)
 
 mpd <- pre_pims_base %>%
@@ -486,7 +503,7 @@ homicide <- mpd %>%
   mutate(date=ymd_hms(reportedDate),
          year=isoyear(date),
          week=isoweek(date)) %>%
-  filter(offense=="MURDR" & year!=2016 & year!=2015 & year!=2022) %>% #filter homicides
+  filter(offense=="MURDR" & year!=2016 & year!=2015) %>% #filter homicides
   select(OBJECTID, year, week, Y, X) %>%
   st_as_sf(coords = c("X", "Y"), crs = "NAD83", remove=F) %>%
   st_join(mpls_tract) %>% #spatial join neighborhoods
@@ -514,18 +531,38 @@ homicide_week <- homicide %>%
             total_pop = sum(total_pop, na.rm = T)) %>%
   mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
          end_date = begin_date+weeks(1)-days(1),
-         homicide_rate = homicide/total_pop*1000) 
+         homicide_rate = homicide/total_pop*1000,
+         pre_post_floyd = ifelse(end_date <= as.Date("2020-05-25"), 0, 1)) %>%
+  filter(end_date <= as.Date("2022-08-20")) 
+
+pre_mean <- mean(homicide_week$homicide_rate[homicide_week$pre_post_floyd==0], na.rm = T)
+post_mean <- mean(homicide_week$homicide_rate[homicide_week$pre_post_floyd==1], na.rm = T)
+
+c(pre_mean, post_mean)
+post_mean/pre_mean
+
   
 ggplot(homicide_week)+
   geom_line(aes(x=begin_date, y=homicide_rate))+ 
   scale_x_date(date_labels = "%b-%Y", 
                limits = c(min(homicide_week$begin_date), max(homicide_week$begin_date)))+
-     labs(title = "Figure X: Weekly Minneapolis Homicide, 1/1/2017-12/31/2021",
+     labs(title = "Figure 3: Weekly Minneapolis Homicide, 1/1/2017-8/20/2022",
        x = "Week",
        y = "Weekly Homicide Rate/ 1,000")+
+  geom_vline(xintercept=homicide_week$begin_date[homicide_week$year==2020 & 
+                                                 homicide_week$week==isoweek(date("2020-05-25"))], 
+              linetype="dotted", color="red", size=1)+
+   geom_label(aes(x=homicide_week$begin_date[homicide_week$year==2020 &
+                                             homicide_week$week==isoweek(date("2020-05-25"))],
+                 y=0.015), 
+             label = "George Floyd", show.legend = FALSE)+
   theme_minimal()+
-    theme(axis.text.x=element_text(angle=45, hjust=1)) 
+    theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
+
+ggsave(filename = "Car Jacking/Figures for PAA/fig3.png", bg="white", width = 10, height = 8)
 ```
+
 # MPLS ZCTA Murder Map - MPD Extended Data
 
 ```{r}
@@ -543,10 +580,14 @@ ggplot() +
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
   facet_grid(~year)+
   scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure X: Minneapolis Homicide Rates by Tract and Year", 
+  labs(title = "Figure 4: Minneapolis Homicide Rates by Tract and Year", 
        fill = "Weekly Rate/ 1,000")+
-  theme_void()
+  theme_void() +
+  theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
+
+ggsave(filename = "Car Jacking/Figures for PAA/fig4.png", bg="white", width = 10, height = 8)
 ```
+
 # Dispersion of Change from 2017-2019 to 2020-2021
 
 ## Car Jacking
