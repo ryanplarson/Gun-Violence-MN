@@ -593,18 +593,230 @@ ggsave(filename = "Car Jacking/Figures for PAA/fig4.png", bg="white", width = 10
 ## Car Jacking
 
 ```{r}
-library(crimedispersion)
+crimedispersion <- function
+(data1, unitID, time1, time2, method = "match") {
 
-prepost_cj <- cj_exp_tract_year %>%
-  mutate(pre_post = ifelse(year < 2020, "pre", "post")) %>%
-  group_by(GEOID, pre_post) %>%
+  # define variables to limit build warnings
+  adjusted <- Ut1 <- Ut2 <- Rt1 <- Rt2 <- chg <- pct <- NULL
+
+  # ERROR CHECKING. Has user passed a data frame?
+  if (!is.data.frame(data1)) {
+    stop("The input data specified is not a data.frame object. Please fix.")
+  }
+
+  # Build a local data.frame and populate with passed arguments
+  source_rows <- nrow(data1)
+  df1 <- data.frame(matrix(ncol = 3, nrow = source_rows))
+  colnames(df1) <- c("unit", "time1", "time2")
+  df1$unit <- data1[, unitID]
+  df1$time1 <- data1[, time1]
+  df1$time2 <- data1[, time2]
+  if (method == "remove") {
+    analysisMethod <- "remove"
+  } else {
+    analysisMethod <- "match"
+  }
+
+
+  # ERROR CHECKING. Did user pass numeric columns where needed?
+  try (df1$time1 <- as.numeric(df1$time1), silent = TRUE)
+  try (df1$time2 <- as.numeric(df1$time2), silent = TRUE)
+
+  if (!class(df1$time1)[1] == "numeric") {
+    stop("The time1 field is not a numeric object. Please fix.")
+  }
+  if (!class(df1$time2)[1] == "numeric") {
+    stop("The time2 field is not a numeric object. Please fix.")
+  }
+
+  # MORE ERROR CHECKING:
+  # What if the user has NA or missing data?
+  # What if the crime problem is decreasing?
+  # Fun tasks for later...
+
+
+  # Set up parameters -------------------------------------------------------
+
+  # Set up initial parameters
+  count_Rt1 <- sum(df1$time1)
+  count_Rt2 <- sum(df1$time2)
+  chg_Rt1_Rt2 <- count_Rt2 - count_Rt1
+  pct_Rt1_Rt2 <- (chg_Rt1_Rt2 / count_Rt1) *100
+
+  # Add the field that has the volume of change, and order by it
+  df1 <- df1 %>%
+    mutate (diff = time2 - time1) %>%
+    mutate (diffPct = 100*(diff/time1)) %>%
+    arrange(desc(diff))
+
+  # Grab some basic statistics here
+  numPositive <- length(which(df1$diff > 0))
+  numNeutral <- length(which(df1$diff == 0))
+  numNegative <- length(which(df1$diff < 0))
+
+
+  # Create the new data frame to hold the result
+  df2 <- data.frame(matrix(ncol =8, nrow = 0))
+  colnames(df2) <- c("unit", "adjusted", "Ut1", "Ut2", "Rt1", "Rt2", "chg", "pct")
+  df2 <- df2 %>%
+    mutate(unit = as.character(unit)) %>%
+    mutate(adjusted = as.numeric(adjusted)) %>%
+    mutate(Ut1 = as.numeric(Ut1)) %>%
+    mutate(Ut2 = as.numeric(Ut2)) %>%
+    mutate(Rt1 = as.numeric(Rt1)) %>%
+    mutate(Rt2 = as.numeric(Rt2)) %>%
+    mutate(chg = as.numeric(chg)) %>%
+    mutate(pct = as.numeric(pct))
+
+  # set up the initial row in the result data frame
+  df2 <- df2 %>% add_row(unit = "[ ALL AREAS ]", adjusted = 0,
+                         Ut1 = 0, Ut2 = 0,
+                         Rt1 = count_Rt1, Rt2 = count_Rt2,
+                         chg = chg_Rt1_Rt2, pct = pct_Rt1_Rt2)
+
+  gain_from_row_removal <- row_to_remove <- NULL
+
+
+  # Loop through each row of the data
+  for (master_loop in 1:(source_rows)){
+
+    df1 <- df1 %>%  # order the data frame
+      arrange(desc(diff))
+
+    if (analysisMethod == "match"){
+      #### 'Zero change the row' approach
+      count_Rt1_temp <- count_Rt1
+      count_Rt2_temp <- count_Rt2 - df1$diff[master_loop]
+      pct_Rt1_Rt2 <- ((count_Rt1_temp - count_Rt2_temp) / count_Rt1) *100
+    }
+    else { #analysisMethod == "remove"
+      #### 'Remove entire row' approach, including remove t1 value
+      count_Rt1_temp <- count_Rt1 - df1$time1[master_loop]
+      count_Rt2_temp <- count_Rt2 - df1$time2[master_loop]
+      pct_Rt1_Rt2 <- ((count_Rt1_temp - count_Rt2_temp) / count_Rt1) *100
+    }
+
+    row_to_remove <- 1  # Always row 1, but this is a legacy from
+    # when I used a different approach...
+    # Here, the row we are removing is
+    # stored in row_to_remove
+
+    if (analysisMethod == "remove"){
+      #### Remove entire row approach
+      #    This approach removes the impact of the area by subtracting
+      #    both Rt1 and Rt2
+      count_Rt1 <- count_Rt1 - df1$time1[row_to_remove]
+      count_Rt2 <- count_Rt2 - df1$time2[row_to_remove]
+      chg_Rt1_Rt2 <- count_Rt2 - count_Rt1
+      pct_Rt1_Rt2 <- (chg_Rt1_Rt2 / count_Rt1) *100
+      named_areas <- df1$unit[row_to_remove]
+    }
+
+    if (analysisMethod == "match"){
+      #### Zero change the row approach, as if Rt2 == Rt1 in the row
+      #    The best row to remove is has been exhaustively calculated
+      #    Here, the row we are removing is stored in row_to_remove
+      count_Rt1 <- count_Rt1
+      count_Rt2 <- count_Rt2 - df1$diff[row_to_remove]
+      chg_Rt1_Rt2 <- count_Rt2 - count_Rt1
+      pct_Rt1_Rt2 <- (chg_Rt1_Rt2 / count_Rt1) *100
+      named_areas <- df1$unit[row_to_remove]
+    }
+
+    # Add result to the output data frame
+    df2 <- df2 %>% add_row(unit = named_areas, adjusted = master_loop,
+                           Ut1 = df1$time1[row_to_remove], Ut2 = df1$time2[row_to_remove],
+                           Rt1 = count_Rt1, Rt2 = count_Rt2,
+                           chg = chg_Rt1_Rt2, pct = pct_Rt1_Rt2)
+
+    # Adjust the row we just used in one of two ways:
+    # 1. remove the actual row entirely
+    if (analysisMethod == "remove"){
+      df1 <-df1[-c(row_to_remove), ]
+    }
+    #2. adjust the Rt2 to match Rt1 resulting in a zero diff
+    #   but show that diff as < lowest diff in the data set so that
+    #   the program does not stall with too many zeros
+    if (analysisMethod == "match"){
+      df1$time2[row_to_remove] <- df1$time1[row_to_remove]
+      df1$diff[row_to_remove] <- -999 # this should be changed to always less than
+      # the lowest diff score in the data set
+    }
+
+  } # end master_loop
+
+
+  # Calculate ODI and NCDI indices -----------------------------------------
+  NumContributed <- length(which(df2$chg > 0))
+  ODI <- NumContributed / source_rows
+  NCDI <- (numPositive - NumContributed) / source_rows
+  ODI.text <- paste("O.D.I. = ", format(ODI, digits = 3), "after \nadjusting",
+                    NumContributed, "of the", source_rows, "units")
+
+  # Tidy up names for data frame --------------------------------------------
+
+  df2 <- df2 %>%
+    rename(unit_t1 = Ut1, unit_t2 = Ut2, region_t1 = Rt1, region_t2 = Rt2)
+
+  # Plot --------------------------------------------------------------------
+
+  df3 <- df2
+  plot.adjustment <- ""
+  if (nrow(df3) > 151)  {
+    df3 <- df3[1:151, ]
+    plot.adjustment <- "Plot only shows first\n100 areas adjusted"
+  }
+
+
+  p <- ggplot(df3, aes(x=reorder(unit, adjusted), y=pct, group = 1)) +
+    geom_line(color="#3277a8") +
+    geom_point(shape=21, color="white", fill="#3277a8", size=2) +
+    geom_hline(color="grey", yintercept=0) +
+    labs(title="Dispersion of crime change",
+         x ="Area adjusted", y = "Remaining crime change for region") +
+    annotate(
+      geom = "curve", x = NumContributed+4, y = 1.5,
+      xend = NumContributed+1, yend = 0.2,
+      curvature = .2, arrow = arrow(length = unit(2, "mm"))
+    ) +
+    annotate(geom = "text", x = NumContributed+4.1, y = 1.5,
+             label = ODI.text, hjust = "left") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+
+    annotate(geom = "text", x = 2, y = df2$pct[1],
+             label = paste0(format(df2$pct[1], digits = 3),"% overall"), hjust = "left") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+  if (plot.adjustment != "") {
+    p <- p +
+      annotate(geom = "text", x = 100, y = df3$pct[1]-1, label = plot.adjustment, hjust = "right")
+  }
+
+  p
+
+
+  # Create return list ------------------------------------------------------
+
+  output <- list(df2, p, NumContributed, ODI, NCDI)
+  return(output)
+}
+
+
+prepost_cj <- cj_exp %>%
+   mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1),
+         pre_post_floyd = ifelse(end_date <= as.Date("2020-05-25"), 0, 1)) %>%
+  filter(end_date <= as.Date("2022-08-20")) %>%
+  group_by(GEOID, pre_post_floyd) %>%
   summarize(car_jack = sum(car_jack, na.rm = T),
             total_pop = sum(total_pop, na.rm = T)) %>%
   mutate(car_jack_rate = car_jack/total_pop*1000) %>%
-  select(GEOID, pre_post, car_jack, car_jack_rate) %>% 
-  pivot_wider(names_from = pre_post, values_from = c(car_jack, car_jack_rate))
+  select(GEOID, pre_post_floyd, car_jack, car_jack_rate) %>% 
+  st_drop_geometry() %>%
+  pivot_wider(names_from = pre_post_floyd, values_from = c(car_jack, car_jack_rate)) %>%
+  mutate(GEOID = as.character(GEOID)) 
 
-output <- crimedispersion(as.data.frame(prepost_cj), 'GEOID', 'car_jack_pre', 'car_jack_post')
+output <- crimedispersion(as.data.frame(prepost_cj), 'GEOID', 'car_jack_rate_0', 'car_jack_rate_1')
 
 ouput_data <- output[[1]]
 n_remove <- output[[3]]
@@ -612,21 +824,27 @@ odi <- output[[4]] #ratio of n removed to n overall
 ncdi <- output[[5]] #ratio of areas not contributing to overall increase but still increase to overall n
 
 output[[2]]
+
+ggsave(filename = "Car Jacking/Figures for PAA/fig5.png", bg="white", width = 10, height = 8)
 ```
 
 ## Homicide
 
 ```{r}
-prepost_hom <- homicide_tract_year %>%
-  mutate(pre_post = ifelse(year < 2020, "pre", "post")) %>%
-  group_by(GEOID, pre_post) %>%
+prepost_hom <- homicide %>%
+ mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1),
+         pre_post_floyd = ifelse(end_date <= as.Date("2020-05-25"), 0, 1)) %>%
+  group_by(GEOID, pre_post_floyd) %>%
   summarize(homicide = sum(homicide, na.rm = T),
             total_pop = sum(total_pop, na.rm = T)) %>%
   mutate(homicide_rate = homicide/total_pop*1000) %>%
-  select(GEOID, pre_post, homicide, homicide_rate) %>% 
-  pivot_wider(names_from = pre_post, values_from = c(homicide, homicide_rate))
+  st_drop_geometry() %>%
+  select(GEOID, pre_post_floyd, homicide, homicide_rate) %>% 
+  pivot_wider(names_from = pre_post_floyd, values_from = c(homicide, homicide_rate)) %>%
+  mutate(GEOID = as.character(GEOID)) 
 
-output_homicide <- crimedispersion(as.data.frame(prepost_hom), 'GEOID', 'homicide_pre', 'homicide_post')
+output_homicide <- crimedispersion(as.data.frame(prepost_hom), 'GEOID', 'homicide_0', 'homicide_1')
 
 ouput_data <- output_homicide[[1]]
 n_remove <- output_homicide[[3]]
@@ -634,6 +852,8 @@ odi <- output_homicide[[4]] #ratio of n removed to n overall
 ncdi <- output_homicide[[5]] #ratio of areas not contributing to overall increase but still increase to overall n
 
 output_homicide[[2]]
+ggsave(filename = "Car Jacking/Figures for PAA/fig6.png", bg="white", width = 10, height = 8)
+
 ```
 
 # Spatial Correlation *Change* in Carjackings and Homicide
