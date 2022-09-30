@@ -1,7 +1,7 @@
 ---
 title: "Car Jacking MPLS - Tract"
 author: "Ryan Larson"
-date: "4/8/2022"
+date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
@@ -864,8 +864,10 @@ ggsave(filename = "Car Jacking/Figures for PAA/fig6.png", bg="white", width = 10
 library(sfdep)
 
 cj_delta <- prepost_cj %>%
-  mutate(delta = car_jack_post-car_jack_pre) %>%
-  st_sf()
+  mutate(delta = car_jack_rate_1-car_jack_rate_0,
+         GEOID = as.numeric(GEOID)) %>%
+  left_join(mpls_tract, by = "GEOID") %>%
+  st_as_sf()
 
 nb <- st_contiguity(cj_delta, queen=TRUE)
 wt <-  st_weights(nb, style = "W")
@@ -893,17 +895,21 @@ cj_delta %>%
   geom_sf() +
   geom_sf(lwd = 0.2, color = "black") +
   theme_void() +
-  scale_fill_manual(values = c("red", "yellow", "green", "white"))+
-  labs(title = "LISA Plot for Carjacking Change Pre/Post 2020",
+  scale_fill_manual(values = c("red", "yellow", "green", "blue","white"), drop = FALSE)+
+  labs(title = "Figure 7: LISA Plot for Carjacking Change Pre/Post Police Murder",
        fill = "Cluster Type",
        caption = "Clusters significant at p < .05 with 1,000 simulations.")
+
+ggsave(filename = "Car Jacking/Figures for PAA/fig7.png", bg="white", width = 10, height = 8)
 ```
 
 ## Homicide
 
 ```{r}
 hom_delta <- prepost_hom %>%
-  mutate(delta = homicide_post-homicide_pre) %>%
+  mutate(delta = homicide_1-homicide_0,
+           GEOID = as.numeric(GEOID)) %>%
+  left_join(mpls_tract, by = "GEOID") %>%
   st_sf()
 
 
@@ -932,68 +938,11 @@ hom_delta %>%
   geom_sf(lwd = 0.2, color = "black") +
   theme_void() +
   scale_fill_manual(values = c("red", "yellow", "green","blue", "white"))+
-  labs(title = "LISA Plot for Homicide Change Pre/Post 2020",
+  labs(title = "Figure 8: LISA Plot for Homicide Change Pre/Post Police Murder",
        fill = "Cluster Type",
        caption = "Clusters significant at p < .05 with 1,000 simulations.")
-```
-# MPD Data
 
-```{r}
-#aggregate MPD data to tract-year
-
-#Minneapolis Police Department - Use of Force Dashboard
-uof <- read_csv("Data/Police_Use_Of_Force.csv") %>%
-  mutate(date=ymd_hms(ResponseDate),
-         year=isoyear(date),
-         week=isoweek(date)) %>%
-  group_by(year, week, .drop=F) %>%
-  tally(name = "use_of_force") %>%
-  arrange(year, week) %>%
-  ungroup() %>%
-  select(year, week, everything())
-
-#merge onto series
-series <- hosp_series %>%
-  left_join(uof, by=c("year", "weekofyr"="week")) %>%
-  mutate(use_of_force_rate = (use_of_force/total_pop)*1000)
-
-#MPD Officer Involved Shootings
-ois <- read_csv("Data/Police_Officer_Involved_Shootings.csv") %>%
-  mutate(date=ymd_hms(IncidentDate),
-         year=isoyear(date),
-         week=isoweek(date)) %>%
-  group_by(year, week, .drop=F) %>%
-  tally(name = "off_inv_shooting") %>%
-  arrange(year, week) %>%
-  ungroup() %>%
-  select(year, week, everything())
-
-#merge onto series
-series <- series %>%
-  left_join(ois, by=c("year", "weekofyr"="week")) %>%
-  mutate(off_inv_shooting = ifelse(is.na(off_inv_shooting), 0, off_inv_shooting),
-         off_inv_shooting_rate = (off_inv_shooting/total_pop)*1000)
-
-
-#Minneapolis Police Department - Police Stops Dashboard
-stop <- read_csv("Data/Police_Stop_Data.csv") %>%
-  mutate(date=ymd_hms(responseDate),
-         year=isoyear(date),
-         week=isoweek(date)) %>%
-  group_by(year, week, .drop=F) %>%
-  tally(name = "police_stops") 
-
-#merge onto series
-series <- series %>% 
-  left_join(stop, by = c("year", "weekofyr"="week")) %>%
-  mutate(police_stop_rate = (police_stops/total_pop)*1000)
-
-
-#creating date variable
-series <- series %>%
-  mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", weekofyr)), 1,sep = "-")),
-         end_date = begin_date+weeks(1)-days(1))
-
+ggsave(filename = "Car Jacking/Figures for PAA/fig8.png", bg="white", width = 10, height = 8)
 ```
 
 
@@ -1008,7 +957,25 @@ cj_exp_year_acs <- cj_exp_tract_year %>%
          white_perc_center = scale(white_perc, center = T, scale = F),
          black_perc_center = scale(black_perc, center = T, scale = F),
          anyjack = ifelse(car_jack==0, 0, 1)) %>%
-  drop_
+  drop_na()
+
+cj_exp_prepost <- cj_exp %>% 
+  mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
+         end_date = begin_date+weeks(1)-days(1),
+         post_floyd = as.numeric(begin_date >= as.Date("2020-05-25")),
+         post_floyd_3 = as.numeric(begin_date >= as.Date("2020-05-25")+months(3)),
+        # stay_at_home = as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28")),
+         #state_of_emerg = as.numeric(begin_date >= as.Date("2020-03-13")),
+         period = factor(case_when(
+           post_floyd==0 & post_floyd_3==0 ~ "Pre-Killing",
+           post_floyd>=1 & post_floyd_3==0 ~ "0-3 Months Post-Killing",
+           post_floyd>=1 & post_floyd_3>=1 ~ "3+ Months Post-Killing"),
+           levels = c("Pre-Killing", "0-3 Months Post-Killing", "3+ Months Post-Killing")),
+        GEOID = as.character(GEOID),
+        anyjack = ifelse(car_jack==0, 0, 1),
+        t = 1:length(car_jack_rate)) %>%
+  left_join(acs_2020, by = c("GEOID")) %>%
+  drop_na()
 
 library(lme4)
 library(lmerTest)
@@ -1019,19 +986,26 @@ library(lavaan)
 cd_model_1  <- ' cd =~ unemp_rate + pov_rate +  female_hh_rate + no_hs_dip_rate + black_perc 
                   black_perc ~~ unemp_rate'  
 
-cfa_cd <- cfa(cd_model_1, data = cj_exp_year_acs, std.lv = T)
+cfa_cd <- cfa(cd_model_1, data = cj_exp_prepost, std.lv = T)
 modificationindices(cfa_cd)
 summary(cfa_cd, fit.measures=TRUE, standardized = T)
-cd_predict <- as.vector(lavPredict(cfa_cd, newdata = cj_exp_year_acs))
-cj_exp_year_acs$conc_dis <- cd_predict
+cd_predict <- as.vector(lavPredict(cfa_cd, newdata = cj_exp_prepost))
+cj_exp_prepost$conc_dis <- cd_predict
 
 
-re <- lmer(car_jack_rate~as.factor(yearzero)*conc_dis+
-             age_below_18_perc+age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ 
-             (1|NAME), 
-          data = cj_exp_year_acs)
+re <- lmer(car_jack_rate~t+post_floyd+post_floyd_3+conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
+             (1|GEOID), 
+          data = cj_exp_prepost)
 summary(re)
+
+re_logit_cd <- glmer(anyjack ~ t+post_floyd+post_floyd_3+conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
+             (1|GEOID), 
+                  data = cj_exp_prepost, family = binomial)
+summary(re_logit_cd)
 
 #build in police covariates
 #what other covariates do we need here?
@@ -1042,9 +1016,87 @@ summary(re)
 #similar story with homicide?
 #FE models
 
-re_logit_cd <- glmer(anyjack ~ as.factor(yearzero)*conc_dis + (1|NAME), 
-                  data = cj_exp_year_acs, family = binomial)
-summary(re_logit)
+
+cj_exp_prepost <- cj_exp_prepost %>%
+  mutate(GEOID = as.numeric(GEOID)) %>%
+  left_join(homicide, by = c("GEOID", "year","week")) %>%
+  mutate(anyhom = ifelse(homicide==0, 0, 1))
+
+re_homicide <- lmer(homicide_rate~t+post_floyd+post_floyd_3+conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
+             (1|GEOID), 
+          data = cj_exp_prepost)
+summary(re_homicide)
+
+re_logit_cd_homicide <- glmer(anyhom ~ t+post_floyd+post_floyd_3+conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
+             (1|GEOID), 
+                  data = cj_exp_prepost, family = binomial)
+summary(re_logit_cd)
+```
+
+```{r, message=F, results='asis'}
+class(re) <- "lmerMod"
+class(re_logit_cd) <- "lmerMod"
+
+stargazer(re, re_logit_cd,
+          title = "Interrupted Time Series Models of Carjackings, MPLS 2017-2022",
+          covariate.labels = c("T", "Post-Killing", "Post-Killing 3 Months",
+                              "Conc. Dis.", "Age 19-29", "Age 30-49", 
+                              "Age 50-69", "Age 70+", 
+                              "Post-Killing X Conc. Dis.",
+                              "Post-Killing 3 Months X Conc. Dis."),
+          header = F,
+          dep.var.caption = "Carjacking",
+          dep.var.labels = c("Rate per 1,000", "Any Carjacking"),
+          model.names = FALSE,
+          column.labels = c("RE HLM","RE Logit"),
+          report = "vcs",
+          ci=TRUE, 
+          ci.level=0.95, 
+          ci.separator = "|",
+          notes = "95\\% Confidence Intervals in parentheses",
+          single.row = F,
+          omit.stat = c("adj.rsq", "aic", "bic"),
+          #star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
+          add.lines = list(c("SD(Tract)", .008, .650),
+                           c("SD(Residual)",  .067, "")),
+          notes.append = F)
+
+
+```
+
+# RE CJ Models
+
+```{r, message=F, results='asis'}
+class(re_homicide) <- "lmerMod"
+class(re_logit_cd_homicide) <- "lmerMod"
+
+stargazer(re_homicide, re_logit_cd_homicide,
+          title = "Interrupted Time Series Models of Homicide, MPLS 2017-2022",
+          covariate.labels = c("T", "Post-Killing", "Post-Killing 3 Months",
+                              "Conc. Dis.", "Age 19-29", "Age 30-49", 
+                              "Age 50-69", "Age 70+", 
+                              "Post-Killing X Conc. Dis.",
+                              "Post-Killing 3 Months X Conc. Dis."),
+          header = F,
+          dep.var.caption = "Homicide",
+          dep.var.labels = c("Rate per 1,000", "Any Homicide"),
+          model.names = FALSE,
+          column.labels = c("RE HLM","RE Logit"),
+          report = "vcs",
+          ci=TRUE, 
+          ci.level=0.95, 
+          ci.separator = "|",
+          notes = "95\\% Confidence Intervals in parentheses",
+          single.row = F,
+          omit.stat = c("adj.rsq", "aic", "bic"),
+          #star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
+          add.lines = list(c("SD(Tract)", .003, .031),
+                           c("SD(Residual)", .065, "-")),
+          notes.append = F)
 ```
 
 
