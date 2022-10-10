@@ -405,7 +405,9 @@ cj_exp_week <- cj_exp %>%
          end_date = begin_date+weeks(1)-days(1),
          car_jack_rate = car_jack/total_pop*1000, 
          pre_post_floyd = ifelse(end_date <= as.Date("2020-05-25"), 0, 1)) %>%
-  filter(end_date <= as.Date("2022-08-20")) 
+  filter(end_date <= as.Date("2022-08-20")) %>% 
+  mutate(csma = forecast::ma(car_jack_rate, order=5, centre=TRUE),
+         tsma = TTR::SMA(car_jack_rate, n=5))
 
 pre_mean <- mean(cj_exp_week$car_jack_rate[cj_exp_week$pre_post_floyd==0], na.rm = T)
 post_mean <- mean(cj_exp_week$car_jack_rate[cj_exp_week$pre_post_floyd==1], na.rm = T)
@@ -427,9 +429,12 @@ ggplot(cj_exp_week)+
              label = "George Floyd", show.legend = FALSE)+
   labs(title = "Figure 1: Weekly Minneapolis Carjackings, 1/1/2017-8/20/2022",
        x = "Week",
-       y = "Weekly Carjacking Rate/ 1,000")+
+       y = "Weekly Carjacking Rate/ 1,000",
+       color = NULL)+
+  geom_line(aes(x=begin_date, y=csma, color = "CSMA(5)"))+
   theme_minimal()+
-    theme(axis.text.x=element_text(angle=45, hjust=1)) 
+    theme(axis.text.x=element_text(angle=45, hjust=1))  +
+  theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
 
 ggsave(filename = "Car Jacking/Figures for PAA/fig1.png", bg="white", width = 10, height = 8)
 ```
@@ -533,7 +538,9 @@ homicide_week <- homicide %>%
          end_date = begin_date+weeks(1)-days(1),
          homicide_rate = homicide/total_pop*1000,
          pre_post_floyd = ifelse(end_date <= as.Date("2020-05-25"), 0, 1)) %>%
-  filter(end_date <= as.Date("2022-08-20")) 
+  filter(end_date <= as.Date("2022-08-20")) %>% 
+  mutate(csma = forecast::ma(homicide_rate, order=5,centre=TRUE),
+         tsma = TTR::SMA(homicide_rate, n=5))
 
 pre_mean <- mean(homicide_week$homicide_rate[homicide_week$pre_post_floyd==0], na.rm = T)
 post_mean <- mean(homicide_week$homicide_rate[homicide_week$pre_post_floyd==1], na.rm = T)
@@ -544,11 +551,12 @@ post_mean/pre_mean
   
 ggplot(homicide_week)+
   geom_line(aes(x=begin_date, y=homicide_rate))+ 
-  scale_x_date(date_labels = "%b-%Y", 
+ scale_x_date(date_labels = "%b-%Y", date_breaks = "15 weeks",
                limits = c(min(homicide_week$begin_date), max(homicide_week$begin_date)))+
      labs(title = "Figure 3: Weekly Minneapolis Homicide, 1/1/2017-8/20/2022",
        x = "Week",
-       y = "Weekly Homicide Rate/ 1,000")+
+       y = "Weekly Homicide Rate/ 1,000",
+       color = NULL)+
   geom_vline(xintercept=homicide_week$begin_date[homicide_week$year==2020 & 
                                                  homicide_week$week==isoweek(date("2020-05-25"))], 
               linetype="dotted", color="red", size=1)+
@@ -557,7 +565,8 @@ ggplot(homicide_week)+
                  y=0.015), 
              label = "George Floyd", show.legend = FALSE)+
   theme_minimal()+
-    theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  geom_line(aes(x=begin_date, y=csma, color = "CSMA(5)"))+
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
   theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
 
 ggsave(filename = "Car Jacking/Figures for PAA/fig3.png", bg="white", width = 10, height = 8)
