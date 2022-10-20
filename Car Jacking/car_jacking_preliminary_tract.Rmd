@@ -45,6 +45,11 @@ library(zoo)
   #multinomial predictors (0-1, 1-few, few-many?)
 #(months/quarters for the plot) 
 
+#chow tests
+  #iterative?
+#splm models
+#model robustness (count models etc.)
+
 
 set.seed(7188)
 google_key <- readRDS("C:/Users/rlarson21/Documents/R/Rworkingdirectory/google_api_key.rds")
@@ -286,6 +291,18 @@ acs_2020 <- get_acs(geography = "tract",
          res_mob_rate = 100-100*res_mob/total_pop,
          own_hh_rate = 100*own_hh/total_pop,
          foreign_rate = 100*foreign/total_pop) 
+
+# 2020 Census 18+ Denominator
+dc2020 <- get_decennial(
+  geography = "tract",
+  variables = c("P3_001N"),
+  year = 2020,
+  state = "MN",
+  county = "Hennepin",
+  geometry = F) %>%
+  mutate(GEOID = is.numeric(GEOID)) %>%
+  rename(total_pop = value) %>%
+  select(-GEOID)
 ```
 
 # Open Minneapolis Carjacking Data
@@ -388,7 +405,7 @@ cj_exp <- read_csv("Data/MPDdata_082422.csv") %>%
   filter(!(year==2021 & week==53)) %>% 
   arrange(GEOID, year, week) %>%
   left_join(mpls_tract, by = "GEOID") %>%
-  left_join(pop_denom_locf, by = c("GEOID", "year")) %>%
+  left_join(dc2020, by = c("NAME")) %>%
   mutate(car_jack_rate = car_jack/total_pop*1000) %>%
   st_as_sf()
 ```
@@ -521,7 +538,7 @@ homicide <- mpd %>%
   filter(!(year==2021 & week==53)) %>% 
   arrange(GEOID, year, week) %>%
   left_join(mpls_tract, by = "GEOID") %>%
-  left_join(pop_denom_locf, by = c("GEOID", "year")) %>%
+  left_join(dc2020, by = c("NAME")) %>%
   mutate(homicide_rate = homicide/total_pop*1000) %>%
   st_as_sf()
 ```
