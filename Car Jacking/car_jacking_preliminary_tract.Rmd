@@ -456,6 +456,27 @@ ggplot(cj_exp_week)+
 ggsave(filename = "Car Jacking/Figures for PAA/fig1.png", bg="white", width = 10, height = 8)
 ```
 
+# Structural Change in Carjacking
+
+```{r}
+library(strucchange)
+
+cj_exp_week <- cj_exp_week %>%
+  ungroup() %>%
+  mutate(t = row_number())
+
+sctest(cj_exp_week$car_jack_rate~cj_exp_week$t, 
+       type = "Chow",
+       point = 180)
+
+breakpoints(car_jack_rate~t,
+            data = cj_exp_week, 
+            breaks = 1)
+
+ggplot(cj_exp_week)+
+  geom_line(aes(x=t, y=car_jack_rate))+
+  geom_vline(aes(xintercept = 180))
+```
 
 # MPLS ZCTA Carjackings Map - MPD Extended Data
 
@@ -588,6 +609,27 @@ ggplot(homicide_week)+
 
 ggsave(filename = "Car Jacking/Figures for PAA/fig3.png", bg="white", width = 10, height = 8)
 ```
+
+# Structural Change in Carjacking
+
+```{r}
+homicide_week <- homicide_week %>%
+  ungroup() %>%
+  mutate(t = row_number())
+
+sctest(homicide_week$homicide_rate~homicide_week$t, 
+       type = "Chow",
+       point = 180)
+
+breakpoints(homicide_rate~t,
+            data = homicide_week, 
+            breaks = 1)
+
+ggplot(homicide_week)+
+  geom_line(aes(x=t, y=homicide_rate))+
+  geom_vline(aes(xintercept = 180))
+```
+
 
 # MPLS ZCTA Murder Map - MPD Extended Data
 
