@@ -1168,6 +1168,37 @@ stargazer(re_homicide, re_logit_cd_homicide,
 ```
 
 
+# Spatial Panel Models
+
+```{r}
+library(spdep)
+library(splm)
+
+cj_exp_prepost <- as(cj_exp_prepost, "Spatial")
+
+
+nb <- poly2nb(cj_exp_prepost, queen = T)
+summary(nb)
+
+
+w <- nb2listw(nb, style = "W", zero.policy = TRUE)
+
+slmtest(, 
+        data=cj_exp_prepost, listw = w, 
+        test="lml",
+        model="random")
+
+lag <- spml(car_jack_rate~t+post_floyd+post_floyd_3+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc, 
+                      data = cj_exp_prepost, 
+             index = c("GEOID", "week"), effect="individual", model="random",
+             listw = w, lag=T, spatial.error="none")
+summary(lag)
+
+```
+
+
 
 
 

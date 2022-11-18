@@ -1,0 +1,222 @@
+---
+title: "MPLS Charter Amendment"
+author: "Ryan Larson"
+date: "2022-11-01"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, message=F}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggmap)
+library(rvest)
+library(stringr)
+library(sf)
+library(tigris)
+library(tidycensus)
+library(lubridate)
+```
+
+# 2020 Decennial Census Data
+
+```{r}
+census_20 <- get_decennial(
+  geography = "voting district",
+   variables = c("P4_001N", "P4_002N","P4_005N",
+                 "P4_006N", "P4_007N", "P4_008N",
+                 "P4_009N", "P4_010N", "P4_011N"),
+  year = 2020,
+  state = "MN",
+  county = "Hennepin",
+  geometry = TRUE,
+  output = "wide"
+ ) %>%
+  rename(total_pop = P4_001N,
+         hisp_pop = P4_002N,
+         white_pop = P4_005N,
+         black_pop = P4_006N,
+         na_pop = P4_007N,
+         asian_pop = P4_008N,
+         nhpi_pop = P4_009N,
+         other_pop = P4_010N,
+         two_pop = P4_011N) %>%
+  filter(str_detect(NAME, "Minneapolis")) %>%
+  mutate(NAME = gsub("\\,.*", "", NAME))
+```
+
+# Office Of The Minnesota Secretary Of State Voting Data
+
+```{r}
+url_data <- "https://electionresults.sos.state.mn.us/Results/Index?ersElectionId=142&scenario=ResultsByPrecinctCrosstab&QuestionId=1323"
+
+css_selector <- "#dblscroll > table"
+
+precinct <- url_data %>% 
+  read_html() %>% 
+  html_element(css = css_selector) %>% 
+  html_table() %>%
+  slice(-n()) %>%
+  rename(precinct = `County: Precinct`,
+         yes_votes = `NP YES`,
+         no_votes = `NP NO`) %>%
+  mutate(precinct = str_remove(precinct, pattern = "Hennepin: "),
+         yes_votes = str_remove(yes_votes, pattern = ","),
+         no_votes = str_remove(no_votes, pattern = ",")) %>%
+  mutate_at(c("yes_votes", "no_votes"), as.numeric) %>%
+  mutate(perc_yes = yes_votes/(yes_votes+no_votes)*100) %>%
+  mutate(precinct = str_replace_all(precinct, "MINNEAPOLIS", "Minneapolis"),
+         precinct = str_replace_all(precinct, "-0", "-")) %>%
+  mutate_all(~ifelse(is.nan(.), NA, .))
+
+
+
+#join to census extract
+
+precinct_sf <- census_20 %>%
+  left_join(precinct, by = c("NAME"="precinct"))
+```
+
+# Minneapolis Police Department Data
+
+```{r}
+#Minneapolis Police Department - Use of Force Dashboard
+uof_spatial <- read_csv("MPLS Charter Amendment/Data/Police_Use_of_Force.csv")  %>%
+  mutate(date=ymd_hms(ResponseDate)) %>%
+  filter(date >= as.Date("2020-01-01") & date < as.Date("2021-11-08")) %>%
+  select(OBJECTID, X, Y, Race) %>%
+  st_as_sf(coords = c("X", "Y"), crs = "NAD83", remove=F) %>%
+  st_join(precinct_sf) %>%
+  st_drop_geometry() %>%
+  filter(!is.na(NAME)) %>%
+  group_by(NAME, Race, .drop=F) %>%
+  tally(name = "use_of_force") %>%
+  filter(!is.na(Race)) %>%
+  ungroup() %>%
+  complete(NAME=precinct_sf$NAME, Race, fill = list(use_of_force = 0)) %>%
+  arrange(NAME, Race) %>%
+  mutate(race = str_to_lower(Race)) %>%
+  select(-Race) %>%
+  pivot_wider(names_from = race, 
+              values_from = use_of_force,
+              values_fill = 0,
+              names_glue = "{race}_{.value}") %>%
+  mutate(total_use_of_force = asian_use_of_force+black_use_of_force+`native american_use_of_force`+
+           `not recorded_use_of_force`+`pacific islander_use_of_force`+unknown_use_of_force+           
+            white_use_of_force)
+
+# MPD Crime Data
+crime_spatial <- read_csv("MPLS Charter Amendment/Data/Crime_Data.csv")  %>%
+  mutate(date=ymd_hms(Occurred_Date)) %>%
+  filter(date >= as.Date("2020-01-01") & date < as.Date("2021-11-08") &
+           Type=="Crime Offenses (NIBRS)") %>%
+  select(OBJECTID, Longitude, Latitude, Crime_Count) %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = "NAD83", remove=F) %>%
+  st_join(precinct_sf) %>%
+  st_drop_geometry() %>%
+  filter(!is.na(NAME)) %>%
+  group_by(NAME, .drop=F) %>%
+  summarize(mpd_crime = sum(Crime_Count, na.rm = T)) %>%
+  ungroup() %>%
+  complete(NAME=precinct_sf$NAME, fill = list(mpd_crime = 0)) %>%
+  arrange(NAME) 
+
+
+#MPD Stop Dashboard
+stops_spatial <- read_csv("MPLS Charter Amendment/Data/Police_Stop_Data.csv")  %>%
+  mutate(date=ymd_hms(responseDate)) %>%
+  filter(date >= as.Date("2020-01-01") & date < as.Date("2021-11-08")) %>%
+  select(OBJECTID, long, lat) %>%
+  st_as_sf(coords = c("long", "lat"), crs = "NAD83", remove=F) %>%
+  st_join(precinct_sf) %>%
+  st_drop_geometry() %>%
+  filter(!is.na(NAME)) %>%
+  group_by(NAME, .drop=F) %>%
+  tally(name = "stops") %>%
+  ungroup() %>%
+  complete(NAME=precinct_sf$NAME, fill = list(stops = 0)) %>%
+  arrange(NAME) 
+
+#Officer Involved Shootings - MPD
+ois_spatial <- read_csv("MPLS Charter Amendment/Data/Police_Officer_Involved_Shootings.csv") %>%
+  mutate(date=ymd_hms(IncidentDate)) %>%
+  filter(date >= as.Date("2020-01-01") & date < as.Date("2021-11-08")) %>%
+  select(OBJECTID, CenterLatitude, CenterLongitude) %>%
+  rename(lat = CenterLatitude,
+         long = CenterLongitude) %>%
+  st_as_sf(coords = c("long", "lat"), crs = "NAD83", remove=F) %>%
+  st_join(precinct_sf) %>%
+  st_drop_geometry() %>%
+  filter(!is.na(NAME)) %>%
+  group_by(NAME, .drop=F) %>%
+  tally(name = "ois") %>%
+  ungroup() %>%
+  complete(NAME=precinct_sf$NAME, fill = list(ois = 0)) %>%
+  arrange(NAME) 
+
+precinct_sf <- precinct_sf %>%
+  left_join(uof_spatial, by = "NAME") %>%
+  left_join(stops_spatial, by = "NAME") %>%
+  left_join(ois_spatial, by = "NAME") %>%
+  left_join(crime_spatial, by = "NAME") %>%
+  mutate(uof_rate = total_use_of_force/total_pop*1000,
+         stops_rate = stops/total_pop*1000,
+         ois_rate = ois/total_pop*1000,
+         crime_rate = mpd_crime/total_pop*1000)
+
+```
+
+# Support for Charter Amendment #2
+
+```{r}
+ggplot() +
+  geom_sf(data = precinct_sf, aes(geometry = geometry, fill = perc_yes)) + 
+  scale_fill_distiller(palette = "RdYlGn")+
+  labs(title = "Figure 1: Support for MPLS Charter Amendment #2, 2021", 
+       subtitle = "MN Secretary of State",
+       fill = "Percent Support")+
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_blank(),
+  panel.grid.major = element_line(colour="transparent"), 
+  plot.subtitle = element_text(face="italic"),
+  strip.background = element_rect(fill = "white", 
+                colour = "black"))
+```
+
+
+# Preliminary Spatial Autoregressive Model
+
+```{r}
+m1 <- lm(perc_yes~white_pop+black_pop+na_pop+hisp_pop+asian_pop+uof_rate+stops_rate+ois_rate+crime_rate, data = precinct_sf)
+
+summary(m1)
+
+library(spdep)
+library(spatialreg)
+
+#neighbors: queen adjacency
+mpls_nb <- poly2nb(precinct_sf, queen=T)
+summary(mpls_nb)
+
+#neighbor weights
+mpls_w <- nb2listw(mpls_nb, style = "W", zero.policy = T)
+
+print(lm.morantest(m1, mpls_w)) #testing for spatial autocorrelation in residuals
+
+m1_lag <- lagsarlm(perc_yes~white_pop+black_pop+na_pop+hisp_pop+asian_pop+uof_rate+stops_rate+ois_rate+crime_rate, 
+                   data = precinct_sf, listw = mpls_w)
+
+summary(m1_lag)
+
+```
+
+
+
+
+
