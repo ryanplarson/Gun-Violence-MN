@@ -85,7 +85,7 @@ mpls_tract <- tracts %>%
   select(-"B01001_001M")
 ```
 
-# ACS Covariates
+# ACS Covariates and Denominators
 
 ```{r}
 acs_17 <- get_acs(
@@ -305,83 +305,6 @@ dc2020 <- get_decennial(
   select(-GEOID)
 ```
 
-# Open Minneapolis Carjacking Data
-
-```{r, message=FALSE}
-#open minneapolis crime data 2019-4/7 (date of download)
-cj_spatial <- read_csv("Car Jacking/crime_data.csv")  %>%
-  filter(Offense=="Carjacking - Subset of Robbery") %>% #filter carjackings
-  mutate(date=ymd_hms(Occurred_Date),
-         year=isoyear(date),
-         week=isoweek(date)) %>%
-  select(OBJECTID, year, week, Latitude, Longitude) %>%
-  st_as_sf(coords = c("Longitude", "Latitude"), crs = "NAD83", remove=F) %>%
-  st_join(mpls_tract) %>% #spatial join neighborhoods
-  st_drop_geometry() %>%
-  filter(!is.na(GEOID)) %>%
-  group_by(year, week, GEOID, .drop=F) %>%
-  tally(name = "car_jack") %>%
-  ungroup() %>%
-  complete(year, week, GEOID=mpls_tract$GEOID, fill = list(car_jack = 0)) %>%
-  filter(!(year==2022 & week >= 14) & #removing unobserved/redundant completions
-           !(year==2021 & week==53) & #removing unobserved/redundant completions
-           !(year==2020 & week < 36)) %>% #removing weeks before Sept. 2020, isoweek 36
-  arrange(GEOID, year, week) %>%
-  left_join(mpls_tract, by = "GEOID") %>%
-  left_join(pop_denom_locf, by = c("GEOID", "year")) %>%
-  mutate(car_jack_rate = car_jack/total_pop*1000) %>%
-  st_as_sf()
-```
-
-
-# MPLS Carjackings by Week
-
-```{r}
-#aggregate to week over tracts
-cj_week <- cj_spatial %>%
-  group_by(year, week) %>%
-  summarize(car_jack = sum(car_jack, na.rm = T),
-            total_pop = sum(total_pop, na.rm = T)) %>%
-  mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
-         end_date = begin_date+weeks(1)-days(1),
-         car_jack_rate = car_jack/total_pop*1000) 
-  
-ggplot(cj_week)+
-  geom_line(aes(x=begin_date, y=car_jack_rate))+ 
-  scale_x_date(date_labels = "%b-%Y", 
-               limits = c(min(cj_week$begin_date), max(cj_week$begin_date)))+
-  labs(title = "Figure X: Weekly Minneapolis Carjackings, 8/31/2020-4/7/2022",
-       subtitle = "openminneapolis Crime Data",
-       x = "Week",
-       y = "Weekly Carjacking Rate/ 1,000")+
-  theme_minimal()+
-    theme(axis.text.x=element_text(angle=45, hjust=1)) 
-
-```
-
-
-# MPLS ZCTA Carjackings Map
-
-```{r}
-#aggregate to neighborhood-year level
-cj_tract_year <- cj_spatial %>%
-  group_by(GEOID, year) %>%
-  summarize(car_jack = sum(car_jack, na.rm = T),
-            total_pop = sum(B01001_001E, na.rm = T),
-            car_jack_rate = car_jack/total_pop*1000) 
-
-
-ggplot() +
-  geom_sf(data = cj_tract_year, aes(geometry = geometry, fill = car_jack_rate)) + 
-  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
-  facet_wrap(~year)+
-  scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure X: Minneapolis Carjacking Rates by Tract and Year", 
-       subtitle = "openminneapolis Crime Data",
-       fill = "Weekly Rate/ 1,000")+
-  theme_void()
-```
-
 
 
 # Expanded MPLS Carjacking (Crime Incidents) Data
@@ -423,6 +346,7 @@ cj_exp_week <- cj_exp %>%
          car_jack_rate = car_jack/total_pop*1000, 
          pre_post_floyd = ifelse(end_date <= as.Date("2020-05-25"), 0, 1)) %>%
   filter(end_date <= as.Date("2022-08-20")) %>% 
+  ungroup() %>%
   mutate(csma = forecast::ma(car_jack_rate, order=5, centre=TRUE),
          tsma = TTR::SMA(car_jack_rate, n=5))
 
@@ -442,7 +366,7 @@ ggplot(cj_exp_week)+
               linetype="dotted", color="red", size=1)+
    geom_label(aes(x=cj_exp_week$begin_date[cj_exp_week$year==2020 &
                                              cj_exp_week$week==isoweek(date("2020-05-25"))],
-                 y=0.065), 
+                 y=0.075), 
              label = "George Floyd", show.legend = FALSE)+
   labs(title = "Figure 1: Weekly Minneapolis Carjackings, 1/1/2017-8/20/2022",
        x = "Week",
@@ -577,6 +501,7 @@ homicide_week <- homicide %>%
          homicide_rate = homicide/total_pop*1000,
          pre_post_floyd = ifelse(end_date <= as.Date("2020-05-25"), 0, 1)) %>%
   filter(end_date <= as.Date("2022-08-20")) %>% 
+  ungroup() %>%
   mutate(csma = forecast::ma(homicide_rate, order=5,centre=TRUE),
          tsma = TTR::SMA(homicide_rate, n=5))
 
@@ -1016,22 +941,15 @@ ggsave(filename = "Car Jacking/Figures for PAA/fig8.png", bg="white", width = 10
 
 # RE CJ Models
 
-```{r, message=F}
-cj_exp_year_acs <- cj_exp_tract_year %>%
-  left_join(acs_2020, by = c("GEOID")) %>%
-  ungroup() %>%
-  mutate(yearzero = year-2017,
-         pov_rate_center = pov_rate-mean(pov_rate, na.rm = T),
-         white_perc_center = scale(white_perc, center = T, scale = F),
-         black_perc_center = scale(black_perc, center = T, scale = F),
-         anyjack = ifelse(car_jack==0, 0, 1)) %>%
-  drop_na()
-
+```{r, message=F} 
 cj_exp_prepost <- cj_exp %>% 
   mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
          end_date = begin_date+weeks(1)-days(1),
          post_floyd = as.numeric(begin_date >= as.Date("2020-05-25")),
          post_floyd_3 = as.numeric(begin_date >= as.Date("2020-05-25")+months(3)),
+         t_post_floyd = ifelse(as.numeric(as.Date("2020-05-25")-begin_date)/7 >=0,
+                               as.numeric(as.Date("2020-05-25")-begin_date)/7,
+                               0),
         # stay_at_home = as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28")),
          #state_of_emerg = as.numeric(begin_date >= as.Date("2020-03-13")),
          period = factor(case_when(
@@ -1043,7 +961,10 @@ cj_exp_prepost <- cj_exp %>%
         anyjack = ifelse(car_jack==0, 0, 1),
         t = 1:length(car_jack_rate)) %>%
   left_join(acs_2020, by = c("GEOID")) %>%
+  select(-med_hh_inc) %>%
   drop_na()
+
+
 
 library(lme4)
 library(lmerTest)
@@ -1057,20 +978,21 @@ cd_model_1  <- ' cd =~ unemp_rate + pov_rate +  female_hh_rate + no_hs_dip_rate 
 cfa_cd <- cfa(cd_model_1, data = cj_exp_prepost, std.lv = T)
 modificationindices(cfa_cd)
 summary(cfa_cd, fit.measures=TRUE, standardized = T)
-cd_predict <- as.vector(lavPredict(cfa_cd, newdata = cj_exp_prepost))
+cd_predict <- as.vector(lavPredict(cfa_cd, newdata = as.data.frame(cj_exp_prepost)))
 cj_exp_prepost$conc_dis <- cd_predict
 
 
-re <- lmer(car_jack_rate~t+post_floyd+post_floyd_3+conc_dis+
+re <- lmer(car_jack_rate~t+post_floyd+t_post_floyd+
+             conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis+
              (1|GEOID), 
           data = cj_exp_prepost)
 summary(re)
 
-re_logit_cd <- glmer(anyjack ~ t+post_floyd+post_floyd_3+conc_dis+
+re_logit_cd <- glmer(anyjack ~ t+post_floyd+t_post_floyd+conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis+
              (1|GEOID), 
                   data = cj_exp_prepost, family = binomial)
 summary(re_logit_cd)
@@ -1090,19 +1012,34 @@ cj_exp_prepost <- cj_exp_prepost %>%
   left_join(homicide, by = c("GEOID", "year","week")) %>%
   mutate(anyhom = ifelse(homicide==0, 0, 1))
 
-re_homicide <- lmer(homicide_rate~t+post_floyd+post_floyd_3+conc_dis+
+re_homicide <- lmer(homicide_rate~t+post_floyd+t_post_floyd+conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis+
              (1|GEOID), 
           data = cj_exp_prepost)
 summary(re_homicide)
 
-re_logit_cd_homicide <- glmer(anyhom ~ t+post_floyd+post_floyd_3+conc_dis+
+re_logit_cd_homicide <- glmer(anyhom ~ t+post_floyd+t_post_floyd+conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis+
              (1|GEOID), 
                   data = cj_exp_prepost, family = binomial)
 summary(re_logit_cd)
+
+# random effects poisson - carjacking
+
+rep <- glmer(car_jack~t+post_floyd+post_floyd_3+conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
+             (1|GEOID), 
+          data = cj_exp_prepost,
+          family = poisson(link = "log"))
+
+renb <- glmer.nb(car_jack~t+post_floyd+post_floyd_3+conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
+             (1|GEOID), 
+          data = cj_exp_prepost)
 ```
 
 ```{r, message=F, results='asis'}
@@ -1111,11 +1048,11 @@ class(re_logit_cd) <- "lmerMod"
 
 stargazer(re, re_logit_cd,
           title = "Interrupted Time Series Models of Carjackings, MPLS 2017-2022",
-          covariate.labels = c("T", "Post-Killing", "Post-Killing 3 Months",
+          covariate.labels = c("T", "Post-Killing", "T Post-Killing",
                               "Conc. Dis.", "Age 19-29", "Age 30-49", 
                               "Age 50-69", "Age 70+", 
                               "Post-Killing X Conc. Dis.",
-                              "Post-Killing 3 Months X Conc. Dis."),
+                              "T Post-Killing X Conc. Dis."),
           header = F,
           dep.var.caption = "Carjacking",
           dep.var.labels = c("Rate per 1,000", "Any Carjacking"),
@@ -1144,11 +1081,11 @@ class(re_logit_cd_homicide) <- "lmerMod"
 
 stargazer(re_homicide, re_logit_cd_homicide,
           title = "Interrupted Time Series Models of Homicide, MPLS 2017-2022",
-          covariate.labels = c("T", "Post-Killing", "Post-Killing 3 Months",
+          covariate.labels = c("T", "Post-Killing", "T Post-Killing",
                               "Conc. Dis.", "Age 19-29", "Age 30-49", 
                               "Age 50-69", "Age 70+", 
                               "Post-Killing X Conc. Dis.",
-                              "Post-Killing 3 Months X Conc. Dis."),
+                              "T Post-Killing X Conc. Dis."),
           header = F,
           dep.var.caption = "Homicide",
           dep.var.labels = c("Rate per 1,000", "Any Homicide"),
@@ -1171,31 +1108,23 @@ stargazer(re_homicide, re_logit_cd_homicide,
 # Spatial Panel Models
 
 ```{r}
-library(spdep)
 library(splm)
 
-cj_exp_prepost <- as(cj_exp_prepost, "Spatial")
+nb <- st_contiguity(mpls_tract, queen=TRUE)
+wt <-  st_weights(nb, style = "W")
+w <- recreate_listw(nb, wt)
 
 
-nb <- poly2nb(cj_exp_prepost, queen = T)
-summary(nb)
-
-
-w <- nb2listw(nb, style = "W", zero.policy = TRUE)
-
-slmtest(, 
-        data=cj_exp_prepost, listw = w, 
-        test="lml",
-        model="random")
-
-lag <- spml(car_jack_rate~t+post_floyd+post_floyd_3+
+lag <- spml(car_jack_rate~t+post_floyd+t_post_floyd+
+             conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc, 
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis, 
                       data = cj_exp_prepost, 
-             index = c("GEOID", "week"), effect="individual", model="random",
+             index = c("GEOID"), 
+            effect="individual", 
+             model="random",
              listw = w, lag=T, spatial.error="none")
 summary(lag)
-
 ```
 
 
