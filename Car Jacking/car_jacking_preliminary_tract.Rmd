@@ -1006,6 +1006,7 @@ summary(re_logit_cd)
 #similar story with homicide?
 #FE models
 
+homicide <- homicide %>% st_drop_geometry()
 
 cj_exp_prepost <- cj_exp_prepost %>%
   mutate(GEOID = as.numeric(GEOID)) %>%
@@ -1035,11 +1036,11 @@ rep <- glmer(car_jack~t+post_floyd+post_floyd_3+conc_dis+
           data = cj_exp_prepost,
           family = poisson(link = "log"))
 
-renb <- glmer.nb(car_jack~t+post_floyd+post_floyd_3+conc_dis+
-             age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
-             (1|GEOID), 
-          data = cj_exp_prepost)
+#renb <- glmer.nb(car_jack~t+post_floyd+post_floyd_3+conc_dis+
+ #            age_19_29_perc+age_30_49_perc+age_50_69_perc+
+  #           age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
+   #          (1|GEOID), 
+    #      data = cj_exp_prepost)
 ```
 
 ```{r, message=F, results='asis'}
@@ -1109,13 +1110,56 @@ stargazer(re_homicide, re_logit_cd_homicide,
 
 ```{r}
 library(splm)
+library(plm)
 
 nb <- st_contiguity(mpls_tract, queen=TRUE)
-wt <-  st_weights(nb, style = "W")
+wt <-  st_weights(nb, style = "W", allow_zero = T)
 w <- recreate_listw(nb, wt)
 
+cj_exp_prepost <- cj_exp_prepost %>% 
+  group_by(GEOID) %>%
+  arrange(year, week) %>%
+  mutate(WEEKID = row_number())
 
-lag <- spml(car_jack_rate~t+post_floyd+t_post_floyd+
+cj_exp_prepost_panel <- pdata.frame(cj_exp_prepost, index = c("GEOID", "WEEKID"), drop.index = F) 
+
+slmtest(car_jack_rate~t+post_floyd+t_post_floyd+
+             conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis,
+        data=cj_exp_prepost_panel, 
+        listw =w,
+        model = "random",
+        test = "lml")
+
+slmtest(car_jack_rate~t+post_floyd+t_post_floyd+
+             conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis,
+        data=cj_exp_prepost_panel, 
+        listw =w,
+        model = "random",
+        test = "lme")
+
+slmtest(car_jack_rate~t+post_floyd+t_post_floyd+
+             conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis,
+        data=cj_exp_prepost_panel, 
+        listw =w,
+        model = "random",
+        test = "rlml")
+
+slmtest(car_jack_rate~t+post_floyd+t_post_floyd+
+             conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis,
+        data=cj_exp_prepost_panel, 
+        listw =w,
+        model = "random",
+        test = "rlme")
+
+sar <- spml(car_jack_rate~t+post_floyd+t_post_floyd+
              conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
              age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis, 
@@ -1123,8 +1167,36 @@ lag <- spml(car_jack_rate~t+post_floyd+t_post_floyd+
              index = c("GEOID"), 
             effect="individual", 
              model="random",
-             listw = w, lag=T, spatial.error="none")
-summary(lag)
+             listw = w, 
+            lag=T, 
+            spatial.error="none")
+summary(sar)
+
+sem <- spml(car_jack_rate~t+post_floyd+t_post_floyd+
+             conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis, 
+                      data = cj_exp_prepost, 
+             index = c("GEOID"), 
+            effect="individual", 
+             model="random",
+             listw = w, 
+            lag=F, 
+            spatial.error="b")
+summary(sem)
+
+sarar <- spml(car_jack_rate~t+post_floyd+t_post_floyd+
+             conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis, 
+                      data = cj_exp_prepost, 
+             index = c("GEOID"), 
+            effect="individual", 
+             model="random",
+             listw = w, 
+            lag=T, 
+            spatial.error="b")
+summary(sarar)
 ```
 
 
