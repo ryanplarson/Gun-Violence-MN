@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.7) (preloaded format=pdflatex 2022.9.16)  28 OCT 2022 10:19
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.10) (preloaded format=pdflatex 2022.11.2)  20 DEC 2022 02:05
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **./car_jacking_preliminary_tract.tex
 (car_jacking_preliminary_tract.tex
 LaTeX2e <2022-06-01> patch level 5
-L3 programming layer <2022-07-04> (C:\Program Files\MiKTeX\tex/latex/base\artic
+L3 programming layer <2022-10-26> (C:\Program Files\MiKTeX\tex/latex/base\artic
 le.cls
 Document Class: article 2021/10/04 v1.4n Standard LaTeX document class
 (C:\Program Files\MiKTeX\tex/latex/base\size10.clo
@@ -182,9 +182,8 @@ Package: parskip 2021-03-14 v2.0h non-zero parskip adjustments
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 (C:\Users\rlarson21\AppData\Roaming\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
 Package: ltxcmds 2020-05-10 v1.25 LaTeX kernel commands for general use (HO)
-) (C:\Users\rlarson21\AppData\Roaming\MiKTeX\tex/generic/kvsetkeys\kvsetkeys.st
-y
-Package: kvsetkeys 2019/12/15 v1.18 Key value parser (HO)
+) (C:\Users\rlarson21\AppData\Roaming\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
 ))) (C:\Program Files\MiKTeX\tex/latex/xcolor\xcolor.sty
 Package: xcolor 2022/06/12 v2.14 LaTeX color extensions (UK)
 (C:\Program Files\MiKTeX\tex/latex/graphics-cfg\color.cfg
@@ -192,10 +191,10 @@ File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package xcolor Info: Driver file: pdftex.def on input line 227.
 (C:\Program Files\MiKTeX\tex/latex/graphics-def\pdftex.def
-File: pdftex.def 2020/10/05 v1.2a Graphics/color driver for pdftex
-)
-(C:\Users\rlarson21\AppData\Roaming\MiKTeX\tex/latex-dev/graphics\mathcolor.ltx
-)
+File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
+\stockwidth=\dimen149
+\stockheight=\dimen150
+) (C:\Program Files\MiKTeX\tex/latex/graphics\mathcolor.ltx)
 Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1353.
 Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1357.
 Package xcolor Info: Model `RGB' extended on input line 1369.
@@ -213,14 +212,14 @@ Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 \Gm@cnth=\count274
 \Gm@cntv=\count275
 \c@Gm@tempcnt=\count276
-\Gm@bindingoffset=\dimen149
-\Gm@wd@mp=\dimen150
-\Gm@odd@mp=\dimen151
-\Gm@even@mp=\dimen152
-\Gm@layoutwidth=\dimen153
-\Gm@layoutheight=\dimen154
-\Gm@layouthoffset=\dimen155
-\Gm@layoutvoffset=\dimen156
+\Gm@bindingoffset=\dimen151
+\Gm@wd@mp=\dimen152
+\Gm@odd@mp=\dimen153
+\Gm@even@mp=\dimen154
+\Gm@layoutwidth=\dimen155
+\Gm@layoutheight=\dimen156
+\Gm@layouthoffset=\dimen157
+\Gm@layoutvoffset=\dimen158
 \Gm@dimlist=\toks25
 (C:\Users\rlarson21\AppData\Roaming\MiKTeX\tex/latex/geometry\geometry.cfg)) (C
 :\Users\rlarson21\AppData\Roaming\MiKTeX\tex/latex/fancyvrb\fancyvrb.sty
@@ -234,10 +233,10 @@ Package: fancyvrb 2022/06/06 4.5 verbatim text (tvz,hv)
 ) (C:\Users\rlarson21\AppData\Roaming\MiKTeX\tex/latex/framed\framed.sty
 Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
 \OuterFrameSep=\skip53
-\fb@frw=\dimen157
-\fb@frh=\dimen158
-\FrameRule=\dimen159
-\FrameSep=\dimen160
+\fb@frw=\dimen159
+\fb@frh=\dimen160
+\FrameRule=\dimen161
+\FrameSep=\dimen162
 ) (C:\Program Files\MiKTeX\tex/latex/graphics\graphicx.sty
 Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
 (C:\Program Files\MiKTeX\tex/latex/graphics\graphics.sty
@@ -249,12 +248,12 @@ File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 107.
 )
-\Gin@req@height=\dimen161
-\Gin@req@width=\dimen162
+\Gin@req@height=\dimen163
+\Gin@req@width=\dimen164
 ) (C:\Users\rlarson21\AppData\Roaming\MiKTeX\tex/latex/bookmark\bookmark.sty
 Package: bookmark 2020-11-06 v1.29 PDF bookmarks (HO)
 (C:\Program Files\MiKTeX\tex/latex/hyperref\hyperref.sty
-Package: hyperref 2022-06-20 v7.00s Hypertext links for LaTeX
+Package: hyperref 2022-09-22 v7.00t Hypertext links for LaTeX
 (C:\Program Files\MiKTeX\tex/generic/pdftexcmds\pdftexcmds.sty
 Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
 )
@@ -290,11 +289,11 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count280
 )
-\@linkdim=\dimen163
+\@linkdim=\dimen165
 \Hy@linkcounter=\count281
 \Hy@pagecounter=\count282
 (C:\Program Files\MiKTeX\tex/latex/hyperref\pd1enc.def
-File: pd1enc.def 2022-06-20 v7.00s Hyperref: PDFDocEncoding definition (HO)
+File: pd1enc.def 2022-09-22 v7.00t Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
 ) (C:\Users\rlarson21\AppData\Roaming\MiKTeX\tex/generic/intcalc\intcalc.sty
@@ -304,7 +303,7 @@ Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
 )
 \Hy@SavedSpaceFactor=\count283
 (C:\Program Files\MiKTeX\tex/latex/hyperref\puenc.def
-File: puenc.def 2022-06-20 v7.00s Hyperref: PDF Unicode definition (HO)
+File: puenc.def 2022-09-22 v7.00t Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
 ... no UTF-8 mapping file for font encoding PU
 )
@@ -315,14 +314,14 @@ Package hyperref Info: Hyper index ON on input line 4170.
 Package hyperref Info: Plain pages OFF on input line 4177.
 Package hyperref Info: Backreferencing OFF on input line 4182.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
-Package hyperref Info: Bookmarks ON on input line 4408.
+Package hyperref Info: Bookmarks ON on input line 4410.
 \c@Hy@tempcnt=\count284
 (C:\Program Files\MiKTeX\tex/latex/url\url.sty
 \Urlmuskip=\muskip17
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
-LaTeX Info: Redefining \url on input line 4746.
-\XeTeXLinkMargin=\dimen164
+LaTeX Info: Redefining \url on input line 4748.
+\XeTeXLinkMargin=\dimen166
 (C:\Users\rlarson21\AppData\Roaming\MiKTeX\tex/generic/bitset\bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
 
@@ -332,15 +331,15 @@ Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
 )
 ))
 \Fld@menulength=\count285
-\Field@Width=\dimen165
-\Fld@charsize=\dimen166
-Package hyperref Info: Hyper figures OFF on input line 6024.
-Package hyperref Info: Link nesting OFF on input line 6029.
-Package hyperref Info: Hyper index ON on input line 6032.
-Package hyperref Info: backreferencing OFF on input line 6039.
-Package hyperref Info: Link coloring OFF on input line 6044.
-Package hyperref Info: Link coloring with OCG OFF on input line 6049.
-Package hyperref Info: PDF/A mode OFF on input line 6054.
+\Field@Width=\dimen167
+\Fld@charsize=\dimen168
+Package hyperref Info: Hyper figures OFF on input line 6027.
+Package hyperref Info: Link nesting OFF on input line 6032.
+Package hyperref Info: Hyper index ON on input line 6035.
+Package hyperref Info: backreferencing OFF on input line 6042.
+Package hyperref Info: Link coloring OFF on input line 6047.
+Package hyperref Info: Link coloring with OCG OFF on input line 6052.
+Package hyperref Info: PDF/A mode OFF on input line 6057.
 (C:\Program Files\MiKTeX\tex/latex/base\atbegshi-ltx.sty
 Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
 package with kernel methods
@@ -351,7 +350,7 @@ package with kernel methods
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
 (C:\Program Files\MiKTeX\tex/latex/hyperref\hpdftex.def
-File: hpdftex.def 2022-06-20 v7.00s Hyperref driver for pdfTeX
+File: hpdftex.def 2022-09-22 v7.00t Hyperref driver for pdfTeX
 (C:\Program Files\MiKTeX\tex/latex/base\atveryend-ltx.sty
 Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend pac
 kage
@@ -378,7 +377,7 @@ File: bkm-pdftex.def 2020-11-06 v1.29 bookmark driver for pdfTeX (HO)
 )) (C:\Users\rlarson21\AppData\Roaming\MiKTeX\tex/latex/xurl\xurl.sty
 Package: xurl 2022/01/09 v 0.10 modify URL breaks
 ) (C:\Program Files\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
-File: l3backend-pdftex.def 2022-07-01 L3 backend support: PDF output (pdfTeX)
+File: l3backend-pdftex.def 2022-10-26 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count292
 \l__pdf_internal_box=\box55
 ) (car_jacking_preliminary_tract.aux
@@ -427,13 +426,13 @@ File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman
 ) (C:\Program Files\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count293
-\scratchdimen=\dimen167
+\scratchdimen=\dimen169
 \scratchbox=\box56
 \nofMPsegments=\count294
 \nofMParguments=\count295
 \everyMPshowfont=\toks26
 \MPscratchCnt=\count296
-\MPscratchDim=\dimen168
+\MPscratchDim=\dimen170
 \MPnumerator=\count297
 \makeMPintoPDFobject=\count298
 \everyMPtoPDFconversion=\toks27
@@ -540,35 +539,35 @@ ents\Research\Gun-Violence-MN\Data\mpls_city-shp\16cdbbfa-ad10-493c-afaf-52b61f
 [1
 
 {C:/Users/rlarson21/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-Overfull \hbox (291.49277pt too wide) in paragraph at lines 188--188
+Overfull \hbox (291.49277pt too wide) in paragraph at lines 189--189
 []\T1/lmtt/m/n/10 ## Downloading feature geometry from the Census website.  To 
 cache shapefiles for use in future sessions, set \TS1/lmtt/m/n/10 `\T1/lmtt/m/n
 /10 options(tigris_use_cache = TRUE)\TS1/lmtt/m/n/10 `\T1/lmtt/m/n/10 .[] 
  []
 
 
-Overfull \hbox (291.49277pt too wide) in paragraph at lines 211--211
+Overfull \hbox (291.49277pt too wide) in paragraph at lines 212--212
 []\T1/lmtt/m/n/10 ## Downloading feature geometry from the Census website.  To 
 cache shapefiles for use in future sessions, set \TS1/lmtt/m/n/10 `\T1/lmtt/m/n
 /10 options(tigris_use_cache = TRUE)\TS1/lmtt/m/n/10 `\T1/lmtt/m/n/10 .[] 
  []
 
 
-Overfull \hbox (291.49277pt too wide) in paragraph at lines 234--234
+Overfull \hbox (291.49277pt too wide) in paragraph at lines 235--235
 []\T1/lmtt/m/n/10 ## Downloading feature geometry from the Census website.  To 
 cache shapefiles for use in future sessions, set \TS1/lmtt/m/n/10 `\T1/lmtt/m/n
 /10 options(tigris_use_cache = TRUE)\TS1/lmtt/m/n/10 `\T1/lmtt/m/n/10 .[] 
  []
 
 
-Overfull \hbox (291.49277pt too wide) in paragraph at lines 256--256
+Overfull \hbox (291.49277pt too wide) in paragraph at lines 257--257
 []\T1/lmtt/m/n/10 ## Downloading feature geometry from the Census website.  To 
 cache shapefiles for use in future sessions, set \TS1/lmtt/m/n/10 `\T1/lmtt/m/n
 /10 options(tigris_use_cache = TRUE)\TS1/lmtt/m/n/10 `\T1/lmtt/m/n/10 .[] 
  []
 
 [2]
-Overfull \hbox (10318.08267pt too wide) in paragraph at lines 281--281
+Overfull \hbox (10318.08267pt too wide) in paragraph at lines 286--286
 []\T1/lmtt/m/n/10 ##   |                                                       
                        |                                                       
                |   0%  |                                                       
@@ -915,225 +914,203 @@ Overfull \hbox (10318.08267pt too wide) in paragraph at lines 281--281
  []
 
 
-Underfull \vbox (badness 8113) detected at line 442
+Underfull \vbox (badness 8113) detected at line 447
  []
 
 [3]
-Underfull \vbox (badness 10000) detected at line 442
+Underfull \vbox (badness 10000) detected at line 447
  []
 
 
-Underfull \vbox (badness 10000) detected at line 442
+Underfull \vbox (badness 10000) detected at line 447
  []
 
 [4]
-Underfull \vbox (badness 10000) detected at line 442
+Underfull \vbox (badness 10000) detected at line 447
  []
 
 
-Underfull \vbox (badness 10000) detected at line 442
+Underfull \vbox (badness 10000) detected at line 447
  []
 
 [5]
-Overfull \hbox (343.99261pt too wide) in paragraph at lines 478--478
+Overfull \hbox (343.99261pt too wide) in paragraph at lines 483--483
 []\T1/lmtt/m/n/10 ## i See https://www.census.gov/library/fact-sheets/2021/prot
 ecting-the-confidentiality-of-the-2020-census-redistricting-data.html for addit
 ional guidance.[] 
  []
 
-[6]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-4-1.pdf, id=42,
+[6] [7]
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-4-1.pdf, id=48,
  469.755pt x 325.215pt>
 File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-4-1.pdf Gr
 aphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-4-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-4-1.pdf  used on input line 548.
+ed-chunk-4-1.pdf  used on input line 626.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[7 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-4-1.pdf>]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-5-1.pdf, id=55,
+[8 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-4-1.pdf>]
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-5-1.pdf, id=59,
  469.755pt x 325.215pt>
 File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-5-1.pdf Gr
 aphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-5-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-5-1.pdf  used on input line 583.
+ed-chunk-5-1.pdf  used on input line 737.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-
-Underfull \vbox (badness 5203) detected at line 613
- []
-
-[8 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-5-1.pdf>] 
 [9]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-7-1.pdf, id=75,
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-6-1.pdf, id=65,
  469.755pt x 325.215pt>
-File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-7-1.pdf Gr
+File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-6-1.pdf Gr
 aphic file (type pdf)
-<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-7-1.pdf>
+<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-6-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-7-1.pdf  used on input line 705.
+ed-chunk-6-1.pdf  used on input line 774.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[10] [11 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-7-1.
-pdf>]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-8-1.pdf, id=91,
- 469.755pt x 325.215pt>
+[10 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-5-1.pdf>]
+[11 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-6-1.pdf>]
+[12] [13] [14]
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-8-1.pdf, id=104
+, 469.755pt x 325.215pt>
 File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-8-1.pdf Gr
 aphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-8-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-8-1.pdf  used on input line 793.
+ed-chunk-8-1.pdf  used on input line 1095.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[12 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-8-1.pdf>]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-9-1.pdf, id=102
+[15 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-8-1.pdf>]
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-9-1.pdf, id=114
 , 469.755pt x 325.215pt>
 File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-9-1.pdf Gr
 aphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-9-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-9-1.pdf  used on input line 830.
+ed-chunk-9-1.pdf  used on input line 1177.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[13 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-9-1.pdf>]
-[14] [15] [16]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-11-1.pdf, id=13
+[16]
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-10-1.pdf, id=12
 1, 469.755pt x 325.215pt>
-File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-11-1.pdf G
+File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-10-1.pdf G
 raphic file (type pdf)
-<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-11-1.pdf>
+<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-10-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-11-1.pdf  used on input line 1135.
+ed-chunk-10-1.pdf  used on input line 1214.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[17] [18 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-11-1
-.pdf>]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-12-1.pdf, id=14
-7, 469.755pt x 325.215pt>
-File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-12-1.pdf G
-raphic file (type pdf)
-<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-12-1.pdf>
-Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-12-1.pdf  used on input line 1202.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[19 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-12-1.pdf>
-]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-1.pdf, id=16
-0, 469.755pt x 325.215pt>
-File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-1.pdf G
-raphic file (type pdf)
-<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-1.pdf>
-Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-13-1.pdf  used on input line 1239.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+[17 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-9-1.pdf>]
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 1256.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 1231.
 
 LaTeX Font Warning: Font shape `T1/lmtt/bx/it' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/sl' tried instead on input line 1347.
+(Font)              Font shape `T1/lmtt/b/sl' tried instead on input line 1322.
 
 
 
 LaTeX Font Warning: Font shape `TS1/lmtt/bx/it' in size <10> not available
-(Font)              Font shape `TS1/lmtt/b/sl' tried instead on input line 1347
+(Font)              Font shape `TS1/lmtt/b/sl' tried instead on input line 1322
 .
 
-[20 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-1.pdf>
+[18 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-10-1.pdf>
 ]
-Underfull \vbox (badness 10000) detected at line 1479
+Underfull \vbox (badness 10000) detected at line 1454
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1479
+Underfull \vbox (badness 10000) detected at line 1454
+ []
+
+[19]
+Underfull \vbox (badness 10000) detected at line 1454
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1454
+ []
+
+[20]
+Underfull \vbox (badness 10000) detected at line 1454
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1454
  []
 
 [21]
-Underfull \vbox (badness 10000) detected at line 1479
- []
-
-
-Underfull \vbox (badness 10000) detected at line 1479
+Underfull \vbox (badness 5711) detected at line 1472
  []
 
 [22]
-Underfull \vbox (badness 10000) detected at line 1479
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-11-1.pdf, id=16
+7, 469.755pt x 325.215pt>
+File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-11-1.pdf G
+raphic file (type pdf)
+<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-11-1.pdf>
+Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
+ed-chunk-11-1.pdf  used on input line 1474.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+[23 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-11-1.pdf>
+]
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-12-1.pdf, id=17
+9, 469.755pt x 325.215pt>
+File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-12-1.pdf G
+raphic file (type pdf)
+<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-12-1.pdf>
+Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
+ed-chunk-12-1.pdf  used on input line 1520.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+
+Overfull \vbox (1.19238pt too high) detected at line 1564
  []
 
-
-Underfull \vbox (badness 10000) detected at line 1479
- []
-
-[23]
-Underfull \vbox (badness 10000) detected at line 1479
- []
-
-
-Underfull \vbox (badness 10000) detected at line 1479
- []
-
-[24]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-1.pdf, id=19
+[24 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-12-1.pdf>
+]
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-1.pdf, id=19
 4, 469.755pt x 325.215pt>
+File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-1.pdf G
+raphic file (type pdf)
+<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-1.pdf>
+Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
+ed-chunk-13-1.pdf  used on input line 1605.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+[25] [26 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-1
+.pdf>]
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-1.pdf, id=21
+1, 469.755pt x 325.215pt>
 File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-1.pdf G
 raphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-14-1.pdf  used on input line 1499.
+ed-chunk-14-1.pdf  used on input line 1674.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[25 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-1.pdf>
-]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-15-1.pdf, id=20
-7, 469.755pt x 325.215pt>
-File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-15-1.pdf G
-raphic file (type pdf)
-<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-15-1.pdf>
-Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-15-1.pdf  used on input line 1545.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[26 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-15-1.pdf>
-]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-16-1.pdf, id=22
-2, 469.755pt x 325.215pt>
-File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-16-1.pdf G
-raphic file (type pdf)
-<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-16-1.pdf>
-Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-16-1.pdf  used on input line 1622.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[27] [28 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-16-1
-.pdf>]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-17-1.pdf, id=23
-8, 469.755pt x 325.215pt>
-File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-17-1.pdf G
-raphic file (type pdf)
-<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-17-1.pdf>
-Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-17-1.pdf  used on input line 1691.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[29 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-17-1.pdf>
-] [30] [31] [32] [33]
-Overfull \hbox (238.99292pt too wide) in paragraph at lines 1957--1957
+[27 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-1.pdf>
+] [28] [29] [30] [31]
+Overfull \hbox (238.99292pt too wide) in paragraph at lines 1963--1963
 []\T1/lmtt/m/n/10 ## Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = 
 control$checkConv, : Model is nearly unidentifiable: very large eigenvalue[] 
  []
 
-[34] [35] [36] [37]
-Underfull \vbox (badness 10000) detected at line 2270
+[32] [33] [34] [35]
+Overfull \hbox (238.99292pt too wide) in paragraph at lines 2275--2275
+[]\T1/lmtt/m/n/10 ## Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = 
+control$checkConv, : Model is nearly unidentifiable: very large eigenvalue[] 
  []
 
-[38]
+[36]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 2275.
+(Font)              <10> on input line 2321.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 2275.
+(Font)              <7> on input line 2321.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 2275.
-[39] [40] [41] (car_jacking_preliminary_tract.aux)
+(Font)              <5> on input line 2321.
+[37] [38] [39] [40] (car_jacking_preliminary_tract.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 14017 strings out of 478338
- 227578 string characters out of 2846503
- 915065 words of memory out of 3000000
- 32064 multiletter control sequences out of 15000+600000
+ 13999 strings out of 475380
+ 226583 string characters out of 2786575
+ 957529 words of memory out of 3000000
+ 35009 multiletter control sequences out of 15000+600000
  524581 words of font info for 101 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  74i,9n,81p,27059b,707s stack positions out of 10000i,1000n,20000p,200000b,80000s
@@ -1148,11 +1125,9 @@ ublic/lm/lmsy10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/lm/lmtk10.pfb><
 C:/Program Files/MiKTeX/fonts/type1/public/lm/lmtko10.pfb><C:/Program Files/MiK
 TeX/fonts/type1/public/lm/lmtt10.pfb><C:/Program Files/MiKTeX/fonts/type1/publi
 c/lm/lmtti10.pfb>
-Output written on car_jacking_preliminary_tract.pdf (41 pages, 639886 bytes).
+Output written on car_jacking_preliminary_tract.pdf (40 pages, 595178 bytes).
 PDF statistics:
- 445 PDF objects out of 1000 (max. 8388607)
- 86 named destinations out of 1000 (max. 500000)
- 28901 words of extra memory for PDF output out of 29859 (max. 10000000)
+ 417 PDF objects out of 1000 (max. 8388607)
+ 81 named destinations out of 1000 (max. 500000)
+ 28875 words of extra memory for PDF output out of 29859 (max. 10000000)
 
-
-! pdflatex: major issue: So far, no MiKTeX administrator has checked for updates.
