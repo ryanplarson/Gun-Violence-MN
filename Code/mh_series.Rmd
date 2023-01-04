@@ -458,7 +458,7 @@ ggplot(series)+
   geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
                  y=1.7), 
              label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Figure 1: Weekly Black Mental Health Discharges, 2016-2020",
+  labs(title = "Figure X: Weekly Black Mental Health Discharges, 2016-2020",
        subtitle = "MHA Hospital Data",
        x = "Week",
        y = "Rate per 1,000 Black Residents",
@@ -491,7 +491,7 @@ ggplot(series)+
   geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
                  y=1.25), 
              label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Figure 1: Weekly Latino/a Mental Health Discharges, 2016-2020",
+  labs(title = "Figure X: Weekly Latino/a Mental Health Discharges, 2016-2020",
        subtitle = "MHA Hospital Data",
        x = "Week",
        y = "Rate per 1,000 Latino/a Residents",
@@ -559,9 +559,25 @@ ts_ar3_latin <- lm(latin_mh_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_p
                dplyr::lag(latin_mh_incid_c, 3), 
             data = series)
 summary(ts_ar3_latin)
+
+ts_ar3_indig <- lm(indig_mh_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
+                          uof_lag+stops_lag+shoot_lag+
+                         tmax_f+snow_in+precip_in+
+                         dplyr::lag(indig_mh_incid_c, 1)+ dplyr::lag(indig_mh_incid_c, 2)+
+               dplyr::lag(indig_mh_incid_c, 3), 
+            data = series)
+summary(ts_ar3_indig)
+
+ts_ar3_asian <- lm(asian_mh_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
+                          uof_lag+stops_lag+shoot_lag+
+                         tmax_f+snow_in+precip_in+
+                         dplyr::lag(asian_mh_incid_c, 1)+ dplyr::lag(asian_mh_incid_c, 2)+
+               dplyr::lag(asian_mh_incid_c, 3), 
+            data = series)
+summary(ts_ar3_asian)
 ```
 
-```{r, results='asis', message=FALSE, include = F}
+```{r, results='asis', message=FALSE, include = T}
 stargazer(ts_ar3, ts_ar3_white, ts_ar3_black, ts_ar3_latin,
           title = "Interrupted Time Series Models of Mental Health Discharges",
           covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
@@ -572,7 +588,7 @@ stargazer(ts_ar3, ts_ar3_white, ts_ar3_black, ts_ar3_latin,
                                "AR(1)", "AR(2)", "AR(3)"),
           dep.var.caption = "Mental Health Discharges",
           dep.var.labels = "Rate per 1,000",
-          column.labels = c("OVerall", "White", "Black", "Latio/a"),
+          column.labels = c("Overall", "White", "Black", "Latio/a"),
           model.numbers = TRUE,
           single.row = TRUE,
           align = T,
@@ -580,19 +596,64 @@ stargazer(ts_ar3, ts_ar3_white, ts_ar3_black, ts_ar3_latin,
           star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"))
 
 
+#coefficient plot for SER abstract
+
+
 ```
 
 # ZCTA-Week Level Analysis
 
-```{r prelim maps, message=FALSE}
+## Panel Analysis
+
+```{r panel analysis, message=F, echo=FALSE}
+
+panel <- panel %>%
+  ungroup() %>%
+  mutate(black_pop_center = scale(black_pop, center = T, scale = T),
+         post_floyd = as.factor(post_floyd),
+         mh_rate = mh_all_tot/total_pop*1000)
+
+fe_model <- lm(mh_rate~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
+                          uof_lag+stops_lag+shoot_lag+
+                         tmax_f+snow_in+precip_in+
+                         as.factor(zipcode)+as.factor(weekofyr),
+               data = panel)
+summary(fe_model)
+
+
+
+#random effects specifications
+library(lme4)
+library(lmerTest)
+
+
+#RE base model
+re_base <- lmer(mh_rate~1+
+                 (1|zcta), data = panel)
+summary(re_base)
+
+re <- lmer(mh_rate~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
+                          uof_lag+stops_lag+shoot_lag+
+                         tmax_f+snow_in+precip_in+
+                       (1+post_floyd|zcta), data = panel)
+summary(re)
+
+re_pf <- ranef(re)
+re_coef <- re_pf$zcta 
+re_coef <- re_coef %>%
+  mutate(zipcode = as.numeric(rownames(re_coef)))
+
 #aggregate to zip-level over years
 zip_level <- panel %>%
-  group_by(zcta, period) %>%
+  group_by(zcta) %>%
    summarize(mh_all_tot = sum(mh_all_tot, na.rm = T),
             total_pop = sum(total_pop, na.rm = T)) %>%
   mutate(mh_incid_c = (mh_all_tot/total_pop)*1000) %>%
   ungroup() %>%
   left_join(zcta, by = "zcta")
+
+zip_level <- zip_level %>%
+  left_join(re_coef, by = c("zcta" = "zipcode"))
 
 
 #george floyd square
@@ -601,18 +662,16 @@ gfs <- geocode("George Floyd Square, Minneapolis", output = "latlon") %>%
   mutate(name = "George Floyd Square")
 
 ggplot() +
-  geom_sf(data = zip_level, aes(geometry = geometry, fill = mh_incid_c)) + 
+  geom_sf(data = zip_level, aes(geometry = geometry, fill = desc(post_floyd1))) + 
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
   geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
- # geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
-  #                size = 2,
-   #              fontface = "bold",
-    #             nudge_x = 1, nudge_y = -1)+
-  facet_wrap(~period)+
+  geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
+                 size = 2,
+                fontface = "bold")+
   scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure X: Mental Health Hospital Discharges by ZCTA and Period", 
+  labs(title = "Figure X: RE Coefficients of Post-Killing Effect", 
        subtitle = "MHA Hospital Discharge Data",
-       fill = "Incident Rate/1,000")+
+       fill = "Post-Killing Increase")+
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
   axis.line = element_blank(),
@@ -625,42 +684,13 @@ ggplot() +
   plot.subtitle = element_text(face="italic"),
   strip.background = element_rect(fill = "white", 
                 colour = "black"))
-```
-
-## Panel Analysis
-
-```{r panel analysis, message=F, echo=FALSE}
-
-fe_model <- lm(mh_all_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
-                          uof_lag+stops_lag+shoot_lag+
-                         tmax_f+snow_in+precip_in+
-                         as.factor(zipcode)+as.factor(weekofyr),
-               data = panel)
 
 
-#random effects specifications
-library(lme4)
-library(lmerTest)
 
 
-#RE base model
-re_base <- lmer(mh_all_incid_c~1+
-                 (1|zcta)+(1|weekofyr), data = panel)
-summary(re_base)
-
-re <- lmer(mh_all_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
-                          uof_lag+stops_lag+shoot_lag+
-                         tmax_f+snow_in+precip_in+
-                       (1|zcta)+(1|weekofyr), data = panel)
-summary(re)
-
-panel <- panel %>%
-  ungroup() %>%
-  mutate(black_pop_center = scale(black_pop, center = T, scale = T),
-         post_floyd = as.factor(post_floyd))
 
 #random coefficient model
-re <- lmer(mh_all_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
+re <- lmer(mh_rate~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
                           uof_lag+stops_lag+shoot_lag+
                          tmax_f+snow_in+precip_in+
                 black_pop+
@@ -672,15 +702,17 @@ library(sjPlot)
 
 plot_model(re, type = "re")
 
+
+
 plot_model(re, 
            terms = c("post_floyd", "black_pop"),
            type = "pred", 
            ci.lvl = 0.95,
            mdrt.values = "meansd",
-           title = "Figure X: Post-Killing X Percent Black Interaction Plot",
+           title = "Figure X: Post-Killing X Black Pop Interaction Plot",
            axis.title = c("Post-Killing","MH Discharges per 1,000"))+
   theme_sjplot()+
-  ggplot2::labs(colour = "Percent Black")
+  ggplot2::labs(colour = "Black Pop")
 ```
 
 
