@@ -232,8 +232,8 @@ panel <- panel %>%
 panel <- panel %>%
   mutate(post_floyd = as.numeric(begin_date >= as.Date("2020-05-25")),
          post_floyd_3 = as.numeric(begin_date >= as.Date("2020-05-25")+months(3)),
-         t_post_floyd = ifelse(as.numeric(as.Date("2020-05-25")-begin_date)/7 >=0,
-                               as.numeric(as.Date("2020-05-25")-begin_date)/7,
+         t_post_floyd = ifelse(as.numeric(begin_date-as.Date("2020-05-25"))/7 >=0,
+                               begin_date-as.numeric(as.Date("2020-05-25"))/7,
                                0),
          stay_at_home = as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28")),
          state_of_emerg = as.numeric(begin_date >= as.Date("2020-03-13")),

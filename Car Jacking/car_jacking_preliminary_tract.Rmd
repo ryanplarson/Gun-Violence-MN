@@ -45,12 +45,6 @@ library(zoo)
   #multinomial predictors (0-1, 1-few, few-many?)
 #(months/quarters for the plot) 
 
-#chow tests
-  #iterative?
-#splm models
-#model robustness (count models etc.)
-
-
 set.seed(7188)
 google_key <- readRDS("C:/Users/rlarson21/Documents/R/Rworkingdirectory/google_api_key.rds")
 register_google(key = google_key)
@@ -315,7 +309,7 @@ cj_exp <- read_csv("Data/MPDdata_082422.csv") %>%
          year=isoyear(date),
          week=isoweek(date)) %>%
   select(CaseNumber, year, week, latitude, longitude) %>%
-  distinct(CaseNumber, .keep_all = TRUE) %>%
+  distinct(CaseNumber, .keep_all = TRUE) %>% #collapsing to incident-level
   drop_na(latitude, longitude) %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = "NAD83", remove=F) %>%
   st_join(mpls_tract) %>% #spatial join neighborhoods
@@ -396,10 +390,6 @@ sctest(cj_exp_week$car_jack_rate~cj_exp_week$t,
 breakpoints(car_jack_rate~t,
             data = cj_exp_week, 
             breaks = 1)
-
-ggplot(cj_exp_week)+
-  geom_line(aes(x=t, y=car_jack_rate))+
-  geom_vline(aes(xintercept = 180))
 ```
 
 # MPLS ZCTA Carjackings Map - MPD Extended Data
@@ -549,10 +539,6 @@ sctest(homicide_week$homicide_rate~homicide_week$t,
 breakpoints(homicide_rate~t,
             data = homicide_week, 
             breaks = 1)
-
-ggplot(homicide_week)+
-  geom_line(aes(x=t, y=homicide_rate))+
-  geom_vline(aes(xintercept = 180))
 ```
 
 
@@ -855,6 +841,7 @@ ggsave(filename = "Car Jacking/Figures for PAA/fig6.png", bg="white", width = 10
 
 ```{r}
 library(sfdep)
+library(spdep)
 
 cj_delta <- prepost_cj %>%
   mutate(delta = car_jack_rate_1-car_jack_rate_0,
@@ -872,8 +859,39 @@ global_moran_test(
   alternative = "greater",
   randomization = TRUE)
 
+mp <- moran.plot(cj_delta$delta, nb2listw(nb), 
+                 labels = as.character(cj_delta$GEOID))
+
+ggplot(mp, aes(x=x, y=wx)) + 
+  geom_point(shape=1) + 
+    geom_smooth(formula=y ~ x, method="lm") + 
+    geom_hline(yintercept=mean(mp$wx), lty=2) + 
+    #geom_hline(yintercept=0, lty=2) + 
+    geom_vline(xintercept=mean(mp$x), lty=2) + 
+    #geom_vline(xintercept=0, lty=2) + 
+    theme_minimal() + 
+    labs(title = "Figure 4: Moran's I Plot Carjacking Change Spatialautocorrelation",
+         x = "Focal Tract Carjacking Change",
+         y = "Spatially Lagged Carjacking Change")
+
+global_moran_test(
+  cj_delta$car_jack_rate_1,
+  nb,
+  wt,
+  alternative = "greater",
+  randomization = TRUE)
+
 #LISA
 cj_lisa <-  local_moran(cj_delta$delta,
+                       nb = nb,
+                       wt = wt, 
+                       nsim = 1000,
+                       iseed = set.seed(7188)) %>%
+  mutate(mean_p = ifelse(p_ii_sim <= 0.05, as.character(pysal), "Non Sig."),
+         mean_p = factor(mean_p, levels = c("High-High", "High-Low", "Low-High", 
+                                            "Low-Low", "Non Sig.")))
+
+cj_lisa <-  local_moran(cj_delta$car_jack_rate_1,
                        nb = nb,
                        wt = wt, 
                        nsim = 1000,
@@ -900,7 +918,7 @@ ggsave(filename = "Car Jacking/Figures for PAA/fig7.png", bg="white", width = 10
 
 ```{r}
 hom_delta <- prepost_hom %>%
-  mutate(delta = homicide_1-homicide_0,
+  mutate(delta = homicide_rate_1-homicide_rate_0,
            GEOID = as.numeric(GEOID)) %>%
   left_join(mpls_tract, by = "GEOID") %>%
   st_sf()
@@ -916,8 +934,37 @@ global_moran_test(
   alternative = "greater",
   randomization = TRUE)
 
+mp <- moran.plot(hom_delta$delta, nb2listw(nb))
+
+ggplot(mp, aes(x=x, y=wx)) + 
+  geom_point(shape=1) + 
+    geom_smooth(formula=y ~ x, method="lm") + 
+     #geom_hline(yintercept=mean(mp$wx), lty=2) + 
+    geom_hline(yintercept=0, lty=2) + 
+    #geom_vline(xintercept=mean(mp$x), lty=2) + 
+    geom_vline(xintercept=0, lty=2) + 
+    theme_minimal() + 
+    geom_point(data=mp[mp$is_inf,], aes(x=x, y=wx), shape=9) +
+    geom_text(data=mp[mp$is_inf,], aes(x=x, y=wx, label=labels, vjust=1.5)) +
+    xlab("Homicide Change") + 
+    ylab(paste0("Spatially lagged ", "Homicide Change"))
+
+global_moran_test(
+  hom_delta$homicide_1,
+  nb,
+  wt,
+  alternative = "greater",
+  randomization = TRUE)
+
 #LISA
 hom_lisa <-  local_moran(hom_delta$delta,
+                       nb = nb,
+                       wt = wt, 
+                       nsim = 1000,
+                       iseed = set.seed(7188)) %>%
+  mutate(mean_p = ifelse(p_ii_sim <= 0.05, as.character(pysal), "Non Sig."))
+
+hom_lisa <-  local_moran(hom_delta$homicide_1,
                        nb = nb,
                        wt = wt, 
                        nsim = 1000,
@@ -947,8 +994,9 @@ cj_exp_prepost <- cj_exp %>%
          end_date = begin_date+weeks(1)-days(1),
          post_floyd = as.numeric(begin_date >= as.Date("2020-05-25")),
          post_floyd_3 = as.numeric(begin_date >= as.Date("2020-05-25")+months(3)),
-         t_post_floyd = ifelse(as.numeric(as.Date("2020-05-25")-begin_date)/7 >=0,
-                               as.numeric(as.Date("2020-05-25")-begin_date)/7,
+         weeks_post = as.numeric(begin_date-as.Date("2020-05-25"))/7,
+         t_post_floyd = ifelse(weeks_post >=0,
+                               weeks_post,
                                0),
         # stay_at_home = as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28")),
          #state_of_emerg = as.numeric(begin_date >= as.Date("2020-03-13")),
@@ -981,8 +1029,20 @@ summary(cfa_cd, fit.measures=TRUE, standardized = T)
 cd_predict <- as.vector(lavPredict(cfa_cd, newdata = as.data.frame(cj_exp_prepost)))
 cj_exp_prepost$conc_dis <- cd_predict
 
+#predicted probability/rate plots
+  #over time
+  #stratified by CD (mean, +1SD, -1SD, +2SD, -2SD)
+
 
 re <- lmer(car_jack_rate~t+post_floyd+t_post_floyd+
+             conc_dis+
+             age_19_29_perc+age_30_49_perc+age_50_69_perc+
+             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis+
+             (1|GEOID), 
+          data = cj_exp_prepost)
+summary(re)
+
+re_lpm <- lmer(anyjack~t+post_floyd+t_post_floyd+
              conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
              age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis+
@@ -997,14 +1057,6 @@ re_logit_cd <- glmer(anyjack ~ t+post_floyd+t_post_floyd+conc_dis+
                   data = cj_exp_prepost, family = binomial)
 summary(re_logit_cd)
 
-#build in police covariates
-#what other covariates do we need here?
-  #crude model - no post-treatment control
-#businesses - crime generators
-#percent single males
-#percent "isolated" youth
-#similar story with homicide?
-#FE models
 
 homicide <- homicide %>% st_drop_geometry()
 
@@ -1025,22 +1077,7 @@ re_logit_cd_homicide <- glmer(anyhom ~ t+post_floyd+t_post_floyd+conc_dis+
              age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis+
              (1|GEOID), 
                   data = cj_exp_prepost, family = binomial)
-summary(re_logit_cd)
-
-# random effects poisson - carjacking
-
-rep <- glmer(car_jack~t+post_floyd+post_floyd_3+conc_dis+
-             age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
-             (1|GEOID), 
-          data = cj_exp_prepost,
-          family = poisson(link = "log"))
-
-#renb <- glmer.nb(car_jack~t+post_floyd+post_floyd_3+conc_dis+
- #            age_19_29_perc+age_30_49_perc+age_50_69_perc+
-  #           age_70_plus_perc+ post_floyd:conc_dis+post_floyd_3:conc_dis+
-   #          (1|GEOID), 
-    #      data = cj_exp_prepost)
+summary(re_logit_cd_homicide)
 ```
 
 ```{r, message=F, results='asis'}
@@ -1070,11 +1107,7 @@ stargazer(re, re_logit_cd,
           add.lines = list(c("SD(Tract)", .008, .650),
                            c("SD(Residual)",  .067, "")),
           notes.append = F)
-
-
 ```
-
-# RE CJ Models
 
 ```{r, message=F, results='asis'}
 class(re_homicide) <- "lmerMod"
@@ -1121,6 +1154,8 @@ cj_exp_prepost <- cj_exp_prepost %>%
   arrange(year, week) %>%
   mutate(WEEKID = row_number())
 
+#write_csv(cj_exp_prepost, "Car Jacking/cj_exp_prepost.csv")
+
 cj_exp_prepost_panel <- pdata.frame(cj_exp_prepost, index = c("GEOID", "WEEKID"), drop.index = F) 
 
 slmtest(car_jack_rate~t+post_floyd+t_post_floyd+
@@ -1132,33 +1167,8 @@ slmtest(car_jack_rate~t+post_floyd+t_post_floyd+
         model = "random",
         test = "lml")
 
-slmtest(car_jack_rate~t+post_floyd+t_post_floyd+
-             conc_dis+
-             age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis,
-        data=cj_exp_prepost_panel, 
-        listw =w,
-        model = "random",
-        test = "lme")
 
-slmtest(car_jack_rate~t+post_floyd+t_post_floyd+
-             conc_dis+
-             age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis,
-        data=cj_exp_prepost_panel, 
-        listw =w,
-        model = "random",
-        test = "rlml")
-
-slmtest(car_jack_rate~t+post_floyd+t_post_floyd+
-             conc_dis+
-             age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis,
-        data=cj_exp_prepost_panel, 
-        listw =w,
-        model = "random",
-        test = "rlme")
-
+#SAR Linear CJ
 sar <- spml(car_jack_rate~t+post_floyd+t_post_floyd+
              conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
@@ -1172,20 +1182,10 @@ sar <- spml(car_jack_rate~t+post_floyd+t_post_floyd+
             spatial.error="none")
 summary(sar)
 
-sem <- spml(car_jack_rate~t+post_floyd+t_post_floyd+
-             conc_dis+
-             age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis, 
-                      data = cj_exp_prepost, 
-             index = c("GEOID"), 
-            effect="individual", 
-             model="random",
-             listw = w, 
-            lag=F, 
-            spatial.error="b")
-summary(sem)
 
-sarar <- spml(car_jack_rate~t+post_floyd+t_post_floyd+
+
+#SAR LPM CJ
+sar_lpm <- spml(anyjack~t+post_floyd+t_post_floyd+
              conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
              age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis, 
@@ -1195,9 +1195,14 @@ sarar <- spml(car_jack_rate~t+post_floyd+t_post_floyd+
              model="random",
              listw = w, 
             lag=T, 
-            spatial.error="b")
-summary(sarar)
+            spatial.error="none")
+summary(sar_lpm)
 ```
+
+
+
+
+
 
 
 

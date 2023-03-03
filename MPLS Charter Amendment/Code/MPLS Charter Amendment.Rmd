@@ -18,6 +18,10 @@ library(tidycensus)
 library(lubridate)
 ```
 
+```{r}
+
+```
+
 # 2020 Decennial Census Data
 
 ```{r}
@@ -170,23 +174,52 @@ precinct_sf <- precinct_sf %>%
 
 ```{r}
 ggplot() +
+  
+  theme_void()+
+  geom_sf(data = tract, aes(geometry = geometry), color = "blue", fill = NA)+
+  geom_sf(data = precinct_sf, aes(geometry = geometry, fill), fill = "blue", color = "red")
+  
+ st_equals(census_20, tract)
+  
+block <- get_decennial(
+  geography = "block",
+   variables = c("P4_001N", "P4_002N","P4_005N",
+                 "P4_006N", "P4_007N", "P4_008N",
+                 "P4_009N", "P4_010N", "P4_011N"),
+  year = 2020,
+  state = "MN",
+  county = "Hennepin",
+  geometry = TRUE,
+  output = "wide"
+ ) 
+
+block <- st_join(precinct_sf, block)
+
+
+tract <- get_decennial(
+  geography = "tract",
+   variables = c("P4_001N", "P4_002N","P4_005N",
+                 "P4_006N", "P4_007N", "P4_008N",
+                 "P4_009N", "P4_010N", "P4_011N"),
+  year = 2020,
+  state = "MN",
+  county = "Hennepin",
+  geometry = TRUE,
+  output = "wide"
+ ) 
+
+tract <- st_join(census_20, tract, join = st_equals_exact, par = .02)
+
+
+
+
+ggplot() +
   geom_sf(data = precinct_sf, aes(geometry = geometry, fill = perc_yes)) + 
   scale_fill_distiller(palette = "RdYlGn")+
   labs(title = "Figure 1: Support for MPLS Charter Amendment #2, 2021", 
        subtitle = "MN Secretary of State",
        fill = "Percent Support")+
-  theme(axis.text.x = element_blank(),
-        axis.text.y = element_blank(),
-  axis.line = element_blank(),
-  axis.ticks = element_blank(),
-  panel.border = element_blank(),
-  panel.grid = element_blank(),
-  axis.title = element_blank(),
-  panel.background = element_blank(),
-  panel.grid.major = element_line(colour="transparent"), 
-  plot.subtitle = element_text(face="italic"),
-  strip.background = element_rect(fill = "white", 
-                colour = "black"))
+  theme_void()
 ```
 
 
