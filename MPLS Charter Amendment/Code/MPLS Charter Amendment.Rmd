@@ -283,18 +283,8 @@ tract_mpls <- tract %>%
          perc_intersection = intersection_area/tract_area*100) %>%
   filter(perc_intersection >= 2)
 
-
-#tract <- create_tract_table(state = "MN", county = "053", year = 2020) %>%
- # filter(GEOID %in% tract_mpls$GEOID)
-
-matches_p <- geo_match(from = tract_mpls, to = precinct_sf, method = 'centroid')
 matches_v <- geo_match(from = precinct_sf, to = tract_mpls, method = 'centroid')
-
-
-disagg_vote <- estimate_down(wts = tract_mpls$vap, value = precinct_sf$perc_yes, group = matches_p)
 disagg_unemp <- estimate_down(wts = precinct_sf$total_pop, value = tract_mpls$unemp_rate, group = matches_v)
-
-tract$perc_yes <- disagg_vote
 precinct_sf$unemp_est <- disagg_unemp
 
 # need to do this for other variables of interest
