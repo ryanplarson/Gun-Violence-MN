@@ -72,6 +72,7 @@ precinct <- url_data %>%
          precinct = str_replace_all(precinct, "-0", "-")) %>%
   mutate_all(~ifelse(is.nan(.), NA, .))
 
+setequal(census_20$NAME, precinct$precinct) #same precincts in each
 
 
 #join to census extract
@@ -167,12 +168,16 @@ precinct_sf <- precinct_sf %>%
          ois_rate = ois/total_pop*1000,
          crime_rate = mpd_crime/total_pop*1000)
 
+
+# is race missingness random across other observable (severity)
+  # pre-post murder missingness change?
+
 ```
 
-# Support for Charter Amendment #2
-
+# 2020 ACS Data
 ```{r}
-tract <- get_acs(geography = "tract", 
+#MN ACS 2020 covariates
+mn_tract <- get_acs(geography = "tract", 
             state = "MN",
                variables = c("B01001_001E", "B03002_003E", "B03002_004E", "B03002_005E",
                              "B03002_006E", "B03002_007E", "B03002_008E", "B03002_009E",
@@ -268,14 +273,15 @@ tract <- get_acs(geography = "tract",
                                  age_m_80_84+age_f_80_84+age_m_85_plus+age_f_85_plus)/total_pop,
          res_mob_rate = 100-100*res_mob/total_pop,
          own_hh_rate = 100*own_hh/total_pop,
-         foreign_rate = 100*foreign/total_pop)
+         foreign_rate = 100*foreign/total_pop) 
 
+#Minneapolis Shapefile
 mpls <- st_read("MPLS Charter Amendment/Data/City_Boundary/City_Boundary.shp") %>%
-  st_transform(st_crs(tract))
+   st_transform(st_crs(mn_tract))
 
-tract_mpls <- tract %>%
+mpls_tract <- mn_tract %>%
   st_filter(mpls, .predicate = st_intersects) %>%
-  mutate(GEOID = as.numeric(GEOID),
+    mutate(GEOID = as.numeric(GEOID),
          tract_area = as.numeric(st_area(.)),
          tract_area_sqkm = tract_area*.000001, 
          tract_area_sqmi = tract_area_sqkm*.386102,
@@ -283,28 +289,21 @@ tract_mpls <- tract %>%
          perc_intersection = intersection_area/tract_area*100) %>%
   filter(perc_intersection >= 2)
 
-matches_v <- geo_match(from = precinct_sf, to = tract_mpls, method = 'centroid')
-disagg_unemp <- estimate_down(wts = precinct_sf$total_pop, value = tract_mpls$unemp_rate, group = matches_v)
+matches <- geo_match(from = precinct_sf, to = mpls_tract, method = 'centroid')
+disagg_unemp <- estimate_down(wts = precinct_sf$total_pop, value = mpls_tract$unemp_rate, group = matches)
 precinct_sf$unemp_est <- disagg_unemp
 
-# need to do this for other variables of interest
+```
 
+# Support for Charter Amendment #2
+
+```{r}
 ggplot() +
-  geom_sf(data = precinct_sf, aes(geometry = geometry, fill = perc_yes)) + 
+  geom_sf(data = precinct_sf, aes(geometry = geometry, fill = unemp_est)) + 
   scale_fill_distiller(palette = "RdYlGn")+
   labs(title = "Figure 1: Support for MPLS Charter Amendment #2, 2021", 
        subtitle = "MN Secretary of State",
        fill = "Percent Support")+
-  theme_void()
-
-ggplot() +
-  geom_sf(data = tract_mpls, aes(geometry = geometry, fill = unemp_rate)) + 
-  scale_fill_distiller(palette = "RdYlGn")+
-  theme_void()
-
-ggplot() +
-  geom_sf(data = precinct_sf, aes(geometry = geometry, fill = unemp_est)) + 
-  scale_fill_distiller(palette = "RdYlGn")+
   theme_void()
 ```
 
