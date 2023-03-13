@@ -304,12 +304,12 @@ dc2020 <- get_decennial(
 # Expanded MPLS Carjacking (Crime Incidents) Data
 
 ```{r}
-cj_exp <- read_csv("Data/MPDdata_082422.csv") %>%
+cj_exp <- read_csv("Car Jacking/MPDdata_2017to2022.csv") %>%
    mutate(date=mdy_hm(reporteddate),
          year=isoyear(date),
          week=isoweek(date)) %>%
-  select(CaseNumber, year, week, latitude, longitude) %>%
-  distinct(CaseNumber, .keep_all = TRUE) %>% #collapsing to incident-level
+  select(casenumber, year, week, latitude, longitude) %>%
+  distinct(casenumber, .keep_all = TRUE) %>% #collapsing to incident-level
   drop_na(latitude, longitude) %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = "NAD83", remove=F) %>%
   st_join(mpls_tract) %>% #spatial join neighborhoods
@@ -339,7 +339,7 @@ cj_exp_week <- cj_exp %>%
          end_date = begin_date+weeks(1)-days(1),
          car_jack_rate = car_jack/total_pop*1000, 
          pre_post_floyd = ifelse(end_date <= as.Date("2020-05-25"), 0, 1)) %>%
-  filter(end_date <= as.Date("2022-08-20")) %>% 
+  filter(end_date <= as.Date("2022-12-31")) %>% 
   ungroup() %>%
   mutate(csma = forecast::ma(car_jack_rate, order=5, centre=TRUE),
          tsma = TTR::SMA(car_jack_rate, n=5))
@@ -362,16 +362,16 @@ ggplot(cj_exp_week)+
                                              cj_exp_week$week==isoweek(date("2020-05-25"))],
                  y=0.075), 
              label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Figure 1: Weekly Minneapolis Carjackings, 1/1/2017-8/20/2022",
+  labs(title = "Weekly Minneapolis Carjackings, 2017-2022",
        x = "Week",
        y = "Weekly Carjacking Rate/ 1,000",
        color = NULL)+
-  geom_line(aes(x=begin_date, y=csma, color = "CSMA(5)"))+
+  #geom_line(aes(x=begin_date, y=csma, color = "CSMA(5)"))+
   theme_minimal()+
     theme(axis.text.x=element_text(angle=45, hjust=1))  +
   theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
 
-ggsave(filename = "Car Jacking/Figures for PAA/fig1.png", bg="white", width = 10, height = 8)
+ggsave(filename = "Car Jacking/Figures for publication/fig1.png", bg="white", width = 10, height = 8)
 ```
 
 # Structural Change in Carjacking
@@ -409,12 +409,12 @@ ggplot() +
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
   facet_grid(~year)+
   scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure 2: Minneapolis Carjacking Rates by Tract and Year", 
+  labs(title = "Minneapolis Carjacking Rates by Tract and Year", 
        fill = "Weekly Rate/ 1,000")+
   theme_void()+
   theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
 
-ggsave(filename = "Car Jacking/Figures for PAA/fig2.png", bg="white", width = 10, height = 8)
+ggsave(filename = "Car Jacking/Figures for publication/fig2.png", bg="white", width = 10, height = 8)
 ```
 
 #  MPLS Murder (Crime Incidents) Data
@@ -490,7 +490,7 @@ homicide_week <- homicide %>%
          end_date = begin_date+weeks(1)-days(1),
          homicide_rate = homicide/total_pop*1000,
          pre_post_floyd = ifelse(end_date <= as.Date("2020-05-25"), 0, 1)) %>%
-  filter(end_date <= as.Date("2022-08-20")) %>% 
+  filter(end_date <= as.Date("2022-12-31")) %>% 
   ungroup() %>%
   mutate(csma = forecast::ma(homicide_rate, order=5,centre=TRUE),
          tsma = TTR::SMA(homicide_rate, n=5))
@@ -506,7 +506,7 @@ ggplot(homicide_week)+
   geom_line(aes(x=begin_date, y=homicide_rate))+ 
  scale_x_date(date_labels = "%b-%Y", date_breaks = "15 weeks",
                limits = c(min(homicide_week$begin_date), max(homicide_week$begin_date)))+
-     labs(title = "Figure 3: Weekly Minneapolis Homicide, 1/1/2017-8/20/2022",
+     labs(title = "Weekly Minneapolis Homicide, 2017-2022",
        x = "Week",
        y = "Weekly Homicide Rate/ 1,000",
        color = NULL)+
@@ -522,7 +522,7 @@ ggplot(homicide_week)+
   theme(axis.text.x=element_text(angle=45, hjust=1)) +
   theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
 
-ggsave(filename = "Car Jacking/Figures for PAA/fig3.png", bg="white", width = 10, height = 8)
+ggsave(filename = "Car Jacking/Figures for publication/fig3.png", bg="white", width = 10, height = 8)
 ```
 
 # Structural Change in Carjacking
@@ -559,12 +559,12 @@ ggplot() +
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
   facet_grid(~year)+
   scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure 4: Minneapolis Homicide Rates by Tract and Year", 
+  labs(title = "Minneapolis Homicide Rates by Tract and Year", 
        fill = "Weekly Rate/ 1,000")+
   theme_void() +
   theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
 
-ggsave(filename = "Car Jacking/Figures for PAA/fig4.png", bg="white", width = 10, height = 8)
+ggsave(filename = "Car Jacking/Figures for publication/fig4.png", bg="white", width = 10, height = 8)
 ```
 
 # Dispersion of Change from 2017-2019 to 2020-2021
@@ -785,7 +785,7 @@ prepost_cj <- cj_exp %>%
    mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
          end_date = begin_date+weeks(1)-days(1),
          pre_post_floyd = ifelse(end_date <= as.Date("2020-05-25"), 0, 1)) %>%
-  filter(end_date <= as.Date("2022-08-20")) %>%
+  filter(end_date <= as.Date("2022-12-31")) %>%
   group_by(GEOID, pre_post_floyd) %>%
   summarize(car_jack = sum(car_jack, na.rm = T),
             total_pop = sum(total_pop, na.rm = T)) %>%
@@ -804,7 +804,7 @@ ncdi <- output[[5]] #ratio of areas not contributing to overall increase but sti
 
 output[[2]]
 
-ggsave(filename = "Car Jacking/Figures for PAA/fig5.png", bg="white", width = 10, height = 8)
+ggsave(filename = "Car Jacking/Figures for publication/fig5.png", bg="white", width = 10, height = 8)
 ```
 
 ## Homicide
@@ -831,7 +831,7 @@ odi <- output_homicide[[4]] #ratio of n removed to n overall
 ncdi <- output_homicide[[5]] #ratio of areas not contributing to overall increase but still increase to overall n
 
 output_homicide[[2]]
-ggsave(filename = "Car Jacking/Figures for PAA/fig6.png", bg="white", width = 10, height = 8)
+ggsave(filename = "Car Jacking/Figures for publication/fig6.png", bg="white", width = 10, height = 8)
 
 ```
 
@@ -870,7 +870,7 @@ ggplot(mp, aes(x=x, y=wx)) +
     geom_vline(xintercept=mean(mp$x), lty=2) + 
     #geom_vline(xintercept=0, lty=2) + 
     theme_minimal() + 
-    labs(title = "Figure 4: Moran's I Plot Carjacking Change Spatialautocorrelation",
+    labs(title = "Moran's I Plot Carjacking Change Spatialautocorrelation",
          x = "Focal Tract Carjacking Change",
          y = "Spatially Lagged Carjacking Change")
 
@@ -891,7 +891,7 @@ cj_lisa <-  local_moran(cj_delta$delta,
          mean_p = factor(mean_p, levels = c("High-High", "High-Low", "Low-High", 
                                             "Low-Low", "Non Sig.")))
 
-cj_lisa <-  local_moran(cj_delta$car_jack_rate_1,
+cj_lisa_rate <-  local_moran(cj_delta$car_jack_rate_1,
                        nb = nb,
                        wt = wt, 
                        nsim = 1000,
@@ -907,11 +907,11 @@ cj_delta %>%
   geom_sf(lwd = 0.2, color = "black") +
   theme_void() +
   scale_fill_manual(values = c("red", "yellow", "green", "blue","white"), drop = FALSE)+
-  labs(title = "Figure 7: LISA Plot for Carjacking Change Pre/Post Police Murder",
+  labs(title = "LISA Plot for Carjacking Change Pre/Post Police Murder",
        fill = "Cluster Type",
        caption = "Clusters significant at p < .05 with 1,000 simulations.")
 
-ggsave(filename = "Car Jacking/Figures for PAA/fig7.png", bg="white", width = 10, height = 8)
+ggsave(filename = "Car Jacking/Figures for publication/fig7.png", bg="white", width = 10, height = 8)
 ```
 
 ## Homicide
@@ -962,14 +962,18 @@ hom_lisa <-  local_moran(hom_delta$delta,
                        wt = wt, 
                        nsim = 1000,
                        iseed = set.seed(7188)) %>%
-  mutate(mean_p = ifelse(p_ii_sim <= 0.05, as.character(pysal), "Non Sig."))
+  mutate(mean_p = ifelse(p_ii_sim <= 0.05, as.character(pysal), "Non Sig."),
+         mean_p = factor(mean_p, levels = c("High-High", "High-Low", "Low-High", 
+                                            "Low-Low", "Non Sig.")))
 
-hom_lisa <-  local_moran(hom_delta$homicide_1,
+hom_lisa_rate <-  local_moran(hom_delta$homicide_1,
                        nb = nb,
                        wt = wt, 
                        nsim = 1000,
                        iseed = set.seed(7188)) %>%
-  mutate(mean_p = ifelse(p_ii_sim <= 0.05, as.character(pysal), "Non Sig."))
+  mutate(mean_p = ifelse(p_ii_sim <= 0.05, as.character(pysal), "Non Sig."),
+         mean_p = factor(mean_p, levels = c("High-High", "High-Low", "Low-High", 
+                                            "Low-Low", "Non Sig.")))
 
 hom_delta %>% 
   cbind(hom_lisa) %>%
@@ -977,12 +981,12 @@ hom_delta %>%
   geom_sf() +
   geom_sf(lwd = 0.2, color = "black") +
   theme_void() +
-  scale_fill_manual(values = c("red", "yellow", "green","blue", "white"))+
-  labs(title = "Figure 8: LISA Plot for Homicide Change Pre/Post Police Murder",
+  scale_fill_manual(values = c("red", "yellow", "green","blue", "white"), drop = F)+
+  labs(title = "LISA Plot for Homicide Change Pre/Post Police Murder",
        fill = "Cluster Type",
        caption = "Clusters significant at p < .05 with 1,000 simulations.")
 
-ggsave(filename = "Car Jacking/Figures for PAA/fig8.png", bg="white", width = 10, height = 8)
+ggsave(filename = "Car Jacking/Figures for publication/fig8.png", bg="white", width = 10, height = 8)
 ```
 
 
@@ -990,6 +994,7 @@ ggsave(filename = "Car Jacking/Figures for PAA/fig8.png", bg="white", width = 10
 
 ```{r, message=F} 
 cj_exp_prepost <- cj_exp %>% 
+  group_by(GEOID) %>%
   mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", week)), 1,sep = "-")),
          end_date = begin_date+weeks(1)-days(1),
          post_floyd = as.numeric(begin_date >= as.Date("2020-05-25")),
@@ -1011,7 +1016,6 @@ cj_exp_prepost <- cj_exp %>%
   left_join(acs_2020, by = c("GEOID")) %>%
   select(-med_hh_inc) %>%
   drop_na()
-
 
 
 library(lme4)
@@ -1042,13 +1046,42 @@ re <- lmer(car_jack_rate~t+post_floyd+t_post_floyd+
           data = cj_exp_prepost)
 summary(re)
 
-re_lpm <- lmer(anyjack~t+post_floyd+t_post_floyd+
-             conc_dis+
-             age_19_29_perc+age_30_49_perc+age_50_69_perc+
-             age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis+
-             (1|GEOID), 
-          data = cj_exp_prepost)
-summary(re)
+library(emmeans)
+
+pred_raw <- emmeans(re, c("conc_dis", "post_floyd"), 
+                    at = list(conc_dis = c(-2, -1, 0, 1, 2),
+                              post_floyd = c(0,1))) %>%
+  as.data.frame() %>%
+  mutate(conc_dis = factor(case_when(
+    conc_dis==-2~"-2 SD CD",
+    conc_dis==-1~"-1 SD CD",
+    conc_dis==0~"Mean CD",
+    conc_dis==1~"+1 SD CD",
+    conc_dis==2~"+2 SD CD"), 
+    levels = c("-2 SD CD",
+               "-1 SD CD",
+               "Mean CD",
+               "+1 SD CD",
+               "+2 SD CD")),
+    post_floyd = factor(case_when(
+    post_floyd==1~"Post",
+    post_floyd==0~"Pre"),
+    levels = c("Pre", "Post")))
+
+ggplot(pred_raw, aes(x = post_floyd, y = emmean, color = conc_dis))+
+  geom_point()+
+  geom_line()+
+  geom_errorbar(aes(ymin=asymp.LCL, ymax=asymp.UCL), width=0.2)+
+  labs(title = "Predicted Carjacking Rates by Concentrated Disadvantage, Pre- and Post-Killing",
+       y = "Predicted Weekly Carjacking Rate",
+       x = "Time Period")+
+  theme_classic()+
+  facet_grid(~conc_dis)+
+  guides(color = "none")
+
+ggsave(filename = "Car Jacking/Figures for publication/fig9.png", bg="white", width = 10, height = 8)
+
+  
 
 re_logit_cd <- glmer(anyjack ~ t+post_floyd+t_post_floyd+conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
@@ -1057,7 +1090,53 @@ re_logit_cd <- glmer(anyjack ~ t+post_floyd+t_post_floyd+conc_dis+
                   data = cj_exp_prepost, family = binomial)
 summary(re_logit_cd)
 
+pred_prob_raw <- emmeans(re_logit_cd, c("conc_dis", "post_floyd"), 
+                    at = list(conc_dis = c(-2, -1, 0, 1, 2),
+                              post_floyd = c(0,1)),
+                    trans = "response") %>%
+  as.data.frame() %>%
+  mutate(conc_dis = factor(case_when(
+    conc_dis==-2~"-2 SD CD",
+    conc_dis==-1~"-1 SD CD",
+    conc_dis==0~"Mean CD",
+    conc_dis==1~"+1 SD CD",
+    conc_dis==2~"+2 SD CD"), 
+    levels = c("-2 SD CD",
+               "-1 SD CD",
+               "Mean CD",
+               "+1 SD CD",
+               "+2 SD CD")),
+    post_floyd = factor(case_when(
+    post_floyd==1~"Post",
+    post_floyd==0~"Pre"),
+    levels = c("Pre", "Post")))
 
+ratios <- pred_prob_raw %>%
+  select(conc_dis, post_floyd, prob) %>% 
+  pivot_wider(names_from = post_floyd, values_from = prob) %>%
+  mutate(ratio = Post/Pre)
+
+pred_prob_raw <- pred_prob_raw %>%
+  left_join(ratios, by = "conc_dis") %>%
+  mutate(ratio = ifelse(post_floyd=="Pre", NA_integer_, round(ratio,1)),
+         ratio = ifelse(is.na(ratio), ratio, paste0(ratio, "x")))
+
+ggplot(pred_prob_raw, aes(x = post_floyd, y = prob, color = conc_dis))+
+  geom_point()+
+  geom_line()+
+  geom_errorbar(aes(ymin=asymp.LCL, ymax=asymp.UCL), width=0.2)+
+  labs(title = "Predicted Carjacking Probabilities by Concentrated Disadvantage, Pre- and Post-Killing",
+       y = "Predicted CJ Probability",
+       x = "Time Period")+
+  theme_classic()+
+  facet_grid(~conc_dis)+
+  guides(color = "none")+
+  geom_text(aes(x = post_floyd, y = asymp.UCL+.01, label = ratio))
+
+ggsave(filename = "Car Jacking/Figures for publication/fig10.png", bg="white", width = 10, height = 8)
+```
+
+```{r, homicide models}
 homicide <- homicide %>% st_drop_geometry()
 
 cj_exp_prepost <- cj_exp_prepost %>%
@@ -1104,37 +1183,8 @@ stargazer(re, re_logit_cd,
           single.row = F,
           omit.stat = c("adj.rsq", "aic", "bic"),
           #star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
-          add.lines = list(c("SD(Tract)", .008, .650),
-                           c("SD(Residual)",  .067, "")),
-          notes.append = F)
-```
-
-```{r, message=F, results='asis'}
-class(re_homicide) <- "lmerMod"
-class(re_logit_cd_homicide) <- "lmerMod"
-
-stargazer(re_homicide, re_logit_cd_homicide,
-          title = "Interrupted Time Series Models of Homicide, MPLS 2017-2022",
-          covariate.labels = c("T", "Post-Killing", "T Post-Killing",
-                              "Conc. Dis.", "Age 19-29", "Age 30-49", 
-                              "Age 50-69", "Age 70+", 
-                              "Post-Killing X Conc. Dis.",
-                              "T Post-Killing X Conc. Dis."),
-          header = F,
-          dep.var.caption = "Homicide",
-          dep.var.labels = c("Rate per 1,000", "Any Homicide"),
-          model.names = FALSE,
-          column.labels = c("RE HLM","RE Logit"),
-          report = "vcs",
-          ci=TRUE, 
-          ci.level=0.95, 
-          ci.separator = "|",
-          notes = "95\\% Confidence Intervals in parentheses",
-          single.row = F,
-          omit.stat = c("adj.rsq", "aic", "bic"),
-          #star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
-          add.lines = list(c("SD(Tract)", .003, .031),
-                           c("SD(Residual)", .065, "-")),
+          add.lines = list(c("SD(Tract)", .013, .674),
+                           c("SD(Residual)",  .094, "")),
           notes.append = F)
 ```
 
