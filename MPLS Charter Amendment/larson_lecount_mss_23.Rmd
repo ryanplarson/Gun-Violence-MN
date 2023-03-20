@@ -1,9 +1,39 @@
 ---
-title: "MPLS Charter Amendment"
-author: "Ryan Larson"
-date: "2022-11-01"
-output: pdf_document
+title: "Patterns of Support in Minneapolis' Police Charter Amendment"
+author: "Ryan Larson and Ryan LeCount"
+date: "`r Sys.Date()`"
+output:
+  beamer_presentation:
+    theme: Boadilla
+    colortheme: beaver
+    slide_level: 2
+  ioslides_presentation: default
+institute: |
+  | Criminal Justice & Forensic Science
+  | Social Justice & Social Change
+  | Hamline University
+urlcolor: blue
+header-includes:
+- \addtobeamertemplate{title page}{\centering \includegraphics[height=2cm, width=2cm]{hamline_logo.png}}{}
+- \pgfdeclareimage[height=1cm, width=1.5cm]{piper}{piper.png}
+- \logo{\pgfuseimage{piper}}
+- \setbeamertemplate{itemize items}{>}
+- \setbeamertemplate{itemize subitem}[>]
+- \setbeamertemplate{itemize subsubitem}[>]
+- \setbeamercolor{itemize item}{fg=red}
+- \setbeamercolor{itemize subitem}{fg=red}
+- \setbeamercolor{itemize subsubitem}{fg=red}
+- \setbeamercolor{section name}{fg=white}
 ---
+
+```{r message = FALSE, warning = FALSE, echo=FALSE}
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, size = "tiny")
+```
 
 ```{r setup, include=FALSE, message=F}
 library(readr)
@@ -20,10 +50,38 @@ library(geomander)
 ```
 
 
+# Introduction
 
-# 2020 Decennial Census Data
+## Minneapolis Chater Amendment 2
 
-```{r}
+## Theoretical Motivation
+
+- police legitimacy
+  - multiple dimensions: procedural fairness, distributive fairness, effectiveness, etc. (Tankebe 2013)
+  - linked to violent crime in areas of high disadvantage (Kane 2005)
+  - impacts perceptions of police violence (Jackson et a. 2013)
+
+- legal cynicism
+  - 
+  - grounded in negative encounters with LE; driven by cultural attenuation (Carr et al. 2007)
+  - police violence leads to lower 911 calls, particularly in Black communities (Desmond et al. 2016)
+
+- over and under policing
+
+- political ideology
+  - predicts support for "excessive", not "reasonable", use of force (Gerber and Jackson 2017)
+
+
+## Current Study
+
+# Data and Methods
+
+
+## Data
+
+## Analytical Strategy
+
+```{r, include=FALSE}
 census_20 <- get_decennial(
   geography = "voting district",
    variables = c("P4_001N", "P4_002N","P4_005N",
@@ -54,9 +112,7 @@ census_20 <- get_decennial(
          other_perc = (nhpi_pop+other_pop+two_pop)/total_pop*100)
 ```
 
-# Office Of The Minnesota Secretary Of State Voting Data
-
-```{r}
+```{r, include=FALSE}
 url_data <- "https://electionresults.sos.state.mn.us/Results/Index?ersElectionId=142&scenario=ResultsByPrecinctCrosstab&QuestionId=1323"
 
 css_selector <- "#dblscroll > table"
@@ -89,9 +145,7 @@ precinct_sf <- census_20 %>%
 #create north/south indicator
 ```
 
-# Minneapolis Police Department Data
-
-```{r}
+```{r, include=FALSE}
 #Minneapolis Police Department - Use of Force Dashboard
 uof_spatial <- read_csv("MPLS Charter Amendment/Data/Police_Use_of_Force.csv")  %>%
   mutate(date=ymd_hms(ResponseDate)) %>%
@@ -189,15 +243,9 @@ precinct_sf <- precinct_sf %>%
          blk_stop_prop = black_stops/total_stops,
          ois_rate = ois/total_pop*1000,
          crime_rate = mpd_crime/total_pop*1000)
-
-
-# is race missingness random across other observable (severity)
-  # pre-post murder missingness change?
-
 ```
 
-# 2020 ACS Data
-```{r}
+```{r, include=FALSE}
 #MN ACS 2020 covariates
 mn_tract <- get_acs(geography = "tract", 
             state = "MN",
@@ -317,9 +365,11 @@ precinct_sf$medhhinc_est <- est_med_hh_inc
 
 ```
 
-# Support for Charter Amendment #2
+# Results
 
-```{r}
+## Spatial Patterns of Support
+
+```{r, echo=FALSE}
 ggplot() +
   geom_sf(data = precinct_sf, aes(geometry = geometry, fill = perc_yes)) + 
   scale_fill_distiller(palette = "RdYlGn")+
@@ -329,68 +379,22 @@ ggplot() +
   theme_void()
 ```
 
-# Bivariate Support Visualized
+## Bivariate Relationships
 
-```{r}
-#scatterplots of support by demographics and police indicators
+## Preliminary Multivariate Model
 
-```
+## Interaction Plots
 
-# Preliminary Spatial Autoregressive Model
+## Conclusions
 
-```{r}
-library(spdep)
-library(spatialreg)
+## Thank you!
 
-#neighbors: queen adjacency
-mpls_nb <- poly2nb(precinct_sf, queen=T)
-summary(mpls_nb)
-
-#neighbor weights
-mpls_w <- nb2listw(mpls_nb, style = "W", zero.policy = T)
-
-print(lm.morantest(m1, mpls_w)) #testing for spatial autocorrelation in residuals
-
-m1_lag <- lagsarlm(perc_yes~white_perc+na_perc+hisp_perc+asian_perc+
-           black_perc+medhhinc_est+
-             uof_rate+stops_rate+ois_rate+crime_rate+
-             crime_rate:white_perc+
-             uof_rate:black_perc+
-             stops_rate:black_perc, 
-                   data = precinct_sf, listw = mpls_w)
-
-summary(m1_lag)
-
-m1_lag <- lagsarlm(perc_yes~black_perc+na_perc+hisp_perc+asian_perc+
-           other_perc+medhhinc_est+
-             blk_uof_rate+blk_stop_rate+ois_rate+crime_rate+
-             blk_uof_rate:black_perc, 
-                   data = precinct_sf, listw = mpls_w)
-
-summary(m1_lag)
-
-m1_lag <- lagsarlm(perc_yes~white_perc+na_perc+hisp_perc+asian_perc+
-           other_perc+medhhinc_est+
-             uof_rate+stops_rate+ois_rate+crime_rate+
-             crime_rate:white_perc, 
-                   data = precinct_sf, listw = mpls_w)
-
-summary(m1_lag)
-
-#dissatisfaction with overpolicing and underpolicing
-#legal cynicism: concern with what's coming next
-  # low turnout relative to district normally (relative to off-year previous)
-
-#previous 2020 vote patterns in presidential election
-
-#assumption: views on police seen primarily through race political ideology, not necessarily the case
-  # crime conditions and policing matter
-
-# the people most freed-up to be partisan are white liberals
-  # easy for this group to slip into entirely ideological lens
-```
+- Contact
+  - Ryan Larson, Hamline University
+  - rlarson21@hamline.edu
+  - @ryanplarson
 
 
-
+  
 
 
