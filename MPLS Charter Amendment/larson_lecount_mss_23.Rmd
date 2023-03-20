@@ -54,22 +54,34 @@ library(geomander)
 
 ## Minneapolis Chater Amendment 2
 
-## Theoretical Motivation
+- conceptualize CA2 as an outcome is bound up in:
+  - police legitimacy and legal cynicism
+  - political ideology and race
+  - practical concerns of crime and police violence
+
+## Theoretical Motivation: Policing
+
+- interpersonal contact between government officials a fundamental part of democratic political socialization (Soss 1999)
 
 - police legitimacy
   - multiple dimensions: procedural fairness, distributive fairness, effectiveness, etc. (Tankebe 2013)
   - linked to violent crime in areas of high disadvantage (Kane 2005)
   - impacts perceptions of police violence (Jackson et a. 2013)
+  - community-oriented policing is causally linked to higher police legitimacy (Peyton et al. 2019)
 
 - legal cynicism
-  - 
-  - grounded in negative encounters with LE; driven by cultural attenuation (Carr et al. 2007)
+  - deep-seated belief in incompetence, illegitimacy, and unresponsiveness of CJS (Kirk and Papachristos 2011)
+  - grounded in negative encounters with LE; driven by cultural attenuation (Carr et al. 2007; Brunson 2007)
   - police violence leads to lower 911 calls, particularly in Black communities (Desmond et al. 2016)
+  
 
 - over and under policing
 
+## Theoretical Motivation: more than just policy
+
 - political ideology
   - predicts support for "excessive", not "reasonable", use of force (Gerber and Jackson 2017)
+
 
 
 ## Current Study

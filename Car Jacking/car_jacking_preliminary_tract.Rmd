@@ -1070,7 +1070,6 @@ pred_raw <- emmeans(re, c("conc_dis", "post_floyd"),
 
 ggplot(pred_raw, aes(x = post_floyd, y = emmean, color = conc_dis))+
   geom_point()+
-  geom_line()+
   geom_errorbar(aes(ymin=asymp.LCL, ymax=asymp.UCL), width=0.2)+
   labs(title = "Predicted Carjacking Rates by Concentrated Disadvantage, Pre- and Post-Killing",
        y = "Predicted Weekly Carjacking Rate",
@@ -1079,7 +1078,7 @@ ggplot(pred_raw, aes(x = post_floyd, y = emmean, color = conc_dis))+
   facet_grid(~conc_dis)+
   guides(color = "none")
 
-ggsave(filename = "Car Jacking/Figures for publication/fig9.png", bg="white", width = 10, height = 8)
+ggsave(filename = "Car Jacking/Figures for publication/fig9.png", bg="white", width = 8, height = 8)
 
   
 
@@ -1123,7 +1122,6 @@ pred_prob_raw <- pred_prob_raw %>%
 
 ggplot(pred_prob_raw, aes(x = post_floyd, y = prob, color = conc_dis))+
   geom_point()+
-  geom_line()+
   geom_errorbar(aes(ymin=asymp.LCL, ymax=asymp.UCL), width=0.2)+
   labs(title = "Predicted Carjacking Probabilities by Concentrated Disadvantage, Pre- and Post-Killing",
        y = "Predicted CJ Probability",
@@ -1133,7 +1131,7 @@ ggplot(pred_prob_raw, aes(x = post_floyd, y = prob, color = conc_dis))+
   guides(color = "none")+
   geom_text(aes(x = post_floyd, y = asymp.UCL+.01, label = ratio))
 
-ggsave(filename = "Car Jacking/Figures for publication/fig10.png", bg="white", width = 10, height = 8)
+ggsave(filename = "Car Jacking/Figures for publication/fig10.png", bg="white", width = 8, height = 8)
 ```
 
 ```{r, homicide models}
@@ -1150,6 +1148,36 @@ re_homicide <- lmer(homicide_rate~t+post_floyd+t_post_floyd+conc_dis+
              (1|GEOID), 
           data = cj_exp_prepost)
 summary(re_homicide)
+
+pred_raw_homicide <- emmeans(re_homicide, c("conc_dis", "post_floyd"), 
+                    at = list(conc_dis = c(-2, -1, 0, 1, 2),
+                              post_floyd = c(0,1))) %>%
+  as.data.frame() %>%
+  mutate(conc_dis = factor(case_when(
+    conc_dis==-2~"-2 SD CD",
+    conc_dis==-1~"-1 SD CD",
+    conc_dis==0~"Mean CD",
+    conc_dis==1~"+1 SD CD",
+    conc_dis==2~"+2 SD CD"), 
+    levels = c("-2 SD CD",
+               "-1 SD CD",
+               "Mean CD",
+               "+1 SD CD",
+               "+2 SD CD")),
+    post_floyd = factor(case_when(
+    post_floyd==1~"Post",
+    post_floyd==0~"Pre"),
+    levels = c("Pre", "Post")))
+
+ggplot(pred_raw_homicide, aes(x = post_floyd, y = emmean, color = conc_dis))+
+  geom_point()+
+  geom_errorbar(aes(ymin=asymp.LCL, ymax=asymp.UCL), width=0.2)+
+  labs(title = "Predicted Homicide Rates by Concentrated Disadvantage, Pre- and Post-Killing",
+       y = "Predicted Weekly Homicide Rate",
+       x = "Time Period")+
+  theme_classic()+
+  facet_grid(~conc_dis)+
+  guides(color = "none")
 
 re_logit_cd_homicide <- glmer(anyhom ~ t+post_floyd+t_post_floyd+conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
