@@ -32,7 +32,7 @@ knitr::knit_hooks$set(chunk = function(x, options) {
   x <- def.chunk.hook(x, options)
   ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
 })
-knitr::opts_chunk$set(warning=FALSE, message=FALSE, size = "tiny")
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, size = "tiny", out.width = "90%")
 ```
 
 ```{r setup, include=FALSE, message=F}
@@ -52,46 +52,83 @@ library(geomander)
 
 # Introduction
 
-## Minneapolis Chater Amendment 2
+## Minneapolis Charter Amendment 2
 
-- conceptualize CA2 as an outcome is bound up in:
-  - police legitimacy and legal cynicism
-  - political ideology and race
-  - practical concerns of crime and police violence
 
-## Theoretical Motivation: Policing
+
+
+- What relates to support for CA2?
+  - political divides?
+  - demographics (e.g., race)?
+  - policing?
+
+## Motivation: policing
 
 - interpersonal contact between government officials a fundamental part of democratic political socialization (Soss 1999)
-
 - police legitimacy
-  - multiple dimensions: procedural fairness, distributive fairness, effectiveness, etc. (Tankebe 2013)
-  - linked to violent crime in areas of high disadvantage (Kane 2005)
   - impacts perceptions of police violence (Jackson et a. 2013)
-  - community-oriented policing is causally linked to higher police legitimacy (Peyton et al. 2019)
-
-- legal cynicism
+- legal cynicism (Sampson and Bartusch 1989)
   - deep-seated belief in incompetence, illegitimacy, and unresponsiveness of CJS (Kirk and Papachristos 2011)
-  - grounded in negative encounters with LE; driven by cultural attenuation (Carr et al. 2007; Brunson 2007)
+  - grounded in negative encounters with LE and cultural processes (Carr et al. 2007; Brunson 2007)
   - police violence leads to lower 911 calls, particularly in Black communities (Desmond et al. 2016)
-  
+- over- and under-policing
+  - simultaneous over- and under-policing in disadvantage MPLS neighborhoods (Phelps, Powell, and Robertson 2020)
+  - race predicts higher agreements with both in PHDCN data (Boehme et al. 2020)
 
-- over and under policing
-
-## Theoretical Motivation: more than just policy
+## Motivation: more than just policy
 
 - political ideology
-  - predicts support for "excessive", not "reasonable", use of force (Gerber and Jackson 2017)
-
-
+  - concern for biased policing linked to democratic voting (Drakulich et al. 2019)
+    - Trump votes linked to police supporters with high levels of racial resentment 
+  - GSS: conservative affiliation = more support (Roscigno and Preito-Hodge 2021)
+- demographics
+  - Black residents more negative attitudes about police, net of experiences (Wheelock et al. 2019)
+  - race differences heightened amongst low SES individuals (Panditharatne et al. 2021)
+  - residential stability linked to higher trust in police (Lee et al. 2019)
+- practical concerns
+  - perceptions of safety and past victimization predict attitudes toward police (Wheelock et al. 2019)
 
 ## Current Study
 
+- conceptualize CA2 as not merely a policy issue
+  - proxy for legal cynicism, etc.
+  - experiences with police
+  - political symbol and expression
+  - concern with crime
+  
+- examine the voting patterns of CA2 along the lines of
+  - demographics - race
+  - indicators of policing
+  - crime
+  - political ideology
+
 # Data and Methods
 
+## Data: Voting-District Level
 
-## Data
+- Minnesota Secretary of State Voting Results
+  - scraped CA2 results
+  - scraped 2020 presidential election results
+- Decennial Census 2020 P.L. 94-171 Redistricting Data
+  - racial demographics
+- American Community Survey 2020 5-Year Data
+  - tract data converted to VD data using population-weighted interpolation
+    - intersection between VD and CT, spatial join w/ blocks as points
+    - VD measure estimated as a weighted sum of the block points of overlap by population size
+  - used to gather economic and other demographic information
+- Minneapolis Police Department Data - spatially located
+  - uses of force, stops, officer-involved shootings
 
 ## Analytical Strategy
+
+- spatial visualization of CA2 support
+  - choropleth map of support by voting precinct
+- scatterplots and bivariate correlation
+  - focal measures of interest and support
+- preliminary multivariate autoregressive model
+  - $y = \rho_{lag}Wy+X\beta+\epsilon$
+  - controls for spatial autocorrelation of CA2 support across "queen continguous" precincts
+  - `spatialreg` package in `R`
 
 ```{r, include=FALSE}
 census_20 <- get_decennial(
@@ -154,7 +191,15 @@ setequal(census_20$NAME, precinct$precinct) #same precincts in each
 precinct_sf <- census_20 %>%
   left_join(precinct, by = c("NAME"="precinct"))
 
-#create north/south indicator
+#create north/south indicator?
+
+#2020 presidential data
+
+prez <- readxl::read_xlsx("MPLS Charter Amendment/Data/2020-general-federal-state-results-by-precinct-official.xlsx",
+                          sheet = 2) %>%
+  filter(MCDNAME=="Minneapolis") %>%
+  select(PCTNAME, TOTVOTING, USPRSR, USPRSDFL) %>%
+  mutate(pct_dem = USPRSDFL/TOTVOTING*100)
 ```
 
 ```{r, include=FALSE}
@@ -311,7 +356,39 @@ mn_tract <- get_acs(geography = "tract",
         age_f_70_74 = B01001_046E, age_f_75_79 = B01001_047E, age_f_80_84 = B01001_048E, 
         age_f_85_plus = B01001_049E, res_mob = B07001_017E, 
         own_hh = B25003_002E, foreign = B05002_013E,
-        med_hh_inc = B19013_001E) %>%
+        med_hh_inc = B19013_001E) 
+
+#Minneapolis Shapefile
+mpls <- st_read("MPLS Charter Amendment/Data/City_Boundary/City_Boundary.shp") %>%
+   st_transform(st_crs(mn_tract))
+
+mpls_tract <- mn_tract %>%
+  st_filter(mpls, .predicate = st_intersects) %>%
+    mutate(GEOID = as.numeric(GEOID),
+         tract_area = as.numeric(st_area(.)),
+         tract_area_sqkm = tract_area*.000001, 
+         tract_area_sqmi = tract_area_sqkm*.386102,
+         intersection_area = as.numeric(st_area(st_intersection(., mpls))),
+         perc_intersection = intersection_area/tract_area*100) %>%
+  filter(perc_intersection >= 2)
+
+library(tigris)
+
+hennepin_blocks <- blocks(
+  "MN",
+  "Hennepin",
+  year = 2020
+)
+
+#VD ACS interpolation
+acs_interp <- interpolate_pw(
+  from = mpls_tract,
+  to = precinct_sf,
+  to_id = "GEOID",
+  weights = hennepin_blocks,
+  weight_column = "POP20",
+  crs = 26993,
+  extensive = TRUE) %>%
   mutate(white_prop = white_pop/total_pop,
          black_prop = black_pop/total_pop,
          na_prop = na_pop/total_pop,
@@ -357,23 +434,11 @@ mn_tract <- get_acs(geography = "tract",
          own_hh_rate = 100*own_hh/total_pop,
          foreign_rate = 100*foreign/total_pop) 
 
-#Minneapolis Shapefile
-mpls <- st_read("MPLS Charter Amendment/Data/City_Boundary/City_Boundary.shp") %>%
-   st_transform(st_crs(mn_tract))
 
-mpls_tract <- mn_tract %>%
-  st_filter(mpls, .predicate = st_intersects) %>%
-    mutate(GEOID = as.numeric(GEOID),
-         tract_area = as.numeric(st_area(.)),
-         tract_area_sqkm = tract_area*.000001, 
-         tract_area_sqmi = tract_area_sqkm*.386102,
-         intersection_area = as.numeric(st_area(st_intersection(., mpls))),
-         perc_intersection = intersection_area/tract_area*100) %>%
-  filter(perc_intersection >= 2)
 
-matches <- geo_match(from = precinct_sf, to = mpls_tract, method = 'centroid')
-est_med_hh_inc <- estimate_down(wts = precinct_sf$total_pop, value = mpls_tract$med_hh_inc, group = matches)
-precinct_sf$medhhinc_est <- est_med_hh_inc
+#matches <- geo_match(from = precinct_sf, to = mpls_tract, method = 'centroid')
+#est_med_hh_inc <- estimate_down(wts = precinct_sf$total_pop, value = mpls_tract$med_hh_inc, group = matches)
+#precinct_sf$medhhinc_est <- est_med_hh_inc
 
 ```
 
@@ -391,9 +456,92 @@ ggplot() +
   theme_void()
 ```
 
-## Bivariate Relationships
+## Bivariate Relationships: Race
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(precinct_sf, aes(y = perc_yes, x = black_perc))+
+  geom_point()+
+  geom_smooth(method = "loess", aes(color = "LOESS"))+
+  geom_smooth(method = "lm", aes(color = "OLS"))+
+  labs(y = "CA2 Support", x = "Percent Black",
+       title = "Scatterplot of CA2 Support and Percent Black")+
+  theme_classic()
+```
+
+## Bivariate Relationships: Uses of Force
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(precinct_sf, aes(y = perc_yes, x = uof_rate))+
+  geom_point()+
+  geom_smooth(method = "loess", aes(color = "LOESS"))+
+  geom_smooth(method = "lm", aes(color = "OLS"))+
+  labs(y = "CA2 Support", x = "UOF Rate",
+       title = "Scatterplot of CA2 Support and UOF Rate")+
+  theme_classic()
+```
+
+## Bivariate Relationships: Crime
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(precinct_sf, aes(y = perc_yes, x = crime_rate))+
+  geom_point()+
+  geom_smooth(method = "loess", aes(color = "LOESS"))+
+  geom_smooth(method = "lm", aes(color = "OLS"))+
+  labs(y = "CA2 Support", x = "Crime Rate",
+       title = "Scatterplot of CA2 Support and Crime Rate")+
+  theme_classic()
+```
+
+## Bivariate Relationships: Political Ideology
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
+ggplot(precinct_sf, aes(y = perc_yes, x = crime_rate))+
+  geom_point()+
+  geom_smooth(method = "loess", aes(color = "LOESS"))+
+  geom_smooth(method = "lm", aes(color = "OLS"))+
+  labs(y = "CA2 Support", x = "Crime Rate",
+       title = "Scatterplot of CA2 Support and Crime Rate")+
+  theme_classic()
+```
 
 ## Preliminary Multivariate Model
+
+```{r, include = FALSE}
+library(spdep)
+library(spatialreg)
+
+#neighbors: queen adjacency
+mpls_nb <- poly2nb(precinct_sf, queen=T)
+summary(mpls_nb)
+
+#neighbor weights
+mpls_w <- nb2listw(mpls_nb, style = "W", zero.policy = T)
+
+#print(lm.morantest(m1, mpls_w)) #testing for spatial autocorrelation in residuals
+
+m1_lag <- lagsarlm(perc_yes~black_perc+I(black_perc^2), 
+                   data = precinct_sf, listw = mpls_w)
+```
+
+```{r}
+summary(m1_lag)
+```
+
+```{r, include = FALSE}
+#dissatisfaction with overpolicing and underpolicing
+#legal cynicism: concern with what's coming next
+  # low turnout relative to district normally (relative to off-year previous)
+
+#previous 2020 vote patterns in presidential election
+
+#assumption: views on police seen primarily through race political ideology, not necessarily the case
+  # crime conditions and policing matter
+
+# the people most freed-up to be partisan are white liberals
+  # easy for this group to slip into entirely ideological lens
+```
 
 ## Interaction Plots
 
@@ -404,7 +552,7 @@ ggplot() +
 - Contact
   - Ryan Larson, Hamline University
   - rlarson21@hamline.edu
-  - @ryanplarson
+  - [@ryanplarson](https://twitter.com/ryanplarson)
 
 
   
