@@ -24,6 +24,7 @@ header-includes:
 - \setbeamercolor{itemize subitem}{fg=red}
 - \setbeamercolor{itemize subsubitem}{fg=red}
 - \setbeamercolor{section name}{fg=white}
+- \usepackage{dcolumn}
 ---
 
 ```{r message = FALSE, warning = FALSE, echo=FALSE}
@@ -55,12 +56,18 @@ library(geomander)
 ## Minneapolis Charter Amendment 2
 
 
-
-
-- What relates to support for CA2?
+- amendment to Minneapolis city charter
+  - replacement of MPD with Department of Public Safety
+  - remove minimum police funding requirements and exclusive mayoral control
+  - DPS commissioner controlled by mayor and city council
+  - Failed: ~56% no
+- Minneapolis is not the only municipality that had a police related ballot measures
+  - Denver, Austin, Cleveland, Detroit, etc.
+- we ask what drove support for CA2
   - political divides?
   - demographics (e.g., race)?
   - policing?
+  - crime?
 
 ## Motivation: policing
 
@@ -97,7 +104,7 @@ library(geomander)
   - concern with crime
   
 - examine the voting patterns of CA2 along the lines of
-  - demographics - race
+  - demographics - race, median HH income, residential stability
   - indicators of policing
   - crime
   - political ideology
@@ -199,7 +206,21 @@ prez <- readxl::read_xlsx("MPLS Charter Amendment/Data/2020-general-federal-stat
                           sheet = 2) %>%
   filter(MCDNAME=="Minneapolis") %>%
   select(PCTNAME, TOTVOTING, USPRSR, USPRSDFL) %>%
-  mutate(pct_dem = USPRSDFL/TOTVOTING*100)
+  mutate(pct_dem = ifelse(TOTVOTING!=0, USPRSDFL/TOTVOTING*100, NA_integer_),
+         PCTNAME = str_replace_all(PCTNAME, "MINNEAPOLIS", "Minneapolis"),
+         PCTNAME = str_replace_all(PCTNAME, "-01", "-1"),
+         PCTNAME = str_replace_all(PCTNAME, "-02", "-2"),
+         PCTNAME = str_replace_all(PCTNAME, "-03", "-3"),
+         PCTNAME = str_replace_all(PCTNAME, "-04", "-4"),
+         PCTNAME = str_replace_all(PCTNAME, "-05", "-5"),
+         PCTNAME = str_replace_all(PCTNAME, "-06", "-6"),
+         PCTNAME = str_replace_all(PCTNAME, "-07", "-7"),
+         PCTNAME = str_replace_all(PCTNAME, "-08", "-8"),
+         PCTNAME = str_replace_all(PCTNAME, "-09", "-9"))
+
+precinct_sf <- precinct_sf %>%
+  left_join(prez, by = c("NAME" = "PCTNAME"))
+
 ```
 
 ```{r, include=FALSE}
@@ -356,7 +377,10 @@ mn_tract <- get_acs(geography = "tract",
         age_f_70_74 = B01001_046E, age_f_75_79 = B01001_047E, age_f_80_84 = B01001_048E, 
         age_f_85_plus = B01001_049E, res_mob = B07001_017E, 
         own_hh = B25003_002E, foreign = B05002_013E,
-        med_hh_inc = B19013_001E) 
+        med_hh_inc = B19013_001E) %>%
+  select(-c(white_pop, black_pop,
+         na_pop, asian_pop, hpi_pop, other_pop, biracial_pop, biracial_other_pop,
+         biracial_three_pop, hisp_pop))
 
 #Minneapolis Shapefile
 mpls <- st_read("MPLS Charter Amendment/Data/City_Boundary/City_Boundary.shp") %>%
@@ -389,23 +413,7 @@ acs_interp <- interpolate_pw(
   weight_column = "POP20",
   crs = 26993,
   extensive = TRUE) %>%
-  mutate(white_prop = white_pop/total_pop,
-         black_prop = black_pop/total_pop,
-         na_prop = na_pop/total_pop,
-         asian_prop = asian_pop/total_pop,
-         hpi_prop = hpi_pop/total_pop,
-         other_prop = other_pop/total_pop,
-         biracial_prop = (biracial_pop+biracial_other_pop+biracial_three_pop)/total_pop,
-         hisp_prop = hisp_pop/total_pop,
-         white_perc = 100*white_pop/total_pop,
-         black_perc = 100*black_pop/total_pop,
-         na_perc = 100*na_pop/total_pop,
-         asian_perc = 100*asian_pop/total_pop,
-         hpi_perc = 100*hpi_pop/total_pop,
-         other_perc = 100*other_pop/total_pop,
-         biracial_perc = 100*(biracial_pop+biracial_other_pop+biracial_three_pop)/total_pop,
-         hisp_perc = 100*hisp_pop/total_pop,
-         unemp_rate = 100*unemp/total_ilf, 
+  mutate(unemp_rate = 100*unemp/total_ilf, 
          pov_rate = 100*povlevel/total_pop,
          pub_assist_rate = 100*pub_assist/total_pop,
          female_hh_rate = 100*female_hh/total_pop,
@@ -416,8 +424,6 @@ acs_interp <- interpolate_pw(
          mar_fam_rate = 100*mar_fam/total_pop, 
          male_rate = 100*male/total_pop,
          noncitizen_rate = 100*noncitizen/total_pop,
-         race_eth_hetero  = 1-(white_prop^2+black_prop^2+na_prop^2+asian_prop^2+
-                       hpi_prop^2+other_prop^2+other_prop^2+biracial_prop^2+hisp_prop^2),
          age_below_18_perc = 100*(age_m_5_under+age_f_5_under+age_m_5_9+
                                   age_f_5_9+age_m_10_14+age_f_10_14+age_m_15_17+
                                   age_f_15_17)/total_pop,
@@ -432,9 +438,13 @@ acs_interp <- interpolate_pw(
                                  age_m_80_84+age_f_80_84+age_m_85_plus+age_f_85_plus)/total_pop,
          res_mob_rate = 100-100*res_mob/total_pop,
          own_hh_rate = 100*own_hh/total_pop,
-         foreign_rate = 100*foreign/total_pop) 
+         foreign_rate = 100*foreign/total_pop) %>%
+  st_drop_geometry()
 
+#join ACS data
 
+precinct_sf <- precinct_sf %>%
+  left_join(acs_interp, by = "GEOID")
 
 #matches <- geo_match(from = precinct_sf, to = mpls_tract, method = 'centroid')
 #est_med_hh_inc <- estimate_down(wts = precinct_sf$total_pop, value = mpls_tract$med_hh_inc, group = matches)
@@ -464,9 +474,50 @@ ggplot(precinct_sf, aes(y = perc_yes, x = black_perc))+
   geom_smooth(method = "loess", aes(color = "LOESS"))+
   geom_smooth(method = "lm", aes(color = "OLS"))+
   labs(y = "CA2 Support", x = "Percent Black",
-       title = "Scatterplot of CA2 Support and Percent Black")+
+       title = "Scatterplot of CA2 Support and Percent Black",
+       color = "")+
   theme_classic()
 ```
+
+## Bivariate Relationships: Class
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(precinct_sf, aes(y = perc_yes, x = med_hh_inc))+
+  geom_point()+
+  geom_smooth(method = "loess", aes(color = "LOESS"))+
+  geom_smooth(method = "lm", aes(color = "OLS"))+
+  labs(y = "CA2 Support", x = "Median HH Income",
+       title = "Scatterplot of CA2 Support and Median HH Income",
+       color = "")+
+  theme_classic()
+```
+
+## Bivariate Relationships: Residential Stability
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(precinct_sf, aes(y = perc_yes, x = own_hh_rate))+
+  geom_point()+
+  geom_smooth(method = "loess", aes(color = "LOESS"))+
+  geom_smooth(method = "lm", aes(color = "OLS"))+
+  labs(y = "CA2 Support", x = "Percent Own HH",
+       title = "Scatterplot of CA2 Support and HH Owndership Rate",
+       color = "")+
+  theme_classic()
+```
+
+## Bivariate Relationships: Political Ideology
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(precinct_sf, aes(y = perc_yes, x = pct_dem))+
+  geom_point()+
+  geom_smooth(method = "loess", aes(color = "LOESS"))+
+  geom_smooth(method = "lm", aes(color = "OLS"))+
+  labs(y = "CA2 Support", x = "Pct. Biden",
+       title = "Scatterplot of CA2 Support and Percent Biden",
+       color = "")+
+  theme_classic()
+```
+
 
 ## Bivariate Relationships: Uses of Force
 
@@ -476,7 +527,8 @@ ggplot(precinct_sf, aes(y = perc_yes, x = uof_rate))+
   geom_smooth(method = "loess", aes(color = "LOESS"))+
   geom_smooth(method = "lm", aes(color = "OLS"))+
   labs(y = "CA2 Support", x = "UOF Rate",
-       title = "Scatterplot of CA2 Support and UOF Rate")+
+       title = "Scatterplot of CA2 Support and UOF Rate",
+       color = "")+
   theme_classic()
 ```
 
@@ -489,28 +541,18 @@ ggplot(precinct_sf, aes(y = perc_yes, x = crime_rate))+
   geom_smooth(method = "loess", aes(color = "LOESS"))+
   geom_smooth(method = "lm", aes(color = "OLS"))+
   labs(y = "CA2 Support", x = "Crime Rate",
-       title = "Scatterplot of CA2 Support and Crime Rate")+
+       title = "Scatterplot of CA2 Support and Crime Rate",
+       color = "")+
   theme_classic()
 ```
 
-## Bivariate Relationships: Political Ideology
-
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
-ggplot(precinct_sf, aes(y = perc_yes, x = crime_rate))+
-  geom_point()+
-  geom_smooth(method = "loess", aes(color = "LOESS"))+
-  geom_smooth(method = "lm", aes(color = "OLS"))+
-  labs(y = "CA2 Support", x = "Crime Rate",
-       title = "Scatterplot of CA2 Support and Crime Rate")+
-  theme_classic()
-```
 
 ## Preliminary Multivariate Model
 
 ```{r, include = FALSE}
 library(spdep)
 library(spatialreg)
+library(stargazer)
 
 #neighbors: queen adjacency
 mpls_nb <- poly2nb(precinct_sf, queen=T)
@@ -521,31 +563,46 @@ mpls_w <- nb2listw(mpls_nb, style = "W", zero.policy = T)
 
 #print(lm.morantest(m1, mpls_w)) #testing for spatial autocorrelation in residuals
 
-m1_lag <- lagsarlm(perc_yes~black_perc+I(black_perc^2), 
+m1_lag <- lagsarlm(perc_yes~black_perc+I(black_perc^2)+
+                     log(med_hh_inc)*pct_dem+
+                     uof_rate+crime_rate+
+                     own_hh_rate,
                    data = precinct_sf, listw = mpls_w)
-```
-
-```{r}
 summary(m1_lag)
 ```
 
-```{r, include = FALSE}
-#dissatisfaction with overpolicing and underpolicing
-#legal cynicism: concern with what's coming next
-  # low turnout relative to district normally (relative to off-year previous)
-
-#previous 2020 vote patterns in presidential election
-
-#assumption: views on police seen primarily through race political ideology, not necessarily the case
-  # crime conditions and policing matter
-
-# the people most freed-up to be partisan are white liberals
-  # easy for this group to slip into entirely ideological lens
+```{r, results='asis', warning=FALSE, echo = FALSE}
+stargazer(m1_lag,
+           title = "Spatial AR(1) Model of MPLS CA2 Support",
+          covariate.labels = c("Percent Black","Percent Black Sq. ",
+                               "Percent Biden",
+                               "Median HH Income (log)",
+                               "UOF Rate", "Crime Rate",  
+                               "Own HH Rate", "Med. HH Inc. X Pct. Biden"),
+          add.lines = list(c("SAR(1)", ".705^{***} (.061)")),
+          dep.var.caption = "Percent Support",
+          dep.var.labels.include = FALSE,
+          model.numbers = FALSE,
+          single.row = TRUE,
+          align = T,
+          header = FALSE,
+          #omit.stat = "adj.rsq",
+          star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"))
 ```
 
-## Interaction Plots
-
 ## Conclusions
+
+- nonlinear patterns in black support
+  - taper in support not just due to concerns with crime, police UOF
+  - perhaps broader context of legal cynicism
+- politicized issue
+  - however, more advantaged individuals saw through a more ideological lens
+  - the privilege to see this as political, as opposed to practical
+- practical concerns of crime and police violence did not explain support
+- future research
+  - delve deeper into demographically relationships: interactions
+  - race specific indicators of police violence
+  - relative voter turnout as indicator of legal cynicism
 
 ## Thank you!
 

@@ -514,7 +514,7 @@ series <- series %>%
                                0),
          uof_lag=lag(use_of_force_rate,1),
          stops_lag = lag(police_stop_rate,1),
-         shoot_lag = lag(off_inv_shooting_rate,1))
+         shoot_lag = lag(off_inv_shooting_rate,1)) #check t_post_floyd
   
 ts <- lm(mh_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
            tmax_f+snow_in+precip_in+
@@ -588,7 +588,7 @@ stargazer(ts_ar3, ts_ar3_white, ts_ar3_black, ts_ar3_latin,
                                "AR(1)", "AR(2)", "AR(3)"),
           dep.var.caption = "Mental Health Discharges",
           dep.var.labels = "Rate per 1,000",
-          column.labels = c("Overall", "White", "Black", "Latio/a"),
+          column.labels = c("Overall", "White", "Black", "Latino/a"),
           model.numbers = TRUE,
           single.row = TRUE,
           align = T,
