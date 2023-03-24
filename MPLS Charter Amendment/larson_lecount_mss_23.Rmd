@@ -74,11 +74,11 @@ library(geomander)
 - interpersonal contact between government officials a fundamental part of democratic political socialization (Soss 1999)
 - legal estrangement (Bell 2017)
   - procedural injustice
-`     - legal cynicism: deep-seated belief in incompetence, illegitimacy, and unresponsiveness of CJS (Kirk and Papachristos 2011)
+    - legal cynicism: deep-seated belief in incompetence, illegitimacy, and unresponsiveness of CJS (Kirk and Papachristos 2011)
     - grounded in negative encounters with LE and cultural processes (Carr et al. 2007; Brunson 2007)
   - vicarious marginalization
     - police violence leads to lower 911 calls, particularly in Black communities (Desmond et al. 2016)
-` - structural exclusion
+  - structural exclusion
     - simultaneous over- and under-policing in disadvantage MPLS neighborhoods (Phelps, Powell, and Robertson 2020)
     - race predicts higher agreements with both in PHDCN data (Boehme et al. 2020)
 
