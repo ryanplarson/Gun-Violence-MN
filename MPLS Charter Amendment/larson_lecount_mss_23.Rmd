@@ -72,15 +72,15 @@ library(geomander)
 ## Motivation: policing
 
 - interpersonal contact between government officials a fundamental part of democratic political socialization (Soss 1999)
-- police legitimacy
-  - impacts perceptions of police violence (Jackson et a. 2013)
-- legal cynicism (Sampson and Bartusch 1989)
-  - deep-seated belief in incompetence, illegitimacy, and unresponsiveness of CJS (Kirk and Papachristos 2011)
-  - grounded in negative encounters with LE and cultural processes (Carr et al. 2007; Brunson 2007)
-  - police violence leads to lower 911 calls, particularly in Black communities (Desmond et al. 2016)
-- over- and under-policing
-  - simultaneous over- and under-policing in disadvantage MPLS neighborhoods (Phelps, Powell, and Robertson 2020)
-  - race predicts higher agreements with both in PHDCN data (Boehme et al. 2020)
+- legal estrangement (Bell 2017)
+  - procedural injustice
+`     - legal cynicism: deep-seated belief in incompetence, illegitimacy, and unresponsiveness of CJS (Kirk and Papachristos 2011)
+    - grounded in negative encounters with LE and cultural processes (Carr et al. 2007; Brunson 2007)
+  - vicarious marginalization
+    - police violence leads to lower 911 calls, particularly in Black communities (Desmond et al. 2016)
+` - structural exclusion
+    - simultaneous over- and under-policing in disadvantage MPLS neighborhoods (Phelps, Powell, and Robertson 2020)
+    - race predicts higher agreements with both in PHDCN data (Boehme et al. 2020)
 
 ## Motivation: more than just policy
 
@@ -97,10 +97,11 @@ library(geomander)
 
 ## Current Study
 
-- conceptualize CA2 as not merely a policy issue
-  - proxy for legal cynicism, etc.
+- conceptualize CA2 as not merely a policy issue 
+  - proxy for legal estrangement
   - experiences with police
   - political symbol and expression
+  - racial identities
   - concern with crime
   
 - examine the voting patterns of CA2 along the lines of
@@ -594,15 +595,18 @@ stargazer(m1_lag,
 
 - nonlinear patterns in black support
   - taper in support not just due to concerns with crime, police UOF
-  - perhaps broader context of legal cynicism
+  - perhaps driven by broader legal estrangement
 - politicized issue
   - however, more advantaged individuals saw through a more ideological lens
-  - the privilege to see this as political, as opposed to practical
+  - the privilege to see this as ideological, as opposed to other considerations
 - practical concerns of crime and police violence did not explain support
+  - perhaps speaks to the structural exclusion aspect of legal estrangement
+- In sum, CA2 was more than just an instrument response to conditions of crime/police
+  - but rather appears to be driven by ideology, cultural frames, and identities of group interest
 - future research
-  - delve deeper into demographically relationships: interactions
+  - delve deeper into demographic relationships: interactions
   - race specific indicators of police violence
-  - relative voter turnout as indicator of legal cynicism
+  - relative voter turnout as indicator of legal estrangement
 
 ## Thank you!
 
