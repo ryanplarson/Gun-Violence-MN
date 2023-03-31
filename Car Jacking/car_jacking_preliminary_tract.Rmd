@@ -1050,7 +1050,9 @@ library(emmeans)
 
 pred_raw <- emmeans(re, c("conc_dis", "post_floyd"), 
                     at = list(conc_dis = c(-2, -1, 0, 1, 2),
-                              post_floyd = c(0,1))) %>%
+                              post_floyd = c(0,1),
+                              t_post_floyd = mean(cj_exp_prepost$t_post_floyd[cj_exp_prepost$post_floyd==1]),
+                              t = mean(cj_exp_prepost$t[cj_exp_prepost$post_floyd==0]))) %>%
   as.data.frame() %>%
   mutate(conc_dis = factor(case_when(
     conc_dis==-2~"-2 SD CD",
@@ -1069,19 +1071,25 @@ pred_raw <- emmeans(re, c("conc_dis", "post_floyd"),
     levels = c("Pre", "Post")))
 
 ggplot(pred_raw, aes(x = post_floyd, y = emmean, color = conc_dis))+
-  geom_point()+
-  geom_errorbar(aes(ymin=asymp.LCL, ymax=asymp.UCL), width=0.2)+
+  geom_point(size = 2)+
+  geom_errorbar(aes(ymin=asymp.LCL, ymax=asymp.UCL), width = .2, size = 1)+
   labs(title = "Predicted Carjacking Rates by Concentrated Disadvantage, Pre- and Post-Killing",
        y = "Predicted Weekly Carjacking Rate",
        x = "Time Period")+
-  theme_classic()+
   facet_grid(~conc_dis)+
-  guides(color = "none")
+  guides(color = "none")+
+  theme_classic()+
+  theme(axis.text = element_text(face = "bold", size = 12),
+        axis.title.x = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 12),
+        strip.text.x = element_text(face = "bold", size = 12))
 
 ggsave(filename = "Car Jacking/Figures for publication/fig9.png", bg="white", width = 8, height = 8)
+```
+
 
   
-
+```{r, message=FALSE}
 re_logit_cd <- glmer(anyjack ~ t+post_floyd+t_post_floyd+conc_dis+
              age_19_29_perc+age_30_49_perc+age_50_69_perc+
              age_70_plus_perc+ post_floyd:conc_dis+t_post_floyd:conc_dis+
@@ -1091,7 +1099,9 @@ summary(re_logit_cd)
 
 pred_prob_raw <- emmeans(re_logit_cd, c("conc_dis", "post_floyd"), 
                     at = list(conc_dis = c(-2, -1, 0, 1, 2),
-                              post_floyd = c(0,1)),
+                              post_floyd = c(0,1),
+                              t_post_floyd = mean(cj_exp_prepost$t_post_floyd[cj_exp_prepost$post_floyd==1]),
+                              t = mean(cj_exp_prepost$t[cj_exp_prepost$post_floyd==0])),
                     trans = "response") %>%
   as.data.frame() %>%
   mutate(conc_dis = factor(case_when(
@@ -1121,15 +1131,19 @@ pred_prob_raw <- pred_prob_raw %>%
          ratio = ifelse(is.na(ratio), ratio, paste0(ratio, "x")))
 
 ggplot(pred_prob_raw, aes(x = post_floyd, y = prob, color = conc_dis))+
-  geom_point()+
-  geom_errorbar(aes(ymin=asymp.LCL, ymax=asymp.UCL), width=0.2)+
+  geom_point(size = 2)+
+  geom_errorbar(aes(ymin=asymp.LCL, ymax=asymp.UCL), width = .2, size = 1)+
   labs(title = "Predicted Carjacking Probabilities by Concentrated Disadvantage, Pre- and Post-Killing",
-       y = "Predicted CJ Probability",
+       y = "Predicted Carjacking Probability",
        x = "Time Period")+
   theme_classic()+
   facet_grid(~conc_dis)+
   guides(color = "none")+
-  geom_text(aes(x = post_floyd, y = asymp.UCL+.01, label = ratio))
+  geom_text(aes(x = post_floyd, y = asymp.UCL+.01, label = ratio))+
+  theme(axis.text = element_text(face = "bold", size = 12),
+        axis.title.x = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 12),
+        strip.text.x = element_text(face = "bold", size = 12))
 
 ggsave(filename = "Car Jacking/Figures for publication/fig10.png", bg="white", width = 8, height = 8)
 ```
