@@ -361,15 +361,21 @@ ggplot(cj_exp_week)+
    geom_label(aes(x=cj_exp_week$begin_date[cj_exp_week$year==2020 &
                                              cj_exp_week$week==isoweek(date("2020-05-25"))],
                  y=0.075), 
-             label = "George Floyd", show.legend = FALSE)+
+             label = "George Floyd", show.legend = FALSE,
+             fontface = "bold")+
   labs(title = "Weekly Minneapolis Carjackings, 2017-2022",
        x = "Week",
        y = "Weekly Carjacking Rate/ 1,000",
        color = NULL)+
   #geom_line(aes(x=begin_date, y=csma, color = "CSMA(5)"))+
-  theme_minimal()+
-    theme(axis.text.x=element_text(angle=45, hjust=1))  +
-  theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
+  theme_classic()+
+  theme(axis.text = element_text(face = "bold", size = 12),
+        axis.title.x = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 12),,
+        legend.key.size = unit(0.8, "cm"),
+        legend.position = "bottom",
+        strip.text.x = element_text(face = "bold", size = 12),
+        axis.text.x=element_text(angle=45, hjust=1))
 
 ggsave(filename = "Car Jacking/Figures for publication/fig1.png", bg="white", width = 10, height = 8)
 ```
@@ -412,7 +418,9 @@ ggplot() +
   labs(title = "Minneapolis Carjacking Rates by Tract and Year", 
        fill = "Weekly Rate/ 1,000")+
   theme_void()+
-  theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
+  theme(strip.text.x = element_text(face = "bold", size = 12),
+        legend.title = element_text(face = "bold", size = 10))
+
 
 ggsave(filename = "Car Jacking/Figures for publication/fig2.png", bg="white", width = 10, height = 8)
 ```
@@ -1139,7 +1147,8 @@ ggplot(pred_prob_raw, aes(x = post_floyd, y = prob, color = conc_dis))+
   theme_classic()+
   facet_grid(~conc_dis)+
   guides(color = "none")+
-  geom_text(aes(x = post_floyd, y = asymp.UCL+.01, label = ratio))+
+  geom_text(aes(x = post_floyd, y = asymp.UCL+.01, label = ratio),
+            fontface = "bold", size = 5)+
   theme(axis.text = element_text(face = "bold", size = 12),
         axis.title.x = element_text(face = "bold", size = 12),
         axis.title.y = element_text(face = "bold", size = 12),
