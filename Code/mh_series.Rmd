@@ -260,18 +260,14 @@ panel <- panel %>%
 
 #creating period indicators for panel
 panel <- panel %>%
-  mutate(post_floyd = as.numeric(begin_date >= as.Date("2020-05-25")),
-         post_floyd_3 = as.numeric(begin_date >= as.Date("2020-05-25")+months(3)),
-         t_post_floyd = ifelse(as.numeric(begin_date-as.Date("2020-05-25"))/7 >=0,
-                               begin_date-as.numeric(as.Date("2020-05-25"))/7,
-                               0),
-         stay_at_home = as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28")),
-         state_of_emerg = as.numeric(begin_date >= as.Date("2020-03-13")),
-         period = factor(case_when(
-           post_floyd==0 & post_floyd_3==0 ~ "Pre-Killing",
-           post_floyd>=1 & post_floyd_3==0 ~ "0-3 Months Post-Killing",
-           post_floyd>=1 & post_floyd_3>=1 ~ "3+ Months Post-Killing"),
-           levels = c("Pre-Killing", "0-3 Months Post-Killing", "3+ Months Post-Killing"))) %>%
+  mutate(post_floyd = as.factor(as.numeric(begin_date >= as.Date("2020-05-25"))),
+         post_floyd_3 = as.factor(as.numeric(begin_date >= as.Date("2020-05-25")+months(3))),
+         stay_at_home = as.factor(as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28"))),
+         state_of_emerg = as.factor(as.numeric(begin_date >= as.Date("2020-03-13"))),
+         weeks_post = as.numeric(begin_date-as.Date("2020-05-25"))/7,
+         t_post_floyd = ifelse(weeks_post >=0,
+                               weeks_post,
+                               0),) %>%
   group_by(zcta) %>%
   arrange(year, weekofyr) %>%
   mutate(t = row_number(),
@@ -402,7 +398,7 @@ ggplot(series)+
   scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
    annotate(geom="rect",
     xmin = series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-03-13"))],
-    xmax = series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-12-25"))],
+    xmax = series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-12-27"))],
     ymin = 0,
     ymax = 3,
     fill = "grey", 
@@ -425,7 +421,9 @@ ggplot(series)+
        subtitle = "MHA Hospital Data",
        x = "Week",
        y = "Rate per 1,000 Residents",
-       fill = "MN COVID-19 Policy")+
+       fill = "MN COVID-19 Policy",
+       caption = "The grey period represents the COVID-19 State of Emergency order, 
+       and the red represents the COVID-19 Stay at Home order.")+
   theme_minimal()+
     theme(axis.text.x=element_text(angle=45, hjust=1)) 
 ```
@@ -435,7 +433,7 @@ ggplot(series)+
   scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
    annotate(geom="rect",
     xmin = series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-03-13"))],
-    xmax = series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-12-25"))],
+    xmax = series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-12-27"))],
     ymin = 0,
     ymax = 2,
     fill = "grey", 
@@ -450,7 +448,7 @@ ggplot(series)+
   scale_fill_manual(values=c("grey","red"), labels=c("Stay at Home", "State of Emergency")) +
   geom_line(aes(x=begin_date, y=white_mh_incid_c, color = "White"))+ 
   geom_line(aes(x=begin_date, y=black_mh_incid_c, color = "Black"))+
-  geom_line(aes(x=begin_date, y=latin_mh_incid_c, color = "Latinx"))+ 
+  geom_line(aes(x=begin_date, y=latin_mh_incid_c, color = "Latine"))+ 
   geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
               linetype="solid", color="blue", size=1) +
   geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
@@ -462,13 +460,16 @@ ggplot(series)+
        y = "Rate per 1,000 Residents",
        fill = "MN COVID-19 Policy",
        color = "Race",
-       caption = "")+
+       caption = "The grey period represents the COVID-19 State of Emergency order, 
+       and the red represents the COVID-19 Stay at Home order.")+
   theme_minimal()+
     theme(axis.text.x=element_text(angle=45, hjust=1)) +
    scale_color_manual(values = c("darkgreen", "orange", "purple"))
 ```
 
 ## Time Series Analysis
+
+$y_t =\beta_0+\beta_1 Time_t + \theta Event_t + \beta_2 TimePost_t+ \mathbf{\phi X}_t+\rho y_{t-1}+\rho y_{t-2}+\rho y_{t-3}+\epsilon_t$
 
 ```{r time series models, message=F}
 series <- series %>%
@@ -484,7 +485,19 @@ series <- series %>%
          uof_lag=lag(use_of_force_rate,1),
          stops_lag = lag(police_stop_rate,1),
          shoot_lag = lag(off_inv_shooting_rate,1)) 
-  
+
+mean(series$mh_incid_c[series$post_floyd==0 & series$weeks_post %in% c(-1, -2, -3, -4)])
+mean(series$mh_incid_c[series$post_floyd==1 & series$weeks_post %in% c(0,1,2,3)])
+
+mean(series$black_mh_incid_c[series$post_floyd==0 & series$weeks_post %in% c(-1, -2, -3, -4)])
+mean(series$black_mh_incid_c[series$post_floyd==1 & series$weeks_post %in% c(0,1,2,3)])
+
+mean(series$white_mh_incid_c[series$post_floyd==0 & series$weeks_post %in% c(-1, -2, -3, -4)])
+mean(series$white_mh_incid_c[series$post_floyd==1 & series$weeks_post %in% c(0,1,2,3)])
+
+mean(series$latin_mh_incid_c[series$post_floyd==0 & series$weeks_post %in% c(-1, -2, -3, -4)])
+mean(series$latin_mh_incid_c[series$post_floyd==1 & series$weeks_post %in% c(0,1,2,3)])
+
 ts <- lm(mh_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
            tmax_f+snow_in+precip_in+
            uof_lag+stops_lag+shoot_lag, 
@@ -573,15 +586,16 @@ stargazer(ts_ar3, ts_ar3_white, ts_ar3_black, ts_ar3_latin,
 
 ## Panel Analysis
 
-```{r panel analysis, message=F, echo=FALSE}
+```{r panel analysis, message=F}
 panel <- panel %>%
-  ungroup() %>%
   mutate(black_pop_center = scale(black_pop, center = T, scale = T),
          post_floyd = as.factor(post_floyd),
          stay_at_home = as.factor(stay_at_home),
          state_of_emerg = as.factor(state_of_emerg),
          mh_rate = mh_all_tot/total_pop*1000,
-         blk_mh_rate = black_mh_all_tot/black_pop*1000)
+         blk_mh_rate = black_mh_all_tot/black_pop*1000,
+         white_mh_rate = white_mh_all_tot/white_pop*1000,
+         latin_mh_rate = latin_mh_all_tot/hisp_pop*1000) 
 
 #CFA: CD
 library(lavaan)
@@ -594,29 +608,70 @@ modificationindices(cfa_cd)
 summary(cfa_cd, fit.measures=TRUE, standardized = T)
 cd_predict <- as.vector(lavPredict(cfa_cd, newdata = as.data.frame(panel)))
 panel$conc_dis <- cd_predict
+```
 
 
+$y_{ti} =\beta_{0i}+\beta_1 Time_t + \theta_i Event_t + \beta_2 TimePost_t+ \mathbf{\phi X}_{ti}+\rho y_{t-1}+\rho y_{t-2}+\rho y_{t-3}+\epsilon_{ti}$
+
+$\beta_{0i} = \gamma_{00}+u_{0i}$
+
+$\theta_{i} = \gamma_{10}+u_{i}$
+
+```{r, message=F}
 #random effects specifications
 library(lme4)
 library(lmerTest)
 
 
-#RE random coefficient model
 
+#RE random coefficient model
 re <- lmer(mh_rate~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
                           uof_lag+stops_lag+shoot_lag+
                          tmax_f+snow_in+precip_in+
              conc_dis+
               dplyr::lag(mh_rate, 1)+ dplyr::lag(mh_rate, 2)+
                dplyr::lag(mh_rate, 3)+
-                       (1+post_floyd|zcta), data = panel)
+                       (post_floyd|zcta), data = panel)
 summary(re)
 
+re_blk <- lmer(blk_mh_rate~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
+                          uof_lag+stops_lag+shoot_lag+
+                         tmax_f+snow_in+precip_in+
+             conc_dis+
+              dplyr::lag(blk_mh_rate, 1)+ dplyr::lag(blk_mh_rate, 2)+
+               dplyr::lag(blk_mh_rate, 3)+
+                       (post_floyd|zcta), data = panel)
+summary(re_blk)
 
-re_pf <- ranef(re)
-re_coef <- re_pf$zcta 
-re_coef <- re_coef %>%
-  mutate(zipcode = as.numeric(rownames(re_coef)))
+re_white <- lmer(white_mh_rate~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
+                          uof_lag+stops_lag+shoot_lag+
+                         tmax_f+snow_in+precip_in+
+             conc_dis+
+              dplyr::lag(white_mh_rate, 1)+ dplyr::lag(white_mh_rate, 2)+
+               dplyr::lag(white_mh_rate, 3)+
+                       (post_floyd|zcta), data = panel)
+summary(re_white)
+
+re_latin <- lmer(latin_mh_rate~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
+                          uof_lag+stops_lag+shoot_lag+
+                         tmax_f+snow_in+precip_in+
+             conc_dis+
+              dplyr::lag(latin_mh_rate, 1)+ dplyr::lag(latin_mh_rate, 2)+
+               dplyr::lag(latin_mh_rate, 3)+
+                       (post_floyd|zcta), data = panel)
+summary(re_latin)
+
+#extract random coefficients
+re_pf_white <- as.data.frame(coef(re_white)$zcta) %>%
+  select(post_floyd1) %>%
+  mutate(zipcode = as.numeric(rownames(.))) %>%
+  rename(post_floyd1_white = post_floyd1)
+
+re_pf_blk <- as.data.frame(coef(re_blk)$zcta) %>%
+  select(post_floyd1) %>%
+  mutate(zipcode = as.numeric(rownames(.))) %>%
+  rename(post_floyd1_blk = post_floyd1)
+
 
 #aggregate to zip-level over years
 zip_level <- panel %>%
@@ -629,7 +684,9 @@ zip_level <- panel %>%
   left_join(zcta, by = "zcta")
 
 zip_level <- zip_level %>%
-  left_join(re_coef, by = c("zcta" = "zipcode"))
+  left_join(re_pf_white, by = c("zcta" = "zipcode")) %>%
+    left_join(re_pf_blk, by = c("zcta" = "zipcode")) 
+
 
 
 #george floyd square
@@ -637,17 +694,41 @@ gfs <- geocode("George Floyd Square, Minneapolis", output = "latlon") %>%
   st_as_sf(coords = c("lon", "lat"), crs = "NAD83", remove=F) %>%
   mutate(name = "George Floyd Square")
 
-re_coef_map <- ggplot() +
-  geom_sf(data = zip_level, aes(geometry = geometry, fill = desc(post_floyd1))) + 
+re_coef_map_white <- ggplot() +
+  geom_sf(data = zip_level, aes(geometry = geometry, fill = post_floyd1_white), color = "lightgrey") + 
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
   geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
   geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
                  size = 2,
                 fontface = "bold")+
   scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure 3: RE Coefficients", 
+  labs(title = "Figure 3: RE Coefficients-White", 
        subtitle = "Rate per 1,000",
-       fill = "Post-Killing Increase")+
+       fill = "Post-Killing Change")+
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_blank(),
+  panel.grid.major = element_line(colour="transparent"), 
+  plot.subtitle = element_text(face="italic"),
+  strip.background = element_rect(fill = "white", 
+                colour = "black"))
+
+re_coef_map_blk <- ggplot() +
+  geom_sf(data = zip_level, aes(geometry = geometry, fill = post_floyd1_blk), color = "lightgrey") + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
+  geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
+                 size = 2,
+                fontface = "bold")+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "Figure 4: RE Coefficients - Black", 
+       subtitle = "Rate per 1,000",
+       fill = "Post-Killing Change")+
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
   axis.line = element_blank(),
@@ -662,17 +743,17 @@ re_coef_map <- ggplot() +
                 colour = "black"))
 
 cd_map <- ggplot() +
-  geom_sf(data = zip_level, aes(geometry = geometry, fill = conc_dis)) + 
+  geom_sf(data = zip_level, aes(geometry = geometry, fill = conc_dis), color="lightgrey") + 
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
   geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
   geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
                  size = 2,
                 fontface = "bold")+
   scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure 5: Concentrated Disadvantage", 
+  labs(title = "Figure 5: Concentrated Disadvantage \n by ZCTA", 
        subtitle = "Standard Deviation Units",
        fill = "Conc. Disad.")+
-  theme(axis.text.x = element_blank(),
+   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
   axis.line = element_blank(),
   axis.ticks = element_blank(),
@@ -693,43 +774,103 @@ re_int <- lmer(mh_rate~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
               dplyr::lag(mh_rate, 1)+ dplyr::lag(mh_rate, 2)+
                dplyr::lag(mh_rate, 3)+
                        (1+post_floyd|zcta), data = panel)
-summary(re_int)
 
-var_re <- VarCorr(re)
-var_re_int <- VarCorr(re_int)
-class(re) <- "lmerMod" 
-class(re_int) <- "lmerMod" 
+re_int_blk <- lmer(blk_mh_rate~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
+                          uof_lag+stops_lag+shoot_lag+
+                         tmax_f+snow_in+precip_in+conc_dis+
+                 post_floyd:conc_dis+
+              dplyr::lag(blk_mh_rate, 1)+ dplyr::lag(blk_mh_rate, 2)+
+               dplyr::lag(blk_mh_rate, 3)+
+                       (1+post_floyd|zcta), data = panel)
+summary(re_int_blk)
+
+re_int_white <- lmer(white_mh_rate~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
+                          uof_lag+stops_lag+shoot_lag+
+                         tmax_f+snow_in+precip_in+conc_dis+
+                 post_floyd:conc_dis+
+              dplyr::lag(white_mh_rate, 1)+ dplyr::lag(white_mh_rate, 2)+
+               dplyr::lag(white_mh_rate, 3)+
+                       (1+post_floyd|zcta), data = panel)
+summary(re_int_white)
+
+var_re_white <- VarCorr(re_white)
+var_re_int_white <- VarCorr(re_int_white)
+var_re_black <- VarCorr(re_blk)
+var_re_int_black <- VarCorr(re_int_blk)
+class(re_white) <- "lmerMod" 
+class(re_blk) <- "lmerMod" 
+class(re_int_white) <- "lmerMod" 
+class(re_int_blk) <- "lmerMod" 
+
 
 library(patchwork)
 
-re_coef_map+cd_map
+re_coef_map_white+re_coef_map_blk+cd_map
 ```
 
 ```{r, results='asis', message=FALSE, include = T}
-stargazer(re, re_int,
-          title = "Interrupted Time Series Random Coefficient Models of Mental Health",
+stargazer(re_white, re_blk,  re_int_white, re_int_blk,
+          title = "Interrupted Time Series Random Coefficient Models of Black Mental Health",
           covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
                                "Post-Killing", "T Post-Killing",  
                                "MPD Use of Force t-1", "MPD Stops t-1",
                                "MPD Officer Involved Shootings t-1",
                                "Mean Max. Temp.", "Snow (in.)", "Precip. (in.)",
                                "Conc. Disad.", 
-                               "AR(1)", "AR(2)", "AR(3)", "Post-Floyd X Conc.Disad."),
+                               "AR(1)-White", "AR(2)-White", "AR(3)-White",
+                               "AR(1)-Black", "AR(2)-Black", "AR(3)-Black",
+                               "Post-Floyd X Conc.Disad."),
           dep.var.caption = "Mental Health Discharges",
           dep.var.labels.include = FALSE,
-          column.labels = c("RE", "RE w/ Interaction"),
+          column.labels = c("White", "Black", 
+                            "White w/ Int.","Black w/ Int."),
           model.numbers = TRUE,
           single.row = FALSE,
           align = T,
           omit.stat = "adj.rsq",
           font.size="footnotesize", no.space = T, column.sep.width = "1pt",
           star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
-          add.lines = list(c("Resid. Var.", round(attr(VarCorr(re), "sc")^2,2),
-                             round(attr(VarCorr(re_int), "sc")^2,2)), 
+          add.lines = list(c("Resid. Var.", round(attr(VarCorr(re_white), "sc")^2,2),
+                             round(attr(VarCorr(re_int_white), "sc")^2,2),
+                             round(attr(VarCorr(re_blk), "sc")^2,2),
+                             round(attr(VarCorr(re_int_blk), "sc")^2,2)), 
                                       c("ZCTA Var.", 
-                                        round(var_re$zcta[1,1],2),
-                                        round(var_re_int$zcta[1,1],2)),
+                                        round(var_re_white$zcta[1,1],2),
+                                        round(var_re_int_white$zcta[1,1],2),
+                                        round(var_re_black$zcta[1,1],2),
+                                        round(var_re_int_black$zcta[1,1],2)),
                              c("Post-Floyd Var.", 
-                                        round(var_re$zcta[2,2],2),
-                                        round(var_re_int$zcta[2,2],2))))
+                                        round(var_re_white$zcta[2,2],2),
+                                        round(var_re_int_white$zcta[2,2],2),
+                                        round(var_re_black$zcta[2,2],2),
+                                        round(var_re_int_black$zcta[2,2],2))))
+```
+
+
+```{r, results='asis'}
+results_table<-standardizedSolution(cfa_cd) %>% 
+  filter(row_number() %in% c(1:6)) %>% 
+  dplyr::select(LHS=lhs, Specification=op, RHS=rhs, 'Std(Beta)'=est.std, SE=se, 
+                'P-Value'=pvalue) %>%
+  mutate(LHS = case_when(
+    LHS=="cd"~"Conc. Dis.",
+    LHS=="unemp_rate"~"Unemp. Rate"),  
+         RHS = case_when(
+           RHS=="unemp_rate"~"Unemp. Rate",
+           RHS=="pov_rate"~"Poverty Rate",
+           RHS=="female_hh_rate"~"Female-HH Rate",
+           RHS=="no_hs_dip_rate"~"No HS Diploma Rate",
+           RHS=="black_pop"~"Black Pop"
+         ),
+    Specification = case_when(
+      Specification=="=~"~"FL",
+      Specification=="~~"~"Cov."),
+     `P-Value` = round(`P-Value`, 2)) 
+    
+
+
+stargazer(results_table, summary = FALSE, header = F,
+           type="latex", style="aer", align = T, 
+           title="CFA Measurement Model of Concentrated Disadvantage", 
+           notes="$LR\\chi^2$ vs. saturated (4) = 1186, p < .05,  CFI = .926, SRMR = .049")
 ```
