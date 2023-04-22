@@ -16,7 +16,6 @@ library(lubridate)
 library(ggplot2)
 library(astsa)
 library(tseries)
-library(covdata)
 library(tidycensus)
 library(sf)
 library(purrr)
@@ -29,28 +28,18 @@ library(suncalc)
 library(stargazer)
 library(tidyquant)
 
-google_key <- readRDS("C:/Users/DELL/Documents/R/Rworkingdirectory/google_api_key.rds")
+google_key <- readRDS("C:/Users/rlarson21/Documents/R/Rworkingdirectory/google_api_key.rds")
 register_google(key = google_key)
 
 #Covid timelines
   #https://docs.google.com/spreadsheets/d/1zu9qEWI8PsOI_i8nI_S29HDGHlIp2lfVMsGxpQ5tvAQ/edit#gid=973655443
-
-
-
-#maps of racial composition and median hh income?
-#RE interaction model forefront
-
-#potential reviewers
-#https://www.cceb.med.upenn.edu/bio/douglas-j-wiebe-phd
-#https://www.dellchildrens.net/services-and-programs/research-clinical-trials/trauma-and-injury-research-center/meet-the-staff/
-
 ```
 
 # Base Panel Construction - ZCTA-Week Level
 
 ## Hospital Data - ZCTA-Week level
 ```{r hosp data, message=FALSE}
-hosp_zcta <- read_csv("Restricted Hospital Data/minnepop_1620_agg_zipfull_updated.csv") %>%
+hosp_zcta <- read_csv("Data/Restricted MHA Data/minnepop_1620_agg_zipfull_updated.csv") %>%
   arrange(zipcode, year, weekofyr) %>%
   select(-c(`_chk`, zippop_tag)) %>%
   filter(!(year==2016 & weekofyr==53))
@@ -62,7 +51,7 @@ hosp_zcta <- read_csv("Restricted Hospital Data/minnepop_1620_agg_zipfull_update
 #adding in 5-year ACS data 
 census_api_key("ecda17575f4d914b502c70f2bae7a5f3d253792d")
 
-year <- lst(2016, 2017, 2018, 2019)
+year <- lst(2016, 2017, 2018, 2019, 2020)
 
 acs <- map_dfr(
   year,
@@ -74,7 +63,10 @@ acs <- map_dfr(
                              "B02001_007E", "B11001_003E",
                              "B17001_002E", "B01002_001E", 
                              "B09010_002E", "B06009_005E",
-                             "B01001_002E", "B99233_005E"),
+                             "B01001_002E", "B99233_005E",
+                             "B06009_002E", "B23025_005E",
+                             "B23025_002E", "B11003_015E",
+                             "B19013_001E"),
                output = "wide",
                survey = "acs5",
                year = .x),  .id = "year") %>%
@@ -93,35 +85,44 @@ acs <- map_dfr(
          povlevel = B17001_002E,
          bach_degree = B06009_005E,
          male = B01001_002E,
-         nowork_12 = B99233_005E) %>%
+         nowork_12 = B99233_005E,
+        no_hs_dip = B06009_002E,
+        unemp = B23025_005E,
+        total_ilf = B23025_002E,
+        female_hh = B11003_015E,
+        med_hh_inc = B19013_001E) %>%
   select(-ends_with("M", ignore.case = F), -GEOID) %>%
   mutate(zcta = str_sub(NAME, 6)) %>%
   select(-NAME) %>%
   select(zcta, everything()) %>%
   mutate(year = as.numeric(year)) %>%
-  mutate_at(vars(-zcta, -year, -total_pop, -med_age), list(~(./total_pop)*100)) 
+  mutate_at(vars(-zcta, -year, -total_pop, -med_age, 
+                 -unemp, -total_ilf, -med_hh_inc), 
+            list(~(./total_pop)*100)) %>%
+  mutate(unemp_rate = 100*unemp/total_ilf,
+         zcta = as.numeric(zcta))
 
 #LOCF imputation of 2020 until 2020 ACS release (12/9/2021)
-acs_2020 <- acs %>%
-  complete(zcta, year = 2016:2020) %>%
-  group_by(zcta) %>%
-  mutate_at(vars(-zcta, -year), 
-            funs(if(sum(!is.na(.))<1) {.} else{na_locf(., option = "locf")})) %>%
-  filter(year==2020)
+#acs_2020 <- acs %>%
+  #complete(zcta, year = 2016:2020) %>%
+  #group_by(zcta) %>%
+  #mutate_at(vars(-zcta, -year), 
+   #         funs(if(sum(!is.na(.))<1) {.} else{na_locf(., option = "locf")})) %>%
+  #filter(year==2020)
 
-acs_imp <- acs %>% 
-  rbind(acs_2020) %>%
-  mutate(zcta = as.numeric(zcta))
+#acs_imp <- acs %>% 
+ # rbind(acs_2020) %>%
+  #mutate(zcta = as.numeric(zcta))
 
 #joining to hospital data
 hosp_panel <- hosp_zcta %>%
-  left_join(acs_imp, by = c("zipcode"="zcta", "year"))
+  left_join(acs, by = c("zipcode"="zcta", "year"))
 
 #SF geometries - get all ZCTAs 
 zcta <- get_acs(geography = "zcta",
                    variables = "B01001_001",
                    output = "wide", 
-                   year = 2019,
+                   year = 2020,
                    geometry = T,
                    survey = "acs5") %>%
   rename(zcta = GEOID,
@@ -153,7 +154,8 @@ panel <- hosp_panel %>%
 panel <- panel %>%
   group_by(zipcode, year) %>%
   mutate(begin_date = ISOweek2date(paste(year, paste0("W", sprintf("%02d", weekofyr)), 1,sep = "-")),
-         end_date = begin_date+weeks(1)-days(1))
+         end_date = begin_date+weeks(1)-days(1),
+         assault_undet_incid_c = (assault_tot+undeter_tot)/total_pop*100000)
 
 #number of unique MPLS ZCTAs
 n_zcta <- length(unique(panel$zcta))
@@ -251,7 +253,10 @@ ois_spatial <- read_csv("Data/Police_Officer_Involved_Shootings.csv") %>%
 panel <- panel %>%
   left_join(uof_spatial, by = c("year", "weekofyr"="week", "zcta"="zcta")) %>%
   left_join(stop_spatial, by = c("year", "weekofyr"="week", "zcta"="zcta")) %>%
-  left_join(ois_spatial, by = c("year", "weekofyr"="week", "zcta"="zcta")) 
+  left_join(ois_spatial, by = c("year", "weekofyr"="week", "zcta"="zcta")) %>%
+  mutate(uof_rate = total_use_of_force/total_pop*1000,
+         stops_rate = total_police_stops/total_pop*1000,
+         ois_rate = total_police_shootings/total_pop*1000)
 
 #creating period indicators for panel
 panel <- panel %>%
@@ -259,6 +264,10 @@ panel <- panel %>%
          post_floyd_3 = as.numeric(begin_date >= as.Date("2020-05-25")+months(3)),
          stay_at_home = as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28")),
          state_of_emerg = as.numeric(begin_date >= as.Date("2020-03-13")),
+          weeks_post = as.numeric(begin_date-as.Date("2020-05-25"))/7,
+         t_post_floyd = ifelse(weeks_post >=0,
+                               weeks_post,
+                               0),
          period = factor(case_when(
            post_floyd==0 & post_floyd_3==0 ~ "Pre-Killing",
            post_floyd>=1 & post_floyd_3==0 ~ "0-3 Months Post-Killing",
@@ -267,9 +276,9 @@ panel <- panel %>%
   group_by(zcta) %>%
   arrange(year, weekofyr) %>%
   mutate(t = row_number(),
-         uof_lag = dplyr::lag(total_use_of_force, 1),
-         stops_lag = dplyr::lag(total_police_stops, 1),
-         shoot_lag = dplyr::lag(total_police_shootings, 1))
+         uof_lag = dplyr::lag(uof_rate, 1),
+         stops_lag = dplyr::lag(stops_rate, 1),
+         shoot_lag = dplyr::lag(ois_rate, 1))
 ```
 
 
@@ -287,12 +296,13 @@ hosp_series <- panel %>%
             legal_tot = sum(legal_tot, na.rm = T),
             combined_tot = sum(combined_tot, na.rm = T),
             total_pop = sum(total_pop, na.rm = T)) %>%
-  mutate(assault_incid_c = (assault_tot/total_pop)*1000,
-         unintent_incid_c = (unintent_tot/total_pop)*1000,
-         suicide_incid_c = (suicide_tot/total_pop)*1000,
-         undeter_incid_c = (undeter_tot/total_pop)*1000,
-         legal_incid_c = (legal_tot/total_pop)*1000,
-         combined_incid_c = (combined_tot/total_pop)*1000) %>%
+  mutate(assault_incid_c = (assault_tot/total_pop)*100000,
+         unintent_incid_c = (unintent_tot/total_pop)*100000,
+         suicide_incid_c = (suicide_tot/total_pop)*100000,
+         undeter_incid_c = (undeter_tot/total_pop)*100000,
+         legal_incid_c = (legal_tot/total_pop)*100000,
+         combined_incid_c = (combined_tot/total_pop)*100000,
+         assault_unintent_incid_c = (assault_tot+unintent_tot)/total_pop*100000) %>%
   ungroup() %>%
   mutate(week_id = row_number()) 
 ```
@@ -355,7 +365,7 @@ series <- series %>%
 
 ```
 
-# Weather Data
+## Weather Data
 
 ```{r, message=F}
 # Minnesota DNR Daily Date
@@ -689,7 +699,7 @@ series <- series %>% left_join(school, by = c("year", "weekofyr"))
 
 ```
 
-## Time Series Vizualization
+# Time Series Vizualization
 
 ```{r firearm assaults plot, warning=FALSE}
 ggplot(series)+
@@ -698,34 +708,50 @@ ggplot(series)+
   geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
               linetype="dotted", color="red", size=1)+
   geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.050), 
+                 y=4.5), 
              label = "George Floyd", show.legend = FALSE)+
   labs(title = "Figure 1: Weekly Firearm Assault Injuries, 2016-2020",
        subtitle = "MHA Hospital Data",
        x = "Week",
-       y = "Rate per 1,000 Residents")+
+       y = "Rate per 100,000 Residents")+
   theme_minimal()+
     theme(axis.text.x=element_text(angle=45, hjust=1)) 
 
 ggplot(series)+
-  geom_line(aes(x=begin_date, y=unintent_incid_c))+ 
+  geom_line(aes(x=begin_date, y=assault_unintent_incid_c))+ 
   scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
   geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
               linetype="dotted", color="red", size=1)+
   geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
-                 y=0.050), 
+                 y=8), 
              label = "George Floyd", show.legend = FALSE)+
-  labs(title = "Figure A3: Weekly Firearm Unintentional Injuries, 2016-2020",
+  labs(title = "Figure A3: Weekly Firearm Assault+Unintentional Injuries, 2016-2020",
        subtitle = "MHA Hospital Data",
        x = "Week",
-       y = "Rate per 1,000 Residents")+
+       y = "Rate per 100,000 Residents")+
   theme_minimal()+
     theme(axis.text.x=element_text(angle=45, hjust=1)) 
 
+ggplot(series)+
+  geom_line(aes(x=begin_date, y=undeter_incid_c))+ 
+  scale_x_date(date_labels = "%b-%Y", date_breaks = "6 months")+
+  geom_vline(xintercept=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))], 
+              linetype="dotted", color="red", size=1)+
+  geom_label(aes(x=series$begin_date[series$year==2020 & series$weekofyr==isoweek(date("2020-05-25"))],
+                 y=.75), 
+             label = "George Floyd", show.legend = FALSE)+
+  labs(title = "Figure A6: Weekly Firearm Undetermined Injuries, 2016-2020",
+       subtitle = "MHA Hospital Data",
+       x = "Week",
+       y = "Rate per 100,000 Residents")+
+  theme_minimal()+
+    theme(axis.text.x=element_text(angle=45, hjust=1)) 
 
 ```
 
-## Time Series Analysis
+# Time Series Analysis
+
+$y_t =\beta_0+\beta_1 Time_t + \theta PostKilling_t + \beta_2 TimePost_t+ \mathbf{\phi X}_t+\rho_1 y_{t-1}+\epsilon_t$
 
 ```{r time series models, message=F}
 
@@ -735,25 +761,29 @@ series <- series %>%
          post_floyd_3 = as.factor(as.numeric(begin_date >= as.Date("2020-05-25")+months(3))),
          stay_at_home = as.factor(as.numeric(begin_date >= as.Date("2020-03-28") &                                                                                     begin_date <= as.Date("2020-05-28"))),
          state_of_emerg = as.factor(as.numeric(begin_date >= as.Date("2020-03-13"))),
+         weeks_post = as.numeric(begin_date-as.Date("2020-05-25"))/7,
+         t_post_floyd = ifelse(weeks_post >=0,
+                               weeks_post,
+                               0),
          uof_lag=lag(use_of_force_rate,1),
          stops_lag = lag(police_stop_rate,1),
          shoot_lag = lag(off_inv_shooting_rate,1))
   
-ts <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+ts <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
                          tmax_f+snow_in+precip_in+dark_before_12+school, 
                          data = series) 
 summary(ts)
 
 acf2(resid(ts), max.lag = 7)
 
-ts_ar1<- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+ts_ar1<- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
                          tmax_f+snow_in+precip_in+dark_before_12+school+
                          dplyr::lag(assault_incid_c, 1), data = series)
 summary(ts_ar1)
 
 acf2(resid(ts_ar1), max.lag = 7)
 
-ts_pol <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+ts_pol <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
                          tmax_f+snow_in+precip_in+dark_before_12+school+
                          uof_lag+stops_lag+shoot_lag,
                          data = series) 
@@ -761,7 +791,7 @@ summary(ts_pol)
 
 acf2(resid(ts_pol), max.lag = 7)
 
-ts_ar1_pol<- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+ts_ar1_pol<- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
                          tmax_f+snow_in+precip_in+dark_before_12+school+
                   uof_lag+stops_lag+shoot_lag+
                          dplyr::lag(assault_incid_c, 1), data = series)
@@ -771,15 +801,20 @@ summary(ts_ar1_pol)
 
 acf2(resid(ts_ar1_pol), max.lag = 7)
 
-ts_ar1_pol_unintent <- lm(unintent_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+ts_ar1_pol_unintent <- lm(assault_unintent_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
+                         tmax_f+snow_in+precip_in+dark_before_12+school+
+                  uof_lag+stops_lag+shoot_lag+
+                         dplyr::lag(assault_incid_c, 1), data = series)
+
+ts_ar1_pol_undeter <- lm(undeter_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
                          tmax_f+snow_in+precip_in+dark_before_12+school+
                   uof_lag+stops_lag+shoot_lag+
                          dplyr::lag(assault_incid_c, 1), data = series)
 
 ```
 
-```{r, results='asis', message=FALSE, include = F}
-stargazer(ts_ar1, ts_ar1_pol,
+```{r, results='asis', message=FALSE, include = F, warning=FALSE}
+stargazer(ts_ar1, ts_ar1_pol, ts_ar1_pol_unintent, ts_ar1_pol_unintent,
           title = "Interrupted Time Series Model of Firearm Assault Injuries",
           covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
                                "Post-Killing", "Post-Killing 3 Months",  
@@ -791,6 +826,9 @@ stargazer(ts_ar1, ts_ar1_pol,
           model.numbers = TRUE,
           single.row = TRUE,
           align = T,
+          font.size="footnotesize", 
+          no.space = T, 
+          column.sep.width = "1pt",
           omit = c("tmax_f", "snow_in", "precip_in",
                    "dark_before_12", "school"),
           omit.stat = "adj.rsq",
@@ -801,6 +839,9 @@ stargazer(ts_ar1, ts_ar1_pol,
 ```
 
 # ZCTA-Week Level Analysis
+
+
+## ZCTA-Level Maps
 
 ```{r prelim maps, message=FALSE}
 #aggregate to zip-level over years
@@ -813,12 +854,13 @@ zip_level <- panel %>%
             legal_tot = mean(legal_tot, na.rm = T),
             combined_tot = mean(combined_tot, na.rm = T),
             total_pop = mean(total_pop, na.rm = T)) %>%
-  mutate(assault_incid_c = (assault_tot/total_pop)*1000,
-         unintent_incid_c = (unintent_tot/total_pop)*1000,
-         suicide_incid_c = (suicide_tot/total_pop)*1000,
-         undeter_incid_c = (undeter_tot/total_pop)*1000,
-         legal_incid_c = (legal_tot/total_pop)*1000,
-         combined_incid_c = (combined_tot/total_pop)*1000) %>%
+  mutate(assault_incid_c = (assault_tot/total_pop)*100000,
+         unintent_incid_c = (unintent_tot/total_pop)*100000,
+         suicide_incid_c = (suicide_tot/total_pop)*100000,
+         undeter_incid_c = (undeter_tot/total_pop)*100000,
+         legal_incid_c = (legal_tot/total_pop)*100000,
+         combined_incid_c = (combined_tot/total_pop)*100000,
+         assault_unintent_incid_c = ((assault_tot+unintent_tot)/total_pop)*100000) %>%
   ungroup() %>%
   left_join(zcta, by = "zcta")
 
@@ -833,14 +875,14 @@ ggplot() +
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
   geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
   geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
-                  size = 2,
+                 size = 2,
                  fontface = "bold",
-                 nudge_x = 1, nudge_y = -1)+
+                 nudge_x = .1, nudge_y = -.1)+
   facet_wrap(~period)+
   scale_fill_distiller(palette = "Spectral")+
   labs(title = "Figure 2: Firearm Assault Injury Rates by ZCTA and Period", 
        subtitle = "MHA Hospital Discharge Data",
-       fill = "Incident Rate/1,000")+
+       fill = "Incident Rate/100,000")+
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
   axis.line = element_blank(),
@@ -855,18 +897,44 @@ ggplot() +
                 colour = "black"))
 
 ggplot() +
-  geom_sf(data = zip_level, aes(geometry = geometry, fill = unintent_incid_c)) + 
+  geom_sf(data = zip_level, aes(geometry = geometry, fill = assault_unintent_incid_c)) + 
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
   geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
   geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
-                  size = 2,
+                 size = 2,
                  fontface = "bold",
-                 nudge_x = 1, nudge_y = -1)+
+                 nudge_x = .1, nudge_y = -.1)+
   facet_wrap(~period)+
   scale_fill_distiller(palette = "Spectral")+
-  labs(title = "Figure A4: Firearm Unintentional Injury Rates by ZCTA and Period", 
+  labs(title = "Figure A4: Firearm Assault+Unintentional Injury Rates by ZCTA and Period", 
        subtitle = "MHA Hospital Discharge Data",
-       fill = "Incident Rate/1,000")+
+       fill = "Incident Rate/100,000")+
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_blank(),
+  panel.grid.major = element_line(colour="transparent"), 
+  plot.subtitle = element_text(face="italic"),
+  strip.background = element_rect(fill = "white", 
+                colour = "black"))
+
+ggplot() +
+  geom_sf(data = zip_level, aes(geometry = geometry, fill = undeter_incid_c)) + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
+  geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
+                 size = 2,
+                 fontface = "bold",
+                 nudge_x = .1, nudge_y = -.1)+
+  facet_wrap(~period)+
+  scale_fill_distiller(palette = "Spectral")+
+  labs(title = "Figure A7: Firearm Undetermined Injury Rates by ZCTA and Period", 
+       subtitle = "MHA Hospital Discharge Data",
+       fill = "Incident Rate/100,000")+
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
   axis.line = element_blank(),
@@ -882,29 +950,31 @@ ggplot() +
 ```
 
 ## Panel Analysis
+
 ```{r panel analysis, message=F, echo=FALSE}
 #merging in seasonal indicators
 
 season <- series %>% select(year, weekofyr, tmax_f,snow_in,precip_in,dark_before_12,school)
-panel <- panel %>% left_join(season, by = c("year", "weekofyr"))
+panel <- panel %>% left_join(season, by = c("year", "weekofyr")) %>%
+  mutate(assault_unintent_incid_c = (assault_tot+unintent_tot)/total_pop*100000)
 
 
-fe_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+fe_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
                 tmax_f+snow_in+precip_in+dark_before_12+school+
                  as.factor(zcta), data = panel)
 summary(fe_model)
 
-fe_full_model <-  lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+fe_full_model <-  lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
                        tmax_f+snow_in+precip_in+dark_before_12+school+
                          uof_lag+stops_lag+shoot_lag+
                  as.factor(zcta), data = panel)
 summary(fe_full_model)
 acf2(resid(fe_full_model)) #autocorrelation not an issue
 
-fe_int_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+post_floyd_3+
+fe_int_model <- lm(assault_incid_c~t+state_of_emerg+stay_at_home+post_floyd+t_post_floyd+
                      tmax_f+snow_in+precip_in+dark_before_12+school+
                      as.factor(zcta)+
-                     post_floyd:as.factor(zcta)+post_floyd_3:as.factor(zcta), data = panel)
+                     post_floyd:as.factor(zcta)+t_post_floyd:as.factor(zcta), data = panel)
 summary(fe_int_model)
 
 #random effects specifications
@@ -919,59 +989,110 @@ panel <- panel %>%
 
 #RE base model
 re_base <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+
-                 post_floyd+post_floyd_3+
+                 post_floyd+t_post_floyd+
                 tmax_f+snow_in+precip_in+dark_before_12+school+
                  uof_lag+stops_lag+shoot_lag+
                  (1|zcta), data = panel)
 summary(re_base)
 
-re_base_unintent <- lmer(unintent_incid_c~t+state_of_emerg+stay_at_home+
-                 post_floyd+post_floyd_3+
+re_base_nopol <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+t_post_floyd+
+                tmax_f+snow_in+precip_in+dark_before_12+school+
+                 (1|zcta), data = panel)
+summary(re_base_nopol)
+
+re_base_unintent <- lmer(assault_unintent_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+t_post_floyd+
                 tmax_f+snow_in+precip_in+dark_before_12+school+
                  uof_lag+stops_lag+shoot_lag+
                  (1|zcta), data = panel)
 summary(re_base_unintent)
 
-#interaction model
-re_int <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+
-                 post_floyd+post_floyd_3+
+re_base_unintent_nopol <- lmer(assault_unintent_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+t_post_floyd+
+                tmax_f+snow_in+precip_in+dark_before_12+school+
+                 (1|zcta), data = panel)
+summary(re_base_unintent)
+
+re_base_undeter <- lmer(undeter_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+t_post_floyd+
                 tmax_f+snow_in+precip_in+dark_before_12+school+
                  uof_lag+stops_lag+shoot_lag+
+                 (1|zcta), data = panel)
+summary(re_base_undeter)
+
+re_base_undeter <- lmer(undeter_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+t_post_floyd+
+                tmax_f+snow_in+precip_in+dark_before_12+school+
+                 (1|zcta), data = panel)
+summary(re_base_undeter)
+
+#interaction model
+re_int <- lmer(assault_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+t_post_floyd+
+                tmax_f+snow_in+precip_in+dark_before_12+school+
+                 uof_lag+stops_lag+shoot_lag+
+                 med_hh_inc+
                  black_pop+
                 post_floyd:black_pop+
                  (1|zcta), data = panel)
 summary(re_int)
 
 #interaction model
-re_int_unintent <- lmer(unintent_incid_c~t+state_of_emerg+stay_at_home+
-                 post_floyd+post_floyd_3+
+re_int_unintent <- lmer(assault_unintent_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+t_post_floyd+
                 tmax_f+snow_in+precip_in+dark_before_12+school+
                  uof_lag+stops_lag+shoot_lag+
+                   med_hh_inc+
                  black_pop+
                 post_floyd:black_pop+
                  (1|zcta), data = panel)
+
 summary(re_int_unintent)
+
+re_int_undeter <- lmer(undeter_incid_c~t+state_of_emerg+stay_at_home+
+                 post_floyd+t_post_floyd+
+                tmax_f+snow_in+precip_in+dark_before_12+school+
+                 uof_lag+stops_lag+shoot_lag+
+                   med_hh_inc+
+                 black_pop+
+                post_floyd:black_pop+
+                 (1|zcta), data = panel)
+
+summary(re_int_undeter)
+
+
 
 library(sjPlot)
 
 
 plot_model(re_int, 
-           terms = c("post_floyd", "black_pop"),
+           terms = c("post_floyd", "black_pop", "t[245.5]", "t_post_floyd[15.5]"),
            type = "pred", 
            ci.lvl = 0.95,
            mdrt.values = "meansd",
            title = "Figure 3: Post-Killing X Percent Black Interaction Plot",
-           axis.title = c("Post-Killing","Gun Assault Rate per 1,000"))+
+           axis.title = c("Post-Killing","Gun Assault Rate per 100,000"))+
   theme_sjplot()+
   ggplot2::labs(colour = "Percent Black")
 
 plot_model(re_int_unintent, 
-           terms = c("post_floyd", "black_pop"),
+           terms = c("post_floyd", "black_pop", "t[245.5]", "t_post_floyd[15.5]"),
            type = "pred", 
            ci.lvl = 0.95,
            mdrt.values = "meansd",
            title = "Figure A5: Post-Killing X Percent Black Interaction Plot",
-           axis.title = c("Post-Killing","Unintentional Firearm Injuriy Rate per 1,000"))+
+           axis.title = c("Post-Killing","Assault+Unintentional Firearm Injuriy Rate per 100,000"))+
+  theme_sjplot()+
+  ggplot2::labs(colour = "Percent Black")
+
+plot_model(re_int_undeter, 
+           terms = c("post_floyd", "black_pop", "t[245.5]", "t_post_floyd[15.5]"),
+           type = "pred", 
+           ci.lvl = 0.95,
+           mdrt.values = "meansd",
+           title = "Figure A8: Post-Killing X Percent Black Interaction Plot",
+           axis.title = c("Post-Killing","Undetermined Firearm Injuriy Rate per 100,000"))+
   theme_sjplot()+
   ggplot2::labs(colour = "Percent Black")
 ```
@@ -981,7 +1102,7 @@ plot_model(re_int_unintent,
 stargazer(fe_model, fe_full_model,
           title = "Fixed Effects Interrupted Time Series Model of Firearm Assault Injuries",
           covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
-                               "Post-Killing", "Post-Killing 3 Months",
+                               "Post-Killing", "T Post-Killing",
                                "MPD Use of Force t-1", "MPD Stops t-1",
                                "MPD Officer Involved Shootings t-1"),
           dep.var.caption = "Firearm Assault Injuries",
@@ -989,6 +1110,9 @@ stargazer(fe_model, fe_full_model,
           model.numbers = TRUE,
           single.row = F,
           align = T,
+          font.size="footnotesize", 
+          no.space = T, 
+          column.sep.width = "1pt",
           omit = c("zcta", "tmax_f", "snow_in","precip_in","dark_before_12","school"),
           omit.stat = "adj.rsq",
           star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
@@ -1003,20 +1127,21 @@ stargazer(fe_model, fe_full_model,
 class(re_base) <- "lmerMod"
 class(re_int) <- "lmerMod"
 
-stargazer(ts_ar1_pol, re_base, re_int,
+stargazer(ts_ar1, ts_ar1_pol, re_base, re_int,
           title = "Interrupted Time Series Models of Firearm Assault Injuries",
           covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
-                               "Post-Killing", "Post-Killing 3 Months",
+                               "Post-Killing", "T Post-Killing",
                                "MPD Use of Force t-1", "MPD Stops t-1",
                                "MPD Officer Involved Shootings t-1", 
                                 "AR(1)",
+                               "Median HH Income",
                                "Percent Black",
                                "Post-Killing X Percent Black"),
           header = F,
           dep.var.caption = "Firearm Assault Injuries",
           dep.var.labels = "Rate per 1,000",
           model.names = FALSE,
-          column.labels = c("AR(1) TSR", "RE HLM","RE HLM +Int."),
+          column.labels = c("AR(1) TSR","AR(1) TSRP", "RE HLM","RE HLM +Int."),
           report = "vcs",
           ci=TRUE, 
           ci.level=0.95, 
@@ -1028,7 +1153,7 @@ stargazer(ts_ar1_pol, re_base, re_int,
           #star.cutoffs = c(.05, .01, .001), star.char = c("*","**","***"),
           add.lines = list(c("SD(ZCTA)", "", .826, .642),
                            c("SD(Residual)", "", 30.010, 5.461)),
-          notes.label = "Models include controls ,for seasonality.",
+          notes.label = "Models include controls for seasonality.",
           notes.append = F)
 
 
@@ -1041,10 +1166,10 @@ stargazer(ts_ar1_pol, re_base, re_int,
 class(re_base_unintent) <- "lmerMod"
 class(re_int_unintent) <- "lmerMod"
 
-stargazer(ts_ar1_pol_unintent, re_base_unintent, re_int_unintent,
-          title = "Interrupted Time Series Models of Firearm Unintentional Injuries",
+stargazer(ts_ar1_unintent, ts_ar1_pol_unintent, re_base_unintent, re_int_unintent,
+          title = "Interrupted Time Series Models of Firearm Assault+Unintentional Injuries",
           covariate.labels = c("T","COVID - State of Emergency", "COVID - Stay at Home",
-                               "Post-Killing", "Post-Killing 3 Months",
+                               "Post-Killing", "T Post-Killing",
                                "MPD Use of Force t-1", "MPD Stops t-1",
                                "MPD Officer Involved Shootings t-1", 
                                 "AR(1)",
@@ -1054,10 +1179,13 @@ stargazer(ts_ar1_pol_unintent, re_base_unintent, re_int_unintent,
           dep.var.caption = "Firearm Unintentional Injuries",
           dep.var.labels = "Rate per 1,000",
           model.names = FALSE,
-          column.labels = c("AR(1) TSR", "RE HLM","RE HLM +Int."),
+          column.labels = c("AR(1) TSR","AR(1) TSRP", "RE HLM","RE HLM +Int."),
           model.numbers = TRUE,
           report = "vcs",
           ci=TRUE, 
+          font.size="footnotesize", 
+          no.space = T, 
+          column.sep.width = "1pt",
           ci.level=0.95, 
           ci.separator = "|",
           notes = "95\\% Confidence Intervals in parentheses",
@@ -1074,7 +1202,7 @@ stargazer(ts_ar1_pol_unintent, re_base_unintent, re_int_unintent,
 
 ```
 
-```{r, message=F}
+```{r, message=F, eval=FALSE}
 #maps of post_floyd and post_floyd_3 coefficients by zip - colored divergently
 coef <- broom::tidy(fe_int_model$coefficients) %>%
   filter(str_detect(names, "post_floyd")) %>%
