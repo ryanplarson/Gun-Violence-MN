@@ -882,7 +882,7 @@ zip_level <- panel %>%
             undeter_tot = mean(undeter_tot, na.rm = T),
             legal_tot = mean(legal_tot, na.rm = T),
             combined_tot = mean(combined_tot, na.rm = T),
-            total_pop = sum(total_pop, na.rm = T)) %>%
+            total_pop = mean(total_pop, na.rm = T)) %>%
   mutate(assault_incid_c = (assault_tot/total_pop)*100000,
          unintent_incid_c = (unintent_tot/total_pop)*100000,
          suicide_incid_c = (suicide_tot/total_pop)*100000,
@@ -893,7 +893,7 @@ zip_level <- panel %>%
   ungroup() %>%
   left_join(zcta, by = "zcta")
 
-mean(zip_level$assault_incid_c[zip_level$period=="[Post-Killing"], na.rm = T)
+mean(zip_level$assault_incid_c[zip_level$period=="Pre-Killing"], na.rm = T)
 range(zip_level$assault_incid_c[zip_level$period=="Pre-Killing"], na.rm = T)
 
 #george floyd square
@@ -1824,7 +1824,7 @@ mpd_panel <- mpd %>%
 mpd_zip_level <- mpd_panel %>%
   group_by(zcta, period) %>%
   summarize(murder_tot = mean(murder, na.rm = T),
-            total_pop = sum(total_pop, na.rm = T)) %>%
+            total_pop = mean(total_pop, na.rm = T)) %>%
   mutate(murder_rate = (murder_tot/total_pop)*100000) %>%
   ungroup() %>%
   left_join(zcta, by = "zcta")
