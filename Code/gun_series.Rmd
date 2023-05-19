@@ -1731,7 +1731,7 @@ ggplot(mpd_series)+
   labs(title = "Figure A1: Weekly Murder Rate, 2016-2021",
        subtitle = "MPD Data",
        x = "Week",
-       y = "Rate per 1,000 Residents", 
+       y = "Rate per 100,000 Residents", 
        color = NULL)+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=45, hjust=1)) +

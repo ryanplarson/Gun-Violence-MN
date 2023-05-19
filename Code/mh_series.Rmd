@@ -126,7 +126,7 @@ hosp_panel <- hosp_zcta %>%
 zcta <- get_acs(geography = "zcta",
                    variables = "B01001_001",
                    output = "wide", 
-                   year = 2020,
+                   year = 2019, #change back to 2020
                    geometry = T,
                    survey = "acs5") %>%
   rename(zcta = GEOID,
@@ -727,7 +727,9 @@ re_coef_map_white <- ggplot() +
   geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
                  size = 2,
                 fontface = "bold")+
-  scale_fill_distiller(palette = "Spectral")+
+  scale_fill_distiller(palette = "Spectral",
+                       limits = c(min(zip_level$post_floyd1_latin),
+                                  max(zip_level$post_floyd1_blk)))+
   labs(title = "Figure 3: RE Coefficients-White Residents", 
        subtitle = "Rate per 1,000",
        fill = "Post-Killing Change")+
@@ -754,7 +756,9 @@ re_coef_map_blk <- ggplot() +
   geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
                  size = 2,
                 fontface = "bold")+
-  scale_fill_distiller(palette = "Spectral")+
+ scale_fill_distiller(palette = "Spectral",
+                       limits = c(min(zip_level$post_floyd1_latin),
+                                  max(zip_level$post_floyd1_blk)))+
   labs(title = "Figure 4: RE Coefficients-Black Residents", 
        subtitle = "Rate per 1,000",
        fill = "Post-Killing Change")+
@@ -781,7 +785,9 @@ re_coef_map_latin <- ggplot() +
   geom_text_repel(data = gfs, aes(x=lon, y=lat, label = name),
                  size = 2,
                 fontface = "bold")+
-  scale_fill_distiller(palette = "Spectral")+
+ scale_fill_distiller(palette = "Spectral",
+                       limits = c(min(zip_level$post_floyd1_latin),
+                                  max(zip_level$post_floyd1_blk)))+
   labs(title = "Figure 5: RE Coefficients-Latine Residents", 
        subtitle = "Rate per 1,000",
        fill = "Post-Killing Change")+

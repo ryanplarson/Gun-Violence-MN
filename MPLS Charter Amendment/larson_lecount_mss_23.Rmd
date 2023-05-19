@@ -48,6 +48,9 @@ library(tigris)
 library(tidycensus)
 library(lubridate)
 library(geomander)
+
+#age structure
+#build in Mary Moriarty results - DV
 ```
 
 
