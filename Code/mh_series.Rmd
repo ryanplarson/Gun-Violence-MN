@@ -33,6 +33,10 @@ library(tidyquant)
 
 google_key <- readRDS("C:/Users/rlarson21/Documents/R/Rworkingdirectory/google_api_key.rds")
 register_google(key = google_key)
+
+#non-linearities in pre-post time trends
+#depression+anxiety only models
+# chronic sensitivity analyses
 ```
 
 # Base Panel Construction - ZCTA-Week Level
@@ -126,12 +130,12 @@ hosp_panel <- hosp_zcta %>%
 zcta <- get_acs(geography = "zcta",
                    variables = "B01001_001",
                    output = "wide", 
-                   year = 2019, #change back to 2020
+                   year = 2020, #change back to 2020
                    geometry = T,
                    survey = "acs5") %>%
   rename(zcta = GEOID,
-         pop_2019 = B01001_001E) %>%
-  select(-c(NAME, B01001_001M, pop_2019)) %>%
+         pop_2020 = B01001_001E) %>%
+  select(-c(NAME, B01001_001M, pop_2020)) %>%
   mutate(zcta = as.numeric(zcta))
 
 

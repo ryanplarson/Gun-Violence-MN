@@ -2,10 +2,11 @@
 title: "Gun Series"
 author: "Ryan Larson"
 date: "7/30/2021"
-output: pdf_document
+output:
+  word_document: default
+  pdf_document: default
 classoption: landscape
-header-includes:
-- \usepackage{dcolumn}
+header-includes: \usepackage{dcolumn}
 ---
 
 ```{r setup, include=FALSE, message=F}
@@ -1216,9 +1217,9 @@ stargazer(ts_ar1, ts_ar1_pol, re_base_nopol, re_base, re_int,
           add.lines = list(c("SD(ZCTA)", "","", .904, .922, .504),
                            c("SD(Residual)", "","", 5.352, 5.364, 5.577)),
           notes.label = "Models include controls for seasonality.",
-          notes.append = F)
-
-
+          notes.append = F,
+          type = "html",
+          out = "C:/Users/rlarson21/Documents/Research/Gun-Violence-MN/Gun Violence Submissions/SSTE Submission/SSTE R&R/table2.html")
 ```
 
 ```{r, message=F, eval=FALSE}
@@ -1942,7 +1943,9 @@ stargazer(ts_ar1_m, ts_ar1_pol_m, re_base_nopol_m, re_base_m, re_int_m,
           add.lines = list(c("SD(ZCTA)", "","", .904, .922, .504),
                            c("SD(Residual)", "","", 5.352, 5.364, 5.577)),
           notes.label = "Models include controls for seasonality.",
-          notes.append = F)
+          notes.append = F,
+          type = "html",
+          out = "C:/Users/rlarson21/Documents/Research/Gun-Violence-MN/Gun Violence Submissions/SSTE Submission/SSTE R&R/tableA1.html")
 
 
 ```
@@ -1985,7 +1988,9 @@ stargazer(ts_ar1_u, ts_ar1_pol_u, re_base_u_nopol,re_base_u, re_int_u,
           add.lines = list(c("SD(ZCTA)", "","", 1.779, 1.916, 1.449),
                            c("SD(Residual)", "","", 8.493, 8.494, 8.704)),
           notes.label = "Models include controls for seasonality.",
-          notes.append = F)
+          notes.append = F,
+          type = "html",
+          out = "C:/Users/rlarson21/Documents/Research/Gun-Violence-MN/Gun Violence Submissions/SSTE Submission/SSTE R&R/tableA2.html")
 
 
 ```
@@ -2027,7 +2032,9 @@ stargazer(ts_ar1_d, ts_ar1_pol_d, re_base_d_nopol, re_base_d, re_int_d,
           add.lines = list(c("SD(ZCTA)", "","", .046, .046, .037),
                            c("SD(Residual)", "","", .442, .444, .462)),
           notes.label = "Models include controls for seasonality.",
-          notes.append = F)
+          notes.append = F,
+          type = "html",
+          out = "C:/Users/rlarson21/Documents/Research/Gun-Violence-MN/Gun Violence Submissions/SSTE Submission/SSTE R&R/tableA3.html")
 
 
 ```
@@ -2072,7 +2079,9 @@ stargazer(ts_b, ts_b_pol, re_base_b_nopol, re_base_b, re_int_b,
           add.lines = list(c("SD(ZCTA)", "","", .817, .922, .504),
                            c("SD(Residual)", "","", 5.353, 5.364, 5.578)),
           notes.label = "Models include controls for seasonality.",
-          notes.append = F)
+          notes.append = F,
+          type = "html",
+          out = "C:/Users/rlarson21/Documents/Research/Gun-Violence-MN/Gun Violence Submissions/SSTE Submission/SSTE R&R/tableA4.html")
 
 
 ```

@@ -1,0 +1,44 @@
+
+<table style="text-align:center"><caption><strong>Interrupted Time Series Models of Firearm Undetermined Injuries</strong></caption>
+<tr><td colspan="6" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="5">Firearm Undetermined Injuries</td></tr>
+<tr><td></td><td colspan="5" style="border-bottom: 1px solid black"></td></tr>
+<tr><td style="text-align:left"></td><td colspan="5">Rate per 100,000</td></tr>
+<tr><td style="text-align:left"></td><td>AR(1) TSR</td><td>AR(1) TSR</td><td>RE HLM</td><td>RE HLM</td><td>RE HLM +Int.</td></tr>
+<tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td><td>(3)</td><td>(4)</td><td>(5)</td></tr>
+<tr><td colspan="6" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">T</td><td>0.00002</td><td>-0.0001</td><td>0.00000</td><td>-0.00001</td><td>0.00001</td></tr>
+<tr><td style="text-align:left"></td><td>(-0.0002|0.0002)</td><td>(-0.001|0.0003)</td><td>(-0.0002|0.0002)</td><td>(-0.0002|0.0002)</td><td>(-0.0002|0.0002)</td></tr>
+<tr><td style="text-align:left">COVID - State of Emergency</td><td>-0.065</td><td>-0.065</td><td>-0.049</td><td>-0.048</td><td>-0.052</td></tr>
+<tr><td style="text-align:left"></td><td>(-0.192|0.062)</td><td>(-0.200|0.071)</td><td>(-0.161|0.063)</td><td>(-0.161|0.065)</td><td>(-0.175|0.070)</td></tr>
+<tr><td style="text-align:left">COVID - Stay at Home</td><td>0.050</td><td>0.054</td><td>0.039</td><td>0.039</td><td>0.042</td></tr>
+<tr><td style="text-align:left"></td><td>(-0.080|0.181)</td><td>(-0.084|0.193)</td><td>(-0.076|0.154)</td><td>(-0.077|0.154)</td><td>(-0.084|0.168)</td></tr>
+<tr><td style="text-align:left">Post-Killing</td><td>0.164</td><td>0.170</td><td>0.138</td><td>0.138</td><td>0.054</td></tr>
+<tr><td style="text-align:left"></td><td>(0.029|0.299)</td><td>(0.023|0.316)</td><td>(0.020|0.255)</td><td>(0.020|0.257)</td><td>(-0.083|0.192)</td></tr>
+<tr><td style="text-align:left">T Post-Killing</td><td>-0.002</td><td>-0.002</td><td>-0.002</td><td>-0.002</td><td>-0.002</td></tr>
+<tr><td style="text-align:left"></td><td>(-0.006|0.002)</td><td>(-0.007|0.003)</td><td>(-0.006|0.002)</td><td>(-0.006|0.002)</td><td>(-0.006|0.002)</td></tr>
+<tr><td style="text-align:left">MPD Use of Force t-1</td><td></td><td>0.099</td><td></td><td>-0.0004</td><td>-0.0005</td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(-0.221|0.420)</td><td></td><td>(-0.005|0.004)</td><td>(-0.005|0.004)</td></tr>
+<tr><td style="text-align:left">MPD Stops t-1</td><td></td><td>-0.007</td><td></td><td>-0.0001</td><td>-0.0002</td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(-0.064|0.049)</td><td></td><td>(-0.001|0.001)</td><td>(-0.002|0.001)</td></tr>
+<tr><td style="text-align:left">MPD OIS t-1</td><td></td><td>-3.299</td><td></td><td>-0.160</td><td>-0.143</td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(-12.654|6.055)</td><td></td><td>(-1.071|0.751)</td><td>(-1.090|0.805)</td></tr>
+<tr><td style="text-align:left">AR(1)</td><td>-0.058</td><td>-0.085</td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left"></td><td>(-0.183|0.067)</td><td>(-0.224|0.053)</td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Median HH Income</td><td></td><td></td><td></td><td></td><td>-0.00000</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td>(-0.00000|0.00000)</td></tr>
+<tr><td style="text-align:left">Percent Black</td><td></td><td></td><td></td><td></td><td>0.001</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td>(-0.001|0.003)</td></tr>
+<tr><td style="text-align:left">Post-Killing X Percent Black</td><td></td><td></td><td></td><td></td><td>0.005</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td>(0.003|0.008)</td></tr>
+<tr><td style="text-align:left">Constant</td><td>0.075</td><td>0.194</td><td>0.009</td><td>0.010</td><td>0.008</td></tr>
+<tr><td style="text-align:left"></td><td>(-0.098|0.249)</td><td>(-0.071|0.459)</td><td>(-0.146|0.163)</td><td>(-0.146|0.166)</td><td>(-0.185|0.201)</td></tr>
+<tr><td colspan="6" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">SD(ZCTA)</td><td></td><td></td><td>0.046</td><td>0.046</td><td>0.037</td></tr>
+<tr><td style="text-align:left">SD(Residual)</td><td></td><td></td><td>0.442</td><td>0.444</td><td>0.462</td></tr>
+<tr><td style="text-align:left">Observations</td><td>260</td><td>217</td><td>5,993</td><td>5,928</td><td>5,460</td></tr>
+<tr><td style="text-align:left">R<sup>2</sup></td><td>0.057</td><td>0.068</td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Log Likelihood</td><td></td><td></td><td>-3,664.154</td><td>-3,668.384</td><td>-3,618.112</td></tr>
+<tr><td style="text-align:left">Akaike Inf. Crit.</td><td></td><td></td><td>7,354.308</td><td>7,368.768</td><td>7,274.223</td></tr>
+<tr><td style="text-align:left">Bayesian Inf. Crit.</td><td></td><td></td><td>7,441.387</td><td>7,475.767</td><td>7,399.722</td></tr>
+<tr><td style="text-align:left">Residual Std. Error</td><td>0.104 (df = 248)</td><td>0.110 (df = 202)</td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">F Statistic</td><td>1.373 (df = 11; 248)</td><td>1.051 (df = 14; 202)</td><td></td><td></td><td></td></tr>
+<tr><td colspan="6" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Models include controls for seasonality.</td><td colspan="5" style="text-align:right">95% Confidence Intervals in parentheses</td></tr>
+</table>

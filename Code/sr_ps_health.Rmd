@@ -1,0 +1,39 @@
+---
+title: "Structural Racism and Police Violence"
+author: "Ryan Larson, PhD"
+date: "2023-06-02"
+output: pdf_document
+---
+
+# Package Preamble
+
+```{r, message=FALSE}
+library(tidyverse)
+library(ggdag)
+```
+
+## Theoretical DAG
+
+```{r}
+dagify(PS~RL+RC+HD+CD,
+       CR~RL+RC+HD+CD,
+       RL~HD,
+       RC~HD,
+       H~HD+RL+RC+PS+CD+CR,
+       CD~HD+RL+RC,
+       exposure = c("RL", "RC"),
+       outcome = "H",
+       labels = c("H" = "Health Outcomes \n (2022-2023)",
+                  "PS" = "Police Shootings \n (2008-2021)",
+                  "RL" = "HOLC Redlining Grade \n (1935)", 
+                  "RC" = "Racial Covenant (1931-1955)",
+                  "HD" = "Pre-Exposure \n Demographics (1930 Census)",
+                  "CD" = "Contemporary Demographics \n (2000-2006 Census/ACS)",
+                  "CR" = "Homicide Rate \n (2008-2021)"),
+       coords = list(
+         x = c(H = 5, PS = 4, HD = 1, RL = 2, RC = 2, CD = 3, CR = 4),
+         y = c(H = 1, PS = 1.5, HD = 1, RL = 0, RC = 2, CD = 1, CR = 0.5))) %>% 
+  ggdag(text = FALSE, use_labels = "label")+
+  ggtitle("Figure 1: Theoretical Model of Structural Racism, Police Shootings, and Health")+
+  theme_dag()
+```
