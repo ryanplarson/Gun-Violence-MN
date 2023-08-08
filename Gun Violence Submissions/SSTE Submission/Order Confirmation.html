@@ -1,0 +1,637 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<style>
+		* {
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+
+		html {
+			-webkit-tap-highlight-color: transparent;
+			position: relative;
+			min-height: 100%;
+		}
+
+		body {
+			font-family: "NexusSans", Arial, sans-serif;
+			font-size: 16px;
+			line-height: 1.42857;
+			color: #333333;
+			min-width: 1170px;
+			background-color: #F5F5F5;
+			margin: 0 0 110px 0;
+			-webkit-font-smoothing: antialiased;
+			padding-bottom: 110px;
+		}
+
+		.container {
+			margin-right: auto;
+			margin-left: auto;
+			padding-left: 15px;
+			padding-right: 15px;
+			width: 1170px;
+			max-width: none !important;
+		}
+
+		.footer {
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			min-width: 1170px;
+			height: 110px;
+			border-top: solid 2px #E9711C;
+			padding-top: 15px;
+			background: #FFF;
+			font-size: 16px;
+			margin-top: 15px;
+		}
+
+		.container-fluid {
+			margin-right: auto;
+			margin-left: auto;
+			padding-left: 15px;
+			padding-right: 15px;
+		}
+
+		.els-bar {
+			margin-bottom: 26px;
+			padding-top: 26px;
+			padding-bottom: 9px;
+			height: 80px;
+			background-color: #fff;
+		}
+
+		.els-heading {
+			margin-top: -28px;
+			background-color: #007398;
+			padding: 16px;
+			margin-bottom: 32px;
+		}
+
+		.card {
+			background: #fff;
+			box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);
+			margin-top: 1rem;
+			margin-bottom: 1rem;
+			padding-bottom: 16px;
+		}
+
+		.row {
+			margin-left: -15px;
+			margin-right: -15px;
+		}
+
+		.row:after {
+			clear: both;
+		}
+
+		.row:before, .row:after {
+			content: " ";
+			display: table;
+		}
+
+		h1 {
+			margin: 0;
+			color: #FFF;
+			font-size: 30px;
+			font-weight: 500;
+			line-height: 1.1;
+		}
+
+		h3 {
+			font-family: inherit;
+			font-weight: 500;
+			font-size: 24px;
+			line-height: 1.1;
+			color: #9C5415;
+			margin-bottom: 14px;
+		}
+
+		p {
+			margin: 0 0 14px;
+		}
+
+		dl {
+			margin-top: 0;
+			margin-bottom: 28px;
+		}
+
+		.card dl {
+			margin-bottom: 0;
+		}
+
+		hr {
+			margin-top: 16px;
+			margin-bottom: 16px;
+			border: 0;
+			border-top: 1px solid #eeeeee;
+			height: 0;
+			overflow: hidden;
+			box-sizing: content-box;
+		}
+
+		dt {
+			float: left !important;
+			width: auto !important;
+			clear: left !important;
+			text-align: right !important;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		dd:not(.price-alignment) {
+			margin-left: 300px !important;
+			margin-bottom: 0 !important;
+		}
+
+		dt, dd {
+			line-height: 1.42857;
+		}
+
+		ul {
+			margin-top: 0;
+			margin-bottom: 14px;
+			padding-left: 32px;
+		}
+
+		ul .els-list-bullet {
+			list-style: none;
+			margin-left: 1rem;
+			position: relative;
+			margin-top: 14px;
+			padding-left: 6px;
+		}
+
+		ul .els-list-bullet::before {
+			color: #E9711C;
+			font-weight: 700;
+			position: absolute;
+			content: '•';
+			left: -2rem;
+			top: -.125rem;
+		}
+
+		.col-xs-2 {
+			width: 16.66667%;
+		}
+
+		.col-xs-4 {
+			width: 33.33333%;
+		}
+		.col-xs-6 {
+			width: 50%;
+		}
+		.col-xs-8 {
+			width: 66.66667%;
+		}
+
+		.col-xs-10 {
+			width: 83.33333%;
+		}
+
+		.col-xs-12 {
+			width: 100%;
+		}
+
+		.col-xs-2, .col-xs-4, .col-xs-6, .col-xs-8, .col-xs-10, .col-xs-12 {
+			float: left;
+			position: relative;
+			min-height: 1px;
+			padding-left: 15px;
+			padding-right: 15px;
+		}
+
+		.col-xs-offset-1 {
+			margin-left: 8.33333%;
+		}
+
+		.text-muted {
+			color: #777777;
+		}
+
+		.section {
+			padding-bottom: 16px;
+			padding-top: 16px;
+		}
+
+		.price-alignment {
+			text-align: right;
+		}
+
+		.amtvalue {
+			color: #000;
+			font-weight: bold;
+		}
+
+		.footer img.relx-logo {
+			width: 118px;
+			float: right !important;
+			vertical-align: middle;
+			border: 0;
+		}
+
+		.footer .row > div:last-child {
+			bottom: 15px;
+			position: absolute;
+			right: 0;
+		}
+
+		.footer .row {
+			position: relative;
+		}
+
+		.els-display-text {
+			color: #007398;
+			-webkit-hyphens: manual;
+			-moz-hyphens: manual;
+			hyphens: manual;
+			padding-top: 16px;
+			font-size: 20px;
+		}
+
+		.no-top-padding {
+			padding-top: 0;
+		}
+
+		.small {
+			font-size: 85%;
+		}
+
+		.pull-right {
+			float: right !important;
+		}
+
+		.no-right-padding {
+			padding-right: 0;
+		}
+
+		.no-left-padding {
+			padding-left: 0;
+		}
+
+		.wraptext {
+			overflow-wrap: break-word;
+			word-wrap: break-word;
+		}
+
+		.text-right {
+			text-align: right;
+		}
+
+		.hr-medium {
+			height: 2px;
+			background-color: black;
+		}
+
+		.els-external-link:after, .externalText a:after {
+			content: "⬈";
+			top: 0.4rem;
+			margin-left: .296rem;
+			color: #b9b9b9;
+		}
+		.els-external-link:hover:after, .externalText a:hover:after {
+			color: #E9711C;
+		}
+
+		.els-external-link.els-small-body:before, .externalText a.els-small-body:before {
+			top: 0.3rem;
+			line-height: 80%;
+		}
+
+		.header-row {
+			margin-top: 10px;
+		}
+		.header-row .sort-order {
+			display: inline-block;
+			line-height: 70%;
+			position: relative;
+			top: 3px;
+		}
+
+		.header-row .els-checkbox {
+			top: 3px;
+		}
+		.header-row .els-checkbox label {
+			color: #007398;
+		}
+
+		#totalPaymentDueCard {
+			border: 1px solid #c0c0c0;
+			padding: 0.35em 0.625em 0.75em;
+		}
+
+		#totalPaymentDue h4 {
+			font-size: 20px;
+			margin-top: 14px;
+			margin-bottom: 14px;
+		}
+
+		#totalPaymentDue #paymentBreakdown {
+			margin-bottom: 20px;
+		}
+
+		#totalPaymentDue #taxInformationChina, #totalPaymentDue #taxInformation {
+			display:flex;
+		}
+		#totalPaymentDue #taxInformationChina p, #totalPaymentDue #taxInformation p {
+			text-align: left;
+			font-size: 11px;
+			margin: 0px;
+		}
+
+		#totalPaymentDue #taxInformationChina img, #totalPaymentDue #taxInformation img {
+			height: 16px;
+			width: 16px;
+			margin-right:5px
+		}
+
+		#totalPaymentDue #taxInformation + hr, #totalPaymentDue #taxInformationChina + hr {
+			clear: both;
+		}
+
+		#totalPaymentDue .money-amount,
+		#totalPaymentDue .currency {
+			font-size: 16px;
+			color: #323232;
+		}
+
+		#totalPaymentDue .footnote-text .money-amount,
+		#totalPaymentDue .footnote-text .currency {
+			font-size: 11px;
+		}
+
+		#totalPaymentDue p.footnote-text {
+			font-size: 11px;
+			clear: both;
+		}
+
+		#totalPaymentDue #totalPriceAmount .person,
+		#totalPaymentDue #totalPriceAmount .society {
+			width: 3em;
+			height: 2em;
+			margin-left: 3px;
+		}
+
+		#totalPaymentDue #taxHelpChina dl {
+			width: 100%;
+			overflow: hidden;
+			padding: 0;
+			margin: 0;
+		}
+
+		#totalPaymentDue #taxHelpChina p {
+			display:flex;
+			float: right;
+		}
+
+		#totalPaymentDue #taxHelpChina img {
+			margin-right: 5px;
+		}
+
+		#totalPaymentDue #taxHelpChina a {
+			text-decoration: none;
+			color: #007398;
+			background-color: transparent;
+		}
+
+		#totalPaymentDue #taxHelpChina  a:hover, a:focus {
+			color: #E9711C;
+			text-decoration: none;
+			border-bottom: #E9711C 2px solid;
+		}
+
+		#priceExcludingTaxesText, #societyAgreementDiscountText, #toPayText {
+			margin: 14px 0 0 0;
+		}
+
+		.price-underline {
+			margin-top: 16px;
+		}
+
+		.invoice-label {
+			font-size: 14px;
+			color: #323232;
+			text-align: right;
+			margin-top: 16px;
+		}
+
+		.on-validation-sub-text {
+			color: #323232;
+			font-size: 18px;
+		}
+
+		.to-pay {
+			color: #323232;
+			font-size: 18px;
+			font-weight: bold;
+			margin-top: 16px;
+		}
+	</style>
+</head>
+<body>
+
+
+
+<div class="container-fluid">
+	<div class="row els-bar">
+		<div class="col-xs-12">
+			<a id="logoLink" href="https://www.elsevier.com"><img class="els-logo" src="https://authors.elsevier.com/authorform/assets/static/img/elsevier.svg" alt="Elsevier Logo"/></a>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid">
+	<div class="row els-heading">
+		<div class="col-xs-12">
+			<h1>
+				Rights and Access
+			</h1>
+		</div>
+	</div>
+</div>
+
+<div class="container">
+	<div class="row">
+		<div class="col-xs-10 col-xs-offset-1">
+
+			<div class="card col-xs-12">
+				<div class="row">
+					<div class="col-xs-12 els-display-text">
+						Temporal and Spatial Shifts in Gun Violence, Before and After a Historic Police Killing in Minneapolis
+					</div>
+				</div>
+
+				<dl>
+					<dt>Corresponding author</dt>
+					<dd class="text-muted">
+						Dr. Ryan P. Larson
+					</dd>
+
+					<dt>E-mail address</dt>
+					<dd class="text-muted">
+						rlarson21@hamline.edu
+					</dd>
+
+					<dt>Journal</dt>
+					<dd class="text-muted">
+						Spatial and Spatio-temporal Epidemiology
+					</dd>
+
+						<dt>Article number</dt>
+						<dd class="text-muted">
+							100602
+						</dd>
+
+					<dt>Our reference</dt>
+					<dd class="text-muted">
+						SSTE_100602
+					</dd>
+
+					<dt>PII</dt>
+					<dd class="text-muted">
+						S1877-5845(23)00039-4
+					</dd>
+				</dl>
+			</div>
+
+
+
+
+			<div class="card col-xs-12">
+				<h3>
+					Order Confirmation
+				</h3>
+
+				<div>
+					<p>
+						Thank you for taking the time to complete the Rights and Access form.
+					</p>
+					<dl>
+						<dt>
+							<strong>Order number</strong>
+						</dt>
+						<dd class="text-muted">
+							OACSRSSTE1006020
+						</dd>
+						<dt>
+							<strong>Order date</strong>
+						</dt>
+						<dd class="text-muted">
+							26 July 2023
+						</dd>
+					</dl>
+				</div>
+
+				<hr/>
+
+				<div class="row col-xs-12">
+
+					<div>
+						<dl>
+								<dt>
+									<strong>Research Funders</strong>
+								</dt>
+								<dd class="text-muted fundingBody">
+										<div class="section no-top-padding wraptext">
+											University of Minnesota Minnesota Population Center
+											<br/>
+												Grant numbers:
+												P2C HD041023
+										</div>
+										<div class="section no-top-padding wraptext">
+											Eunice Kennedy Shriver National Institute of Child Health and Human Development
+											<br/>
+												Grant numbers:
+												T32HD095134
+										</div>
+								</dd>
+								<hr/>
+
+
+
+							<dt>
+								<strong>Publishing Option</strong>
+							</dt>
+							<dd class="text-muted">
+								Subscription
+							</dd>
+
+							<br/>
+
+
+								<dt>
+									<strong>Publishing Agreement</strong>
+								</dt>
+								<dd class="text-muted">
+									<ul>
+
+										<li class="els-list-bullet">
+											I am one author signing on behalf of all co-authors of the manuscript
+										</li>
+
+											<li class="els-list-bullet">
+												I am signing on behalf of the corresponding author.
+												<ul>
+													<li class="els-list-bullet">
+														<strong>Name/Job title/Company:     </strong>
+														Ryan Larson, Assistant Professor of Criminology, Hamline University
+													</li>
+													<li class="els-list-bullet">
+														<strong>E-mail address:</strong>
+														rlarson21@hamline.edu
+													</li>
+												</ul>
+											</li>
+									</ul>
+								</dd>
+								<br/>
+
+
+										<dt></dt>
+										<dd class="text-muted">
+											<p>I may post the accepted manuscript in my institutional repository and make this public after an embargo period. To ensure the sustainability of peer-reviewed research in journal publications, I may not share the final article publicly, for example on ResearchGate or Academia.edu. <br>Further details on <a href="https://www.elsevier.com/about/our-business/policies/sharing" target="_blank">Elsevier Sharing Policy here</a>.</p><p>Based on information provided the embargo period/end date is 12 months.</p>
+										</dd>
+										<br/>
+										<dt></dt>
+										<dd class="text-muted">
+											As National Institutes of Health funded my research, Elsevier will deposit the accepted manuscript in PMC.
+										</dd>
+										<br/>
+						</dl>
+					</div>
+
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<div>
+	<footer class="footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-10">
+					<p>
+						Copyright ©
+						&nbsp;2023&nbsp;
+						Elsevier, except certain content provided by third parties.
+					</p>
+				</div>
+
+				<div class="col-xs-2">
+					<a href="http://www.relx.com" rel="nofollow">
+						<img class="relx-logo" src="https://authors.elsevier.com/authorform/assets/static/img/relx_group.svg" alt="RELX Group Logo"/></a>
+				</div>
+			</div>
+		</div>
+	</footer>
+</div>
+
+</body>
+</html>

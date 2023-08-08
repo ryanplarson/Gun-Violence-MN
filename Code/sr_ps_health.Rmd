@@ -34,6 +34,5 @@ dagify(PS~RL+RC+HD+CD,
          x = c(H = 5, PS = 4, HD = 1, RL = 2, RC = 2, CD = 3, CR = 4),
          y = c(H = 1, PS = 1.5, HD = 1, RL = 0, RC = 2, CD = 1, CR = 0.5))) %>% 
   ggdag(text = FALSE, use_labels = "label")+
-  ggtitle("Figure 1: Theoretical Model of Structural Racism, Police Shootings, and Health")+
   theme_dag()
 ```
