@@ -3,8 +3,8 @@ title: "Gun Series"
 author: "Ryan Larson"
 date: "7/30/2021"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
 classoption: landscape
 header-includes: \usepackage{dcolumn}
 ---
@@ -45,7 +45,9 @@ register_google(key = google_key)
 hosp_zcta <- read_csv("Data/Restricted MHA Data/minnepop_1620_agg_zipfull_updated.csv") %>%
   arrange(zipcode, year, weekofyr) %>%
   select(-c(`_chk`, zippop_tag)) %>%
-  filter(!(year==2016 & weekofyr==53))
+  filter(!(year==2016 & weekofyr==53)) %>%
+  mutate(across(-c(zipcode, year, weekofyr), 
+                ~ifelse(is.na(.x),0,.x))) #fill NAs with 0
 ```
 
 ## ZCTAs and ACS 5-Year Estimates

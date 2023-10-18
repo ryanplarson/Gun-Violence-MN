@@ -525,10 +525,14 @@ ggplot(homicide_week)+
                                              homicide_week$week==isoweek(date("2020-05-25"))],
                  y=0.015), 
              label = "George Floyd", show.legend = FALSE)+
-  theme_minimal()+
-  geom_line(aes(x=begin_date, y=csma, color = "CSMA(5)"))+
-  theme(axis.text.x=element_text(angle=45, hjust=1)) +
-  theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
+  geom_line(aes(x=begin_date, y=csma, color = "CSMA(5)"))+     theme_classic()+
+  theme(axis.text = element_text(face = "bold", size = 12),
+        axis.title.x = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 12),
+        legend.key.size = unit(0.8, "cm"),
+        legend.position = "bottom",
+        strip.text.x = element_text(face = "bold", size = 12),
+        axis.text.x=element_text(angle=45, hjust=1))
 
 ggsave(filename = "Car Jacking/Figures for publication/fig3.png", bg="white", width = 10, height = 8)
 ```
@@ -848,6 +852,7 @@ ggsave(filename = "Car Jacking/Figures for publication/fig6.png", bg="white", wi
 ## Carjacking
 
 ```{r}
+set.seed(7188)
 library(sfdep)
 library(spdep)
 
@@ -873,14 +878,16 @@ mp <- moran.plot(cj_delta$delta, nb2listw(nb),
 ggplot(mp, aes(x=x, y=wx)) + 
   geom_point(shape=1) + 
     geom_smooth(formula=y ~ x, method="lm") + 
-    geom_hline(yintercept=mean(mp$wx), lty=2) + 
-    #geom_hline(yintercept=0, lty=2) + 
-    geom_vline(xintercept=mean(mp$x), lty=2) + 
-    #geom_vline(xintercept=0, lty=2) + 
+    #geom_hline(yintercept=mean(mp$wx), lty=2) + 
+    geom_hline(yintercept=0, lty=2) + 
+    #geom_vline(xintercept=mean(mp$x), lty=2) + 
+    geom_vline(xintercept=0, lty=2) + 
     theme_minimal() + 
     labs(title = "Moran's I Plot Carjacking Change Spatialautocorrelation",
          x = "Focal Tract Carjacking Change",
          y = "Spatially Lagged Carjacking Change")
+
+ggsave(filename = "Car Jacking/Figures for publication/MI_CJ.png", bg="white", width = 10, height = 8)
 
 global_moran_test(
   cj_delta$car_jack_rate_1,
@@ -947,15 +954,16 @@ mp <- moran.plot(hom_delta$delta, nb2listw(nb))
 ggplot(mp, aes(x=x, y=wx)) + 
   geom_point(shape=1) + 
     geom_smooth(formula=y ~ x, method="lm") + 
-     #geom_hline(yintercept=mean(mp$wx), lty=2) + 
+    #geom_hline(yintercept=mean(mp$wx), lty=2) + 
     geom_hline(yintercept=0, lty=2) + 
     #geom_vline(xintercept=mean(mp$x), lty=2) + 
     geom_vline(xintercept=0, lty=2) + 
     theme_minimal() + 
-    geom_point(data=mp[mp$is_inf,], aes(x=x, y=wx), shape=9) +
-    geom_text(data=mp[mp$is_inf,], aes(x=x, y=wx, label=labels, vjust=1.5)) +
-    xlab("Homicide Change") + 
-    ylab(paste0("Spatially lagged ", "Homicide Change"))
+    labs(title = "Moran's I Plot Homicide Change Spatialautocorrelation",
+         x = "Focal Tract Homicide Change",
+         y = "Spatially Lagged Homicide Change")
+
+ggsave(filename = "Car Jacking/Figures for publication/MI_HOM.png", bg="white", width = 10, height = 8)
 
 global_moran_test(
   hom_delta$homicide_1,
@@ -1033,13 +1041,18 @@ library(lmerTest)
 library(lavaan)
 
 cd_model_1  <- ' cd =~ unemp_rate + pov_rate +  female_hh_rate + no_hs_dip_rate + black_perc 
-                  black_perc ~~ unemp_rate'  
+                  black_perc ~~ unemp_rate
+                  unemp_rate ~~	pov_rate
+                  no_hs_dip_rate	~~	black_perc'  
 
 cfa_cd <- cfa(cd_model_1, data = cj_exp_prepost, std.lv = T)
 modificationindices(cfa_cd)
 summary(cfa_cd, fit.measures=TRUE, standardized = T)
 cd_predict <- as.vector(lavPredict(cfa_cd, newdata = as.data.frame(cj_exp_prepost)))
 cj_exp_prepost$conc_dis <- cd_predict
+
+
+
 
 #predicted probability/rate plots
   #over time
@@ -1095,7 +1108,33 @@ ggplot(pred_raw, aes(x = post_floyd, y = emmean, color = conc_dis))+
 ggsave(filename = "Car Jacking/Figures for publication/fig9.png", bg="white", width = 8, height = 8)
 ```
 
+```{r, results='asis'}
+results_table<-standardizedSolution(cfa_cd) %>% 
+  filter(row_number() %in% c(1:8)) %>% 
+  dplyr::select(LHS=lhs, Specification=op, RHS=rhs, 'Std(Beta)'=est.std, SE=se, 
+                'P-Value'=pvalue) %>%
+  mutate(LHS = case_when(
+    LHS=="cd"~"Conc. Dis.",
+    LHS=="unemp_rate"~"Unemp. Rate",
+    LHS=="no_hs_dip_rate"~"No HS Diploma Rate"),  
+         RHS = case_when(
+           RHS=="unemp_rate"~"Unemp. Rate",
+           RHS=="pov_rate"~"Poverty Rate",
+           RHS=="female_hh_rate"~"Female-HH Rate",
+           RHS=="no_hs_dip_rate"~"No HS Diploma Rate",
+           RHS=="black_perc"~"Percent Black"
+         ),
+    Specification = case_when(
+      Specification=="=~"~"FL",
+      Specification=="~~"~"Cov.")) 
+    
 
+
+stargazer(results_table, summary = FALSE, header = F,
+           type="latex", style="aer", align = T, 
+           title="CFA Measurement Model of Concentrated Disadvantage", 
+           notes="$LR\\chi^2$ vs. saturated (2) = 94.97, RMSEA = .035 (PCLOSE = 1.0), CFI = .999, SRMR = .006")
+```
   
 ```{r, message=FALSE}
 re_logit_cd <- glmer(anyjack ~ t+post_floyd+t_post_floyd+conc_dis+
