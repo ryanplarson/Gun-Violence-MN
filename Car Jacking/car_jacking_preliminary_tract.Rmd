@@ -1034,6 +1034,7 @@ cj_exp_prepost <- cj_exp %>%
   drop_na()
 
 
+
 library(lme4)
 library(lmerTest)
 
@@ -1052,6 +1053,7 @@ cd_predict <- as.vector(lavPredict(cfa_cd, newdata = as.data.frame(cj_exp_prepos
 cj_exp_prepost$conc_dis <- cd_predict
 
 
+write_csv(cj_exp_prepost, file = "cj_exp_prepost.csv")
 
 
 #predicted probability/rate plots
