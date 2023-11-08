@@ -3,6 +3,8 @@ title: "Car Jacking MPLS - Tract"
 author: "Ryan Larson"
 date: "`r Sys.Date()`"
 output: pdf_document
+header-includes:
+   - \usepackage{dcolumn}  
 ---
 
 
@@ -21,6 +23,8 @@ library(stringr)
 library(lubridate)
 library(ISOweek)
 library(zoo)
+library(ggrepel)
+
 
 #TO DO!
 #old
@@ -409,10 +413,25 @@ cj_exp_tract_year <- cj_exp %>%
             car_jack_rate = car_jack/total_pop*1000) %>%
   mutate(GEOID = as.character(GEOID))
 
+#george floyd square
+gfs_label <- geocode("George Floyd Square, Minneapolis", output = "latlon") %>%
+  st_as_sf(coords = c("lon", "lat"), crs = "NAD83", remove=F) %>%
+  mutate(name = "George Floyd Square") %>%
+  mutate(year = 2017)
+
+gfs <- geocode("George Floyd Square, Minneapolis", output = "latlon") %>%
+  st_as_sf(coords = c("lon", "lat"), crs = "NAD83", remove=F) %>%
+  mutate(name = "George Floyd Square") 
+
 
 ggplot() +
   geom_sf(data = cj_exp_tract_year, aes(geometry = geometry, fill = car_jack_rate)) + 
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
+  geom_text_repel(data = gfs_label, aes(x=lon, y=lat, label = name),
+                 size = 2,
+                 fontface = "bold",
+                 nudge_x = .1, nudge_y = -.06)+
   facet_grid(~year)+
   scale_fill_distiller(palette = "Spectral")+
   labs(title = "Minneapolis Carjacking Rates by Tract and Year", 
@@ -569,12 +588,18 @@ homicide_tract_year <- homicide %>%
 ggplot() +
   geom_sf(data = homicide_tract_year, aes(geometry = geometry, fill = homicide_rate)) + 
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
+  geom_text_repel(data = gfs_label, aes(x=lon, y=lat, label = name),
+                 size = 2,
+                 fontface = "bold",
+                 nudge_x = .1, nudge_y = -.06)+
   facet_grid(~year)+
   scale_fill_distiller(palette = "Spectral")+
   labs(title = "Minneapolis Homicide Rates by Tract and Year", 
        fill = "Weekly Rate/ 1,000")+
-  theme_void() +
-  theme(legend.key.size = unit(0.8, "cm"),legend.position = "bottom")
+  theme_void()+
+  theme(strip.text.x = element_text(face = "bold", size = 12),
+        legend.title = element_text(face = "bold", size = 10))
 
 ggsave(filename = "Car Jacking/Figures for publication/fig4.png", bg="white", width = 10, height = 8)
 ```
@@ -1108,6 +1133,39 @@ ggplot(pred_raw, aes(x = post_floyd, y = emmean, color = conc_dis))+
         strip.text.x = element_text(face = "bold", size = 12))
 
 ggsave(filename = "Car Jacking/Figures for publication/fig9.png", bg="white", width = 8, height = 8)
+```
+
+### CD Map
+
+```{r, CD map}
+cd_cat <- read_csv("Data/ConcDis2_forRyan_103123.csv")
+
+cj_exp_tract_year_cd <- cj_exp_tract_year %>%
+  filter(year==2020) %>%
+  mutate(GEOID = as.numeric(GEOID)) %>%
+  left_join(cd_cat, by = c("GEOID"="geoid"))
+
+MyColour <- c("#c1f0e0", "#c8e1ff", "#f5c6d8") 
+names(MyColour) <- c("Advantaged", "Median", "Disadvantaged")
+
+ggplot() +
+  geom_sf(data = cj_exp_tract_year_cd, 
+          aes(geometry = geometry, fill = `Concentrated Disadvantage`)) + 
+  geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
+  geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
+  geom_text_repel(data = gfs_label, aes(x=lon, y=lat, label = name),
+                 size = 2,
+                 fontface = "bold",
+                 nudge_x = .1, nudge_y = -.06)+
+  scale_fill_manual(values = MyColour)+
+  labs(title = "Minneapolis Concentrated Disadvantage by Tract",
+       subtitle = "2020 ACS 5-Year Estimates", 
+       fill = "Concentrated Disadvantage")+
+  theme_void()+
+  theme(strip.text.x = element_text(face = "bold", size = 12),
+        legend.title = element_text(face = "bold", size = 10))
+
+ggsave(filename = "Car Jacking/Figures for publication/A_CD.png", bg="white", width = 8, height = 8)
 ```
 
 ```{r, results='asis'}
