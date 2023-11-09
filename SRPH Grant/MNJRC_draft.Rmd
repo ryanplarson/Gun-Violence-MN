@@ -1,0 +1,252 @@
+---
+title: "Tracing the Public Health Consequences of the Police Murder of George Floyd"
+author: "Dr. Ryan Larson, Chris Robertson, and Kamisha Johnson, LGSW"
+date: "`r Sys.Date()`"
+output:
+  beamer_presentation:
+    theme: Pittsburgh
+    colortheme: beaver
+    slide_level: 2
+institute: |
+  | Hamline University
+  | University of Minnesota
+  | Amani Healing Sercives
+urlcolor: blue
+header-includes:
+- \addtobeamertemplate{title page}{\centering \includegraphics[height=2cm, width=2cm]{mnjrc.png}}{}
+- \pgfdeclareimage[height=1.5cm, width=1.5cm]{umn}{umn_soc.png}
+- \pgfdeclareimage[height=1.5cm, width=1.5cm]{hamline}{hamline_logo.png}
+- - \logo{\pgfuseimage{hamline}\pgfuseimage{umn}}
+---
+
+```{r message = FALSE, warning = FALSE, echo=FALSE}
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, size = "tiny")
+```
+
+# Introduction
+
+## MPD Murder of George Floyd
+
+- highly publicized police murder of Mr. George Floyd on May 25th, 2005
+  - in part catalyzed the growing #Blacklivesmatter movement
+  - sparked sustained protests locally and around the world
+- Much talk about increases in homicide and gun violence in this period (Star Tribune)
+- This event and ensuing unrest led us to consider...
+  - What does the timing look like (e.g., when did increases happen?)
+  - What explains these increases?
+  - What else has an event of this magnitude impacted (e.g., health?)
+    - to what extent has it done so in an unequal fashion?
+
+## Broad Research Questions
+
+- What has been the public health impact of this police murder?
+  - firearm assault injury incidence?
+  - mental health diagnoses?
+  - differentially based on race and space?
+- How does police violence generally impact public health?
+  - how is police violence shaped by legacies of structural racism?
+  
+## Roadmap
+
+- **Part 1**: The Effects of The Police Murder on Public Health
+  - firearm assault injury (Larson et al. 2023)
+  - mental health hospital incidence (Santaularia et al. *under review*)
+- **Part 2**: Historical Structural Racism, Police Shootings, and Health
+  - new, fresh proposed research
+- **Part 3**: Strategies of Resilience and Racial Healing in Minneapolis
+- **Part 4**: Questions and Discussion
+  - *what ideas do you have to inform our continued research*
+  - *what questions should we be asking?*
+
+# Tracing the Public Health Consequences: Work Completed
+
+## Literature Review: Gun Injury
+
+- Why would we expect an uptick in gun injury after the murder?
+  - pandemic explanation 
+    - weakening of social bonds, heightened visibilities of existing vulnerabilities (Wrigley-Field et al. 2020)
+  - depolicing explanation (Shjarback et al. 2017)
+  - augmentation of legal estrangement (Bell 2017)
+    - bolstering feelings of distrust in legal institutions and feelings of structural social exclusion
+  
+## Literature Review: Mental Health Diagnoses
+
+- mental health effects of *exposure* to police violence 
+  - general anxiety and depression (Geller et al. 2014; Alang et al. 2021)
+  - suicide attempts (DeVylder 2017)
+  - anticipation of future police violence (Salas-Hernandez et a. 2022)
+- general health effects extend beyond direct exposure (DeVylder et al. 2022; Haile et al. 2023)
+- exposure to police killing associated with .14 additional poor mental health days per months for Black individuals (Venkataramani et al. 2018)
+  - no increase for White individuals 
+
+
+## Research Questions
+
+- Did firearm assault injuries increase after the police murder of Mr. Floyd?
+  - if so, was there spatial variation in this increase?
+  - if so, does pandemic policy or changes in policing explain the increase?
+- Did mental health diagnoses increase after the police murder of Mr. Floyd?
+  - if so, amongst which racial groups?
+  - if so, where was there spatial variation in the increase?
+
+## Data
+
+- Outcome Variables (Minnesota Hospital Association Data)
+  - firearm assault injury rate per 100,000
+  - mental health diagnoses per 1,000
+- Focal Predictor Variables
+  - time trend, event indicator, post-event time trend
+- Time Varying Controls
+  - pandemic policy (stay at home, state of emergency)
+  - weather (MN DNR)
+  - amount of darkness before 12am (`suncalc` in R)
+  - proportion school days (Minneapolis Public Schools)
+  - MPD Use of Force (lag)
+  - MPD Stops (lag)
+  - MPD Officer Involved Shootings (lag)
+  - Median Household Income
+  - Percent Black
+  - concentrated disadvantage
+  
+
+## Design: Interrupted Time Series
+
+$y_t =\beta_0+\beta_1 Time_t + \theta Event_t + \beta_2 TimePost_t+ \mathbf{\phi X}_t+\rho_1 y_{t-1}+\rho_2 y_{t-2}+\rho_3 y_{t-3}+\epsilon_t$
+
+![](its.png)
+
+## Firearm Assault Injury Incidence: City-Wide Changes
+
+![](fa1.png)
+
+## Firearm Assault Injury Incidence: ZCTA-Specific Changes
+
+![](fa2.png)
+
+## Firearm Assault Injury Incidence: ITS AR(1) Models
+
+![](fa3.png)
+
+## Firearm Assault Injury Incidence: Interaction Plot
+
+![](fa4.png)
+
+## Mental Health Incidence: City-Wide Changes
+
+![](mh1.png)
+
+## Mental Health Incidence: City-Wide Changes by Race
+
+![](mh2.png)
+
+## Mental Health Incidence: ITS AR(3) Models
+
+![](mh3.png){height=90%}
+
+## Mental Health Incidence: Spatial Variation
+
+![](mh4.png){height=90%, width = 90%}
+
+## Conclusions
+
+- the police murder of Mr. Floyd
+  - increased firearm assault injury incidence
+    - larger increases in ZCTAs with higher percent Black population
+    - increase not explained by COVID-19 policy or "depolicing"
+  - increased mental health diagnoses in Minneapolis
+    - increase concentrated amongst Black residents
+    - increase was global for Black residents (increase for White residents in areas of higher concentrated disadvantage)
+
+# Structural Racism, Police Violence, and Health: Work Ahead
+
+## Introduction: Police Violence
+
+- police shootings
+  - In 2023 (thus far...), 915 people fatally shot by police (Mapping Police Violence 2023)
+  - unarmed Black person about 3.5x more likely to be shot that an unarmed White person (Ross 2015)
+  - lifetime risk of being killed by police 1 in 1,000 for Black men (Edwards et al. 2018)
+    - ~2.5 higher risk as compared White men
+  - racial disparities as well in use of force generally (Knox et al. 2020)
+  
+## Introduction: Structural Racism and Police Violence
+
+- historical practices of structural racial exclusion
+  - redlining ("HOLC Grades")
+    - ranged from "A" to "D" and process of assignment highly racialized (Faber 2020)
+    - effectively conflated race and "financial risk" 
+  - racial covenants
+    - clauses inserted into property deeds to prevent non-White individuals from owning or renting space
+- Individuals in lower HOLC graded areas experience worse contemporary health outcomes
+  - physical and mental health (Lynch et al. 2021), life expectancy (Graetz et al. 2022), etc.
+- redlined spaces linked to higher incidence of fatal encounters with police (Mitchell and Chiahay 2022)
+  
+## Introduction: Police Violence and Health
+
+- direct health related concerns (e.g., morality, injury)
+- health effects of *exposure* to police violence 
+  - general anxiety and depression (Geller et al. 2014; Alang et al. 2021)
+  - suicide attempts (DeVylder 2017)
+  - anticipation of future police violence (Salas-Hernandez et a. 2022)
+- general health effects extend beyond direct exposure (DeVylder et al. 2022; Haile et al. 2023)
+
+## Research Questions
+
+- **RQ1**: What's impact of historical redlining and racial covenants on police shootings?
+  - net of current homicide rates and other factors
+- **RQ2**: What's the impact of police shootings on health?
+  - firearm assault injury, mental health, substance use, suicide, etc.
+- **RQ3**: Do police shootings mediate the relationship between structural racism and health outcomes?
+- **RQ4**: What are the mechanisms by which police shootings effect health outcomes? What are strategies of resilience used by community members and how do these strategies shape these processes?
+
+## Theoretical Model
+
+![](dag.png){height=85%, width=85%}
+
+## Data: Quantitative
+
+- Key Exposures (Mapping Prejudice Project)
+  - presence of redlining in ZCTA 
+  - presence of racial covenants in ZCTA
+- Key Outcomes (Minnesota Hospital Association Data)
+  - health diagnoses per 1,000
+- Key Mediator (OpenMinneapolis)
+  - rate of police shootings
+- Controls
+  - Pre-Exposure demographics and economic structure (1930 Census Data)
+  - contemporary demographics and economic structure (2000-2006 Census Data)
+
+## Redlining in Minneapolis and St. Paul
+
+## Racial Covenants in Minneapolis and St. Paul
+
+## Mixed Method Design: Quantitative
+
+- modeling the relationship between historical exposure to redlining/racial covenants and contemporary police shootings
+  - spatial lag autocorrelation (AR) models adjusting for historical demographics
+- modeling the relationship between police shootings and health outcomes
+  - two-way fixed effects (TWFE) model on panel data from 2008-2023
+- modeling the relationship between historical exposure to redlining/racial covenants and health outcomes
+  - testing for a mediation effect of police shootings using a counterfactual mediation approach (Graetz et al. 2022)
+
+## Mixed Method Design: Qualitative
+
+
+# Racial Healing in Minneapolis
+
+# Discussion
+
+## Discussion
+
+- Thank you for attending our breakout session!
+- Very much looking forward to hearing your ideas about where to take our work
+
+- Contact Information
+  - Dr. Ryan Larson: rlarson21@hamline.edu
+  - Chris Robertson: robe1930@umn.edu
+  - Kamisha Johnson, LGSW: kamisha.johnson@gmail.com
+
