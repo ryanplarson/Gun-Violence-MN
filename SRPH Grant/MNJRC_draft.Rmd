@@ -16,7 +16,8 @@ header-includes:
 - \addtobeamertemplate{title page}{\centering \includegraphics[height=2cm, width=2cm]{mnjrc.png}}{}
 - \pgfdeclareimage[height=1.5cm, width=1.5cm]{umn}{umn_soc.png}
 - \pgfdeclareimage[height=1.5cm, width=1.5cm]{hamline}{hamline_logo.png}
-- - \logo{\pgfuseimage{hamline}\pgfuseimage{umn}}
+- \pgfdeclareimage[height=1.5cm, width=1.5cm]{amani}{amani.jpg}
+- \logo{\pgfuseimage{hamline}\pgfuseimage{umn}\pgfuseimage{amani}}
 ---
 
 ```{r message = FALSE, warning = FALSE, echo=FALSE}
@@ -150,7 +151,7 @@ $y_t =\beta_0+\beta_1 Time_t + \theta Event_t + \beta_2 TimePost_t+ \mathbf{\phi
 
 ## Mental Health Incidence: Spatial Variation
 
-![](mh4.png){height=90%, width = 90%}
+![](mh4.png){height=70%}
 
 ## Conclusions
 
@@ -222,7 +223,103 @@ $y_t =\beta_0+\beta_1 Time_t + \theta Event_t + \beta_2 TimePost_t+ \mathbf{\phi
 
 ## Redlining in Minneapolis and St. Paul
 
+```{r, warning=FALSE, message=FALSE, include=FALSE}
+library(tigris)
+library(tidycensus)
+library(sf)
+library(tidyverse)
+
+mpls_stp <- places(state = "MN") %>%
+  filter(NAME=="Minneapolis" | NAME=="St. Paul") %>%
+  st_union() 
+
+mn_tracts <- tracts(state = "MN") %>%
+  st_filter(mpls_stp) %>%
+  st_set_crs(st_crs(mpls_stp)) %>%
+  st_intersection(mpls_stp)
+
+
+holc <- st_read("SRPH Grant/Census_HOLC_Research-main/Census_HOLC_Research-main/2020_Census_Tracts/Tracts_2020_HOLC/Tracts_2020_HOLC/Tracts_2020_HOLC.shp") %>%
+  filter(MAX_city=="Minneapolis"|MAX_city=="St. Paul") %>%
+  st_transform(st_crs(mn_tracts)) %>%
+  st_intersection(mpls_stp)
+
+ramsey_rc <- st_read("C:/Users/rlarson21/Documents/Research/Gun-Violence-MN/SRPH Grant/mp-us-racial-covenants-main/mp-us-racial-covenants-main/mn-ramsey-county/covenants-mn-ramsey-county/covenants-mn-ramsey-county.shp") %>%
+  st_transform(st_crs(mpls_stp)) %>%
+  st_intersection(mpls_stp) %>%
+  mutate(workflow = as.character(workflow),
+         geocd_dist = as.numeric(geocd_dist),
+         manual_cx = as.character(manual_cx))
+
+hennepin_rc <- st_read("C:/Users/rlarson21/Documents/Research/Gun-Violence-MN/SRPH Grant/mp-us-racial-covenants-main/mp-us-racial-covenants-main/mn-hennepin-county/covenants-mn-hennepin-county/covenants-mn-hennepin-county.shp") %>%
+  st_transform(st_crs(mpls_stp)) %>%
+  st_intersection(mpls_stp) %>%
+  mutate(db_id = as.numeric(db_id),
+         deed_date = as.Date(deed_date),
+         dt_updated = as.Date(dt_updated),
+         zn_subj_id = as.numeric(zn_subj_id),
+         zn_dt_ret = as.Date(zn_dt_ret),
+         med_score = as.numeric(med_score),
+         plat_dbid = as.numeric(plat_dbid))
+
+rc <- bind_rows(ramsey_rc, hennepin_rc)
+```
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+ggplot()+
+  geom_sf(data = mn_tracts, aes(geometry=geometry),
+          alpha=0)+
+  geom_sf(data = holc, aes(geometry=geometry,
+                          fill = FIRST_holc))+
+  scale_fill_manual(values = c("darkgreen", "blue","yellow","red"))+
+  labs(title = "HOLC Redlining Grades in MSP, 1935", 
+       subtitle = "Mapping Inequality, University of Richmond",
+       fill = "HOLC Grade")+
+   theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_blank(),
+  panel.grid.major = element_line(colour="transparent"), 
+  plot.subtitle = element_text(face="italic"),
+  strip.background = element_rect(fill = "white", 
+                colour = "black"))+
+  ggspatial::annotation_scale()+
+  ggspatial::annotation_north_arrow(which_north = "true",
+                                    location = "tr")
+
+```
+
 ## Racial Covenants in Minneapolis and St. Paul
+
+```{r, echo=FALSE}
+ggplot()+
+  geom_sf(data = mn_tracts, aes(geometry=geometry),
+          alpha=0)+
+  geom_sf(data = rc, aes(geometry=geometry, color = deed_year))+
+  labs(title = "Racial Covenants in  MSP, 1910-1961", 
+       subtitle = "Mapping Prejudice Project, UMN",
+       color = "Deed Year")+
+   viridis::scale_color_viridis()+
+   theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_blank(),
+  panel.grid.major = element_line(colour="transparent"), 
+  plot.subtitle = element_text(face="italic"),
+  strip.background = element_rect(fill = "white", 
+                colour = "black"))+
+  ggspatial::annotation_scale()+
+  ggspatial::annotation_north_arrow(which_north = "true",
+                                    location = "tr")
+```
 
 ## Mixed Method Design: Quantitative
 
@@ -235,8 +332,76 @@ $y_t =\beta_0+\beta_1 Time_t + \theta Event_t + \beta_2 TimePost_t+ \mathbf{\phi
 
 ## Mixed Method Design: Qualitative
 
+![](qual.png)
+
+## Background: Policing, Health, & Resilience
+
+- Resilience refers to the ability -- through positive emotions, successful traits, or coping behaviors  --  to respond to stressful or traumatic situations in healthy or positive ways (Sims-Schouten and Gilbert 2022; Suslovic and Lett 2023). 
+ - Resilience often places the emphasis on individual adaptation to harm than the adaptation of the systems that cause harm.
+- Police Violence-related coping strategies: the Talk (Malone Gonzalez 2022), hypervigilance (Hawkins 2022), and  police avoidance (i.e., staying inside) (Smith and Robinson 2019).
+
+## Holistic Trauma Framework
+
+![](htf.png)
+
+## Qualitative Research Questions
+
+- How do police shootings shape residents’ perceptions of their individual and community health? 
+
+- How do strategies of resilience used by community members shape these processes?
+
+## Methods: Resident Interviews
+
+- Conduct 40 semi-structured interviews with adult residents of Minneapolis-Saint Paul zip codes that have experienced a recent (2015-present) police shooting. 
+  - Each interview will last approximately 60-90 minute.
+  - In-person and recorded
+  - Goal: to identify potential mechanisms, including police shooting-induced stress perceptions, coping behaviors, and resiliency, that link exposure to police shootings to residents’ health outcomes.
+  
+## Focus Group Insights Inform Resident Interview Questions
+
+- Conduct 3 focus group with 18 residents of impacted Minneapolis-Saint Paul zip codes 
+  - Prioritize residents from historically redlined areas. 
+  - Goal: to obtain residents’ feedback on proposed interview questions, identify additional areas and types of inquiry, and discuss potential policy solutions
+- Participant Recruitment
+  - Work with local health organizations (i.e., community health clinics and hospitals) to recruit focus group and study participants from their adult client population. 
+  - Mail study invitations to eligible zip code addresses and screening responding individuals for eligibility. 
+  
+## Sample Resident Interview Questions
+
+- How do you think that policing impacts your health?
+- How do you generally hear about a police shootings of an unarmed person? 
+  - Do you usually discuss the incident with someone else? Who?
+- What emotions do you generally feel after hearing about a police shooting of an unarmed person? 
+  - What do you do to manage those emotions?
+    - Have you ever sought therapy after hearing about a police killing? 
+  - How does your daily routine change, if at all? 
+    - Do you tend to go to work or school the next day? 
+    - Do you avoid certain areas or activities?
+- How do your family/friends/neighbors seem to respond in the days following a high-profile police shooting?
+
+## Analyzing Residents' Interview Transcripts
+
+- Flexible coding approach (Deterding and Waters 2018)
+  - Coding participant interview transcripts for descriptive and basic conceptual categories.
+  - Drafting analytical memos that highlight common themes and identify patterns across participants by demographics (i.e., class position, age, parental status).
+  - Re-coding the interviews as we encounter new insights from existing literature and participant interviews.
+  - Discussing major themes as a research team and drafting final analytical memos.
+  
+## Deliverables
+
+- research manuscript
+- grant proposal
+- policy report
 
 # Racial Healing in Minneapolis
+
+## Racial Healing in Minneapolis
+
+![](rh.png)
+
+## Racial Healing in Minneapolis
+
+- [Black Twin Citians finding comfort in safe spaces (startribune.com)](https://video.startribune.com/black-twin-citians-finding-comfort-in-safe-spaces/600045912/)
 
 # Discussion
 
