@@ -33,7 +33,7 @@ knitr::opts_chunk$set(warning=FALSE, message=FALSE, size = "tiny")
 
 ## MPD Murder of George Floyd
 
-- highly publicized police murder of Mr. George Floyd on May 25th, 2005
+- highly publicized police murder of Mr. George Floyd on May 25th, 2020
   - in part catalyzed the growing #Blacklivesmatter movement
   - sparked sustained protests locally and around the world
 - Much talk about increases in homicide and gun violence in this period (Star Tribune)
