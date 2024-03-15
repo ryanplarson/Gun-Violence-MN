@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10.12) (preloaded format=pdflatex 2023.10.24)  8 NOV 2023 17:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10.12) (preloaded format=pdflatex 2023.10.24)  15 MAR 2024 11:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -393,6 +393,9 @@ File: l3backend-pdftex.def 2023-10-10 L3 backend support: PDF output (pdfTeX)
 
 LaTeX Warning: Label `' multiply defined.
 
+
+LaTeX Warning: Label `' multiply defined.
+
 )
 \openout1 = `car_jacking_preliminary_tract.aux'.
 
@@ -535,59 +538,6 @@ File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
 (Font)              Font shape `T1/lmtt/b/n' tried instead on input line 123.
-
-Overfull \hbox (19453.93707pt too wide) in paragraph at lines 135--135
-[]\T1/lmtt/m/n/10 ##   |                                                       
-                       |                                                       
-               |   0%  |                                                       
-                       |=                                                      
-               |   1%  |                                                       
-                       |==                                                     
-               |   3%  |                                                       
-                       |====                                                   
-               |   6%  |                                                       
-                       |=====                                                  
-               |   7%  |                                                       
-                       |======                                                 
-               |   9%  |                                                       
-                       |========                                               
-               |  11%  |                                                       
-                       |========                                               
-               |  12%  |                                                       
-                       |=========                                              
-               |  14%  |                                                       
-                       |============                                           
-               |  17%  |                                                       
-                       |===============                                        
-               |  21%  |                                                       
-                       |=================                                      
-               |  24%  |                                                       
-                       |=====================                                  
-               |  29%  |                                                       
-                       |=========================                              
-               |  36%  |                                                       
-                       |==============================                         
-               |  43%  |                                                       
-                       |====================================                   
-               |  52%  |                                                       
-                       |=============================================          
-               |  64%  |                                                       
-                       |==============================================         
-               |  66%  |                                                       
-                       |===============================================        
-               |  68%  |                                                       
-                       |====================================================   
-               |  74%  |                                                       
-                       |=====================================================  
-               |  76%  |                                                       
-                       |=======================================================
-====           |  84%  |                                                       
-                       |=======================================================
-=======        |  88%  |                                                       
-                       |=======================================================
-===============| 100%[] 
- []
-
 LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 
 153.
 (C:\Program Files\MiKTeX\tex/latex/lm\ts1lmtt.fd
@@ -613,90 +563,10 @@ cache shapefiles for use in future sessions, set \TS1/lmtt/m/n/10 `\T1/lmtt/m/n
  []
 
 
-Overfull \hbox (16135.94672pt too wide) in paragraph at lines 197--197
-[]\T1/lmtt/m/n/10 ##   |                                                       
-                       |                                                       
-               |   0%  |                                                       
-                       |======                                                 
-               |   9%  |                                                       
-                       |=======                                                
-               |  10%  |                                                       
-                       |=========                                              
-               |  13%  |                                                       
-                       |==========                                             
-               |  14%  |                                                       
-                       |================                                       
-               |  23%  |                                                       
-                       |====================                                   
-               |  29%  |                                                       
-                       |======================                                 
-               |  31%  |                                                       
-                       |============================                           
-               |  40%  |                                                       
-                       |===================================                    
-               |  50%  |                                                       
-                       |====================================                   
-               |  52%  |                                                       
-                       |=====================================                  
-               |  52%  |                                                       
-                       |============================================           
-               |  62%  |                                                       
-                       |================================================       
-               |  69%  |                                                       
-                       |=================================================      
-               |  71%  |                                                       
-                       |=======================================================
-=              |  81%  |                                                       
-                       |=======================================================
-==             |  81%  |                                                       
-                       |=======================================================
-========       |  91%  |                                                       
-                       |=======================================================
-============   |  95%  |                                                       
-                       |=======================================================
-===============| 100%[] 
- []
-
-
 Overfull \hbox (291.49277pt too wide) in paragraph at lines 216--216
 []\T1/lmtt/m/n/10 ## Downloading feature geometry from the Census website.  To 
 cache shapefiles for use in future sessions, set \TS1/lmtt/m/n/10 `\T1/lmtt/m/n
 /10 options(tigris_use_cache = TRUE)\TS1/lmtt/m/n/10 `\T1/lmtt/m/n/10 .[] 
- []
-
-
-Overfull \hbox (11988.45877pt too wide) in paragraph at lines 220--220
-[]\T1/lmtt/m/n/10 ##   |                                                       
-                       |                                                       
-               |   0%  |                                                       
-                       |======                                                 
-               |   8%  |                                                       
-                       |=======                                                
-               |  10%  |                                                       
-                       |====================                                   
-               |  29%  |                                                       
-                       |============================                           
-               |  39%  |                                                       
-                       |==================================                     
-               |  49%  |                                                       
-                       |=========================================              
-               |  59%  |                                                       
-                       |============================================           
-               |  64%  |                                                       
-                       |================================================       
-               |  68%  |                                                       
-                       |==================================================     
-               |  72%  |                                                       
-                       |=======================================================
-               |  78%  |                                                       
-                       |=======================================================
-===            |  82%  |                                                       
-                       |=======================================================
-========       |  90%  |                                                       
-                       |=======================================================
-=============  |  97%  |                                                       
-                       |=======================================================
-===============| 100%[] 
  []
 
 
@@ -707,63 +577,6 @@ cache shapefiles for use in future sessions, set \TS1/lmtt/m/n/10 `\T1/lmtt/m/n
  []
 
 
-Overfull \hbox (21112.93225pt too wide) in paragraph at lines 243--243
-[]\T1/lmtt/m/n/10 ##   |                                                       
-                       |                                                       
-               |   0%  |                                                       
-                       |========================                               
-               |  35%  |                                                       
-                       |=============================                          
-               |  42%  |                                                       
-                       |==============================                         
-               |  43%  |                                                       
-                       |=================================                      
-               |  47%  |                                                       
-                       |==================================                     
-               |  49%  |                                                       
-                       |====================================                   
-               |  52%  |                                                       
-                       |======================================                 
-               |  54%  |                                                       
-                       |========================================               
-               |  57%  |                                                       
-                       |===========================================            
-               |  61%  |                                                       
-                       |===========================================            
-               |  62%  |                                                       
-                       |============================================           
-               |  64%  |                                                       
-                       |==============================================         
-               |  66%  |                                                       
-                       |==================================================     
-               |  72%  |                                                       
-                       |===================================================    
-               |  73%  |                                                       
-                       |=====================================================  
-               |  76%  |                                                       
-                       |=======================================================
-               |  78%  |                                                       
-                       |=======================================================
-=              |  81%  |                                                       
-                       |=======================================================
-===            |  82%  |                                                       
-                       |=======================================================
-=====          |  85%  |                                                       
-                       |=======================================================
-=====          |  86%  |                                                       
-                       |=======================================================
-======         |  88%  |                                                       
-                       |=======================================================
-========       |  90%  |                                                       
-                       |=======================================================
-==========     |  92%  |                                                       
-                       |=======================================================
-=============  |  97%  |                                                       
-                       |=======================================================
-===============| 100%[] 
- []
-
-
 Overfull \hbox (291.49277pt too wide) in paragraph at lines 261--261
 []\T1/lmtt/m/n/10 ## Downloading feature geometry from the Census website.  To 
 cache shapefiles for use in future sessions, set \TS1/lmtt/m/n/10 `\T1/lmtt/m/n
@@ -771,7 +584,7 @@ cache shapefiles for use in future sessions, set \TS1/lmtt/m/n/10 `\T1/lmtt/m/n
  []
 
 [2]
-Overfull \hbox (6170.59473pt too wide) in paragraph at lines 290--290
+Overfull \hbox (10318.08267pt too wide) in paragraph at lines 286--286
 []\T1/lmtt/m/n/10 ##   |                                                       
                        |                                                       
                |   0%  |                                                       
@@ -1000,6 +813,8 @@ Overfull \hbox (6170.59473pt too wide) in paragraph at lines 290--290
                        |==============================================         
                |  66%  |                                                       
                        |===============================================        
+               |  66%  |                                                       
+                       |===============================================        
                |  67%  |                                                       
                        |===============================================        
                |  68%  |                                                       
@@ -1021,6 +836,8 @@ Overfull \hbox (6170.59473pt too wide) in paragraph at lines 290--290
                |  72%  |                                                       
                        |===================================================    
                |  73%  |                                                       
+                       |===================================================    
+               |  74%  |                                                       
                        |====================================================   
                |  74%  |                                                       
                        |====================================================   
@@ -1039,6 +856,8 @@ Overfull \hbox (6170.59473pt too wide) in paragraph at lines 290--290
                |  78%  |                                                       
                        |=======================================================
                |  79%  |                                                       
+                       |=======================================================
+=              |  79%  |                                                       
                        |=======================================================
 =              |  80%  |                                                       
                        |=======================================================
@@ -1061,6 +880,8 @@ Overfull \hbox (6170.59473pt too wide) in paragraph at lines 290--290
 =====          |  85%  |                                                       
                        |=======================================================
 =====          |  86%  |                                                       
+                       |=======================================================
+======         |  86%  |                                                       
                        |=======================================================
 ======         |  87%  |                                                       
                        |=======================================================
@@ -1094,6 +915,8 @@ Overfull \hbox (6170.59473pt too wide) in paragraph at lines 290--290
                        |=======================================================
 ============   |  96%  |                                                       
                        |=======================================================
+=============  |  96%  |                                                       
+                       |=======================================================
 =============  |  97%  |                                                       
                        |=======================================================
 =============  |  98%  |                                                       
@@ -1108,27 +931,27 @@ Overfull \hbox (6170.59473pt too wide) in paragraph at lines 290--290
  []
 
 
-Underfull \vbox (badness 8113) detected at line 451
+Underfull \vbox (badness 8113) detected at line 447
  []
 
 [3]
-Underfull \vbox (badness 10000) detected at line 451
+Underfull \vbox (badness 10000) detected at line 447
  []
 
 
-Underfull \vbox (badness 10000) detected at line 451
+Underfull \vbox (badness 10000) detected at line 447
  []
 
 [4]
-Underfull \vbox (badness 10000) detected at line 451
+Underfull \vbox (badness 10000) detected at line 447
  []
 
 
-Underfull \vbox (badness 10000) detected at line 451
+Underfull \vbox (badness 10000) detected at line 447
  []
 
 [5]
-Overfull \hbox (343.99261pt too wide) in paragraph at lines 487--487
+Overfull \hbox (343.99261pt too wide) in paragraph at lines 483--483
 []\T1/lmtt/m/n/10 ## i See https://www.census.gov/library/fact-sheets/2021/prot
 ecting-the-confidentiality-of-the-2020-census-redistricting-data.html for addit
 ional guidance.[] 
@@ -1141,17 +964,17 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-4-1.pdf Gr
 aphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-4-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-4-1.pdf  used on input line 636.
+ed-chunk-4-1.pdf  used on input line 632.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [8 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-4-1.pdf>] 
 [9]
-Overfull \hbox (81.49338pt too wide) in paragraph at lines 760--760
+Overfull \hbox (81.49338pt too wide) in paragraph at lines 756--756
 []\T1/lmtt/m/n/10 ## i <https://maps.googleapis.com/maps/api/geocode/json?addre
 ss=George+Floyd+Square,+Minneapolis&key=xxx>[] 
  []
 
 
-Overfull \hbox (81.49338pt too wide) in paragraph at lines 772--772
+Overfull \hbox (81.49338pt too wide) in paragraph at lines 768--768
 []\T1/lmtt/m/n/10 ## i <https://maps.googleapis.com/maps/api/geocode/json?addre
 ss=George+Floyd+Square,+Minneapolis&key=xxx>[] 
  []
@@ -1162,7 +985,7 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-6-1.pdf Gr
 aphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-6-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-6-1.pdf  used on input line 794.
+ed-chunk-6-1.pdf  used on input line 789.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [10] [11 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-6-1.
 pdf>] [12] [13] [14]
@@ -1172,7 +995,7 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-8-1.pdf Gr
 aphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-8-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-8-1.pdf  used on input line 1113.
+ed-chunk-8-1.pdf  used on input line 1108.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [15 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-8-1.pdf>]
 [16]
@@ -1182,46 +1005,46 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-10-1.pdf G
 raphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-10-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-10-1.pdf  used on input line 1228.
+ed-chunk-10-1.pdf  used on input line 1222.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [17 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-10-1.pdf>
 ]
 
 LaTeX Font Warning: Font shape `T1/lmtt/bx/it' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/sl' tried instead on input line 1336.
+(Font)              Font shape `T1/lmtt/b/sl' tried instead on input line 1330.
 
 
 
 LaTeX Font Warning: Font shape `TS1/lmtt/bx/it' in size <10> not available
-(Font)              Font shape `TS1/lmtt/b/sl' tried instead on input line 1336
+(Font)              Font shape `TS1/lmtt/b/sl' tried instead on input line 1330
 .
 
 
-Underfull \vbox (badness 1320) detected at line 1468
+Underfull \vbox (badness 1320) detected at line 1462
  []
 
 [18]
-Underfull \vbox (badness 10000) detected at line 1468
+Underfull \vbox (badness 10000) detected at line 1462
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1468
+Underfull \vbox (badness 10000) detected at line 1462
  []
 
 [19]
-Underfull \vbox (badness 10000) detected at line 1468
+Underfull \vbox (badness 10000) detected at line 1462
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1468
+Underfull \vbox (badness 10000) detected at line 1462
  []
 
 [20]
-Underfull \vbox (badness 10000) detected at line 1468
+Underfull \vbox (badness 10000) detected at line 1462
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1468
+Underfull \vbox (badness 10000) detected at line 1462
  []
 
 [21]
@@ -1231,7 +1054,7 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-11-1.pdf G
 raphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-11-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-11-1.pdf  used on input line 1488.
+ed-chunk-11-1.pdf  used on input line 1482.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [22 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-11-1.pdf>
 ]
@@ -1241,7 +1064,7 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-12-1.pdf G
 raphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-12-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-12-1.pdf  used on input line 1534.
+ed-chunk-12-1.pdf  used on input line 1528.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [23] [24 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-12-1
 .pdf>]
@@ -1251,7 +1074,7 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-1.pdf G
 raphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-13-1.pdf  used on input line 1613.
+ed-chunk-13-1.pdf  used on input line 1603.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [25 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-1.pdf>
 ]
@@ -1261,7 +1084,7 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-2.pdf G
 raphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-2.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-13-2.pdf  used on input line 1631.
+ed-chunk-13-2.pdf  used on input line 1621.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [26 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-2.pdf>
 ]
@@ -1271,7 +1094,7 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-3.pdf G
 raphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-3.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-13-3.pdf  used on input line 1694.
+ed-chunk-13-3.pdf  used on input line 1684.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [27] [28 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-13-3
 .pdf>]
@@ -1281,7 +1104,7 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-1.pdf G
 raphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-14-1.pdf  used on input line 1746.
+ed-chunk-14-1.pdf  used on input line 1736.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 <car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-2.pdf, id=22
 7, 469.755pt x 325.215pt>
@@ -1289,11 +1112,11 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-2.pdf G
 raphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-2.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-14-2.pdf  used on input line 1764.
+ed-chunk-14-2.pdf  used on input line 1754.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [29 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-1.pdf>
 ]
-Underfull \vbox (badness 2012) detected at line 1825
+Underfull \vbox (badness 2012) detected at line 1815
  []
 
 [30 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-2.pdf>
@@ -1304,112 +1127,113 @@ File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-3.pdf G
 raphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-3.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-14-3.pdf  used on input line 1827.
+ed-chunk-14-3.pdf  used on input line 1817.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [31 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-14-3.pdf>
-] [32]
-Overfull \hbox (280.9928pt too wide) in paragraph at lines 1920--1920
+]
+Overfull \hbox (317.74269pt too wide) in paragraph at lines 1889--1889
 []\T1/lmtt/m/n/10 ## Warning in lav_start_check_cov(lavpartable = lavpartable, 
-start = START): lavaan WARNING: starting values imply NaN for a correlation val
-ue;[] 
+start = start.values): lavaan WARNING: starting values imply NaN for a correlat
+ion value;[] 
  []
 
 
-Overfull \hbox (280.9928pt too wide) in paragraph at lines 1925--1925
+Overfull \hbox (317.74269pt too wide) in paragraph at lines 1894--1894
 []\T1/lmtt/m/n/10 ## Warning in lav_start_check_cov(lavpartable = lavpartable, 
-start = START): lavaan WARNING: starting values imply a correlation larger than
- 1;[] 
+start = start.values): lavaan WARNING: starting values imply a correlation larg
+er than 1;[] 
  []
 
-[33]
-Underfull \vbox (badness 3291) detected at line 2050
+[32] [33] [34] [35] [36]
+Underfull \vbox (badness 10000) detected at line 2215
  []
 
-[34] [35]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-15-1.pdf, id=27
-8, 469.755pt x 325.215pt>
+[37]
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-15-1.pdf, id=28
+7, 469.755pt x 325.215pt>
 File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-15-1.pdf G
 raphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-15-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-15-1.pdf  used on input line 2164.
+ed-chunk-15-1.pdf  used on input line 2217.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[36] [37 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-15-1
-.pdf>]
-<car_jacking_preliminary_tract_files/figure-latex/CD map-1.pdf, id=297, 469.755
+[38 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-15-1.pdf>
+]
+<car_jacking_preliminary_tract_files/figure-latex/CD map-1.pdf, id=301, 469.755
 pt x 325.215pt>
 File: car_jacking_preliminary_tract_files/figure-latex/CD map-1.pdf Graphic fil
 e (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/CD map-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/CD ma
-p-1.pdf  used on input line 2221.
+p-1.pdf  used on input line 2299.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-
-Underfull \vbox (badness 4168) detected at line 2257
+[39]
+Underfull \vbox (badness 10000) detected at line 2335
  []
 
-[38 <./car_jacking_preliminary_tract_files/figure-latex/CD map-1.pdf>]
+[40 <./car_jacking_preliminary_tract_files/figure-latex/CD map-1.pdf>]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 2262.
+(Font)              <10> on input line 2340.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 2262.
+(Font)              <7> on input line 2340.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 2262.
+(Font)              <5> on input line 2340.
 
-Overfull \hbox (4.5222pt too wide) in paragraph at lines 2262--2278
+Overfull \hbox (4.5222pt too wide) in paragraph at lines 2340--2356
  [][] 
  []
 
-
-Overfull \hbox (238.99292pt too wide) in paragraph at lines 2299--2299
+[41{C:/Program Files/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program Files/MiKT
+eX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Program Files/MiKTeX/fonts/enc/dvips/lm
+/lm-mathsy.enc}]
+Overfull \hbox (238.99292pt too wide) in paragraph at lines 2424--2424
 []\T1/lmtt/m/n/10 ## Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = 
 control$checkConv, : Model is nearly unidentifiable: very large eigenvalue[] 
  []
 
-[39{C:/Program Files/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program Files/MiKT
-eX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Program Files/MiKTeX/fonts/enc/dvips/lm
-/lm-mathsy.enc}] [40]
-<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-17-1.pdf, id=32
-1, 469.755pt x 325.215pt>
-File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-17-1.pdf G
-raphic file (type pdf)
-<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-17-1.pdf>
-Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
-ed-chunk-17-1.pdf  used on input line 2432.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[41] [42 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-17-1
-.pdf>]
-Underfull \vbox (badness 10000) detected at line 2546
+[42]
+Underfull \vbox (badness 10000) detected at line 2551
  []
 
 [43]
-Overfull \hbox (23.74355pt too wide) in paragraph at lines 2553--2553
+<car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-18-1.pdf, id=33
+5, 469.755pt x 325.215pt>
+File: car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-18-1.pdf G
+raphic file (type pdf)
+<use car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-18-1.pdf>
+Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/unnam
+ed-chunk-18-1.pdf  used on input line 2557.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+[44 <./car_jacking_preliminary_tract_files/figure-latex/unnamed-chunk-18-1.pdf>
+] [45]
+Overfull \hbox (23.74355pt too wide) in paragraph at lines 2678--2678
 []\T1/lmtt/m/n/10 ## Note: D.f. calculations have been disabled because the num
 ber of observations exceeds 3000.[] 
  []
 
 
-Overfull \hbox (23.74355pt too wide) in paragraph at lines 2560--2560
+Overfull \hbox (23.74355pt too wide) in paragraph at lines 2685--2685
 []\T1/lmtt/m/n/10 ## Note: D.f. calculations have been disabled because the num
 ber of observations exceeds 3000.[] 
  []
 
-<car_jacking_preliminary_tract_files/figure-latex/homicide models-1.pdf, id=341
+[46]
+<car_jacking_preliminary_tract_files/figure-latex/homicide models-1.pdf, id=354
 , 469.755pt x 325.215pt>
 File: car_jacking_preliminary_tract_files/figure-latex/homicide models-1.pdf Gr
 aphic file (type pdf)
 <use car_jacking_preliminary_tract_files/figure-latex/homicide models-1.pdf>
 Package pdftex.def Info: car_jacking_preliminary_tract_files/figure-latex/homic
-ide models-1.pdf  used on input line 2576.
+ide models-1.pdf  used on input line 2701.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[44]
-Overfull \hbox (238.99292pt too wide) in paragraph at lines 2597--2597
+
+Overfull \hbox (238.99292pt too wide) in paragraph at lines 2722--2722
 []\T1/lmtt/m/n/10 ## Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = 
 control$checkConv, : Model is nearly unidentifiable: very large eigenvalue[] 
  []
 
-[45 <./car_jacking_preliminary_tract_files/figure-latex/homicide models-1.pdf>]
-[46] [47] [48] [49] [50] [51] (car_jacking_preliminary_tract.aux)
+[47 <./car_jacking_preliminary_tract_files/figure-latex/homicide models-1.pdf>]
+[48] [49] [50] [51] [52] [53] (car_jacking_preliminary_tract.aux)
  ***********
 LaTeX2e <2023-06-01> patch level 1
 L3 programming layer <2023-10-10>
@@ -1419,13 +1243,13 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 14174 strings out of 474823
- 228133 string characters out of 5760758
- 2258043 words of memory out of 5000000
+ 14177 strings out of 474823
+ 228154 string characters out of 5760758
+ 2317043 words of memory out of 5000000
  35743 multiletter control sequences out of 15000+600000
  617337 words of font info for 113 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 77i,16n,81p,26269b,746s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 77i,16n,81p,27059b,742s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Program Files/MiKTeX/fonts/type1/public/lm/lmbx10.pfb><C:/Program Files/M
 iKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Program Files/MiKTeX/fonts/type1/pub
 lic/lm/lmbxi10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/lm/lmmi10.pfb><C
@@ -1437,9 +1261,9 @@ pe1/public/lm/lmsy10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/lm/lmtk10.
 pfb><C:/Program Files/MiKTeX/fonts/type1/public/lm/lmtko10.pfb><C:/Program File
 s/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Program Files/MiKTeX/fonts/type1/
 public/lm/lmtti10.pfb>
-Output written on car_jacking_preliminary_tract.pdf (51 pages, 743616 bytes).
+Output written on car_jacking_preliminary_tract.pdf (53 pages, 813443 bytes).
 PDF statistics:
- 534 PDF objects out of 1000 (max. 8388607)
- 92 named destinations out of 1000 (max. 500000)
+ 543 PDF objects out of 1000 (max. 8388607)
+ 95 named destinations out of 1000 (max. 500000)
  30953 words of extra memory for PDF output out of 35830 (max. 10000000)
 

@@ -1,0 +1,3725 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><META content="IE=5.0000" http-equiv="X-UA-Compatible">
+<TITLE>SAS Output</TITLE>
+<META name=GENERATOR content="MSHTML 11.00.10570.1001">
+<META content="text/html; charset=windows-1252" http-equiv=Content-type>
+<STYLE type=text/css>.activelink {
+	COLOR: #800080
+}
+.aftercaption {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; PADDING-TOP: 4pt; BORDER-SPACING: 0px; BACKGROUND-COLOR: #fafbfe
+}
+.batch {
+	FONT-SIZE: x-small; BORDER-TOP: #c1c1c1 1px solid; FONT-FAMILY: 'SAS Monospace', 'Courier New', Courier, monospace; BORDER-RIGHT: #c1c1c1 1px solid; BORDER-COLLAPSE: separate; BORDER-BOTTOM: #c1c1c1 1px solid; FONT-WEIGHT: normal; COLOR: #000000; PADDING-BOTTOM: 7px; FONT-STYLE: normal; PADDING-TOP: 7px; PADDING-LEFT: 7px; BORDER-SPACING: 1px; BORDER-LEFT: #c1c1c1 1px solid; PADDING-RIGHT: 7px; BACKGROUND-COLOR: #fafbfe
+}
+.beforecaption {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-SPACING: 0px; BACKGROUND-COLOR: #fafbfe
+}
+.body {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; MARGIN-LEFT: 8px; BACKGROUND-COLOR: #fafbfe; MARGIN-RIGHT: 8px
+}
+.bodydate {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; WIDTH: 100%; VERTICAL-ALIGN: top; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; TEXT-ALIGN: right; BORDER-SPACING: 0px; BACKGROUND-COLOR: #fafbfe
+}
+.bycontentfolder {
+	LIST-STYLE-TYPE: none; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; MARGIN-LEFT: 6pt
+}
+.byline {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-SPACING: 0px; BACKGROUND-COLOR: #fafbfe
+}
+.bylinecontainer {
+	FONT-SIZE: x-small; BORDER-TOP: #000000 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #000000 0px solid; WIDTH: 100%; BORDER-BOTTOM: #000000 0px solid; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BORDER-SPACING: 1px; BORDER-LEFT: #000000 0px solid; BACKGROUND-COLOR: #fafbfe
+}
+.caption {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-SPACING: 0px; BACKGROUND-COLOR: #fafbfe
+}
+.cell {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.container {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.contentfolder {
+	LIST-STYLE-TYPE: none; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; MARGIN-LEFT: 6pt
+}
+.contentitem {
+	LIST-STYLE-TYPE: none; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; MARGIN-LEFT: 6pt
+}
+.contentproclabel {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.contentprocname {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.contents {
+	LIST-STYLE-TYPE: decimal; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; MARGIN-LEFT: 8px; BACKGROUND-COLOR: #fafbfe; MARGIN-RIGHT: 8px
+}
+.contentsdate {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; WIDTH: 100%; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.contenttitle {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: italic; BACKGROUND-COLOR: #fafbfe
+}
+.continued {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; WIDTH: 100%; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-SPACING: 0px; BACKGROUND-COLOR: #fafbfe
+}
+.data {
+	FONT-SIZE: x-small; BORDER-TOP: #c1c1c1 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #c1c1c1 1px solid; BORDER-BOTTOM: #c1c1c1 1px solid; FONT-WEIGHT: normal; FONT-STYLE: normal; BORDER-LEFT: #c1c1c1 0px solid; BACKGROUND-COLOR: #ffffff
+}
+.dataemphasis {
+	FONT-SIZE: x-small; BORDER-TOP: #c1c1c1 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #c1c1c1 1px solid; BORDER-BOTTOM: #c1c1c1 1px solid; FONT-WEIGHT: normal; FONT-STYLE: normal; BORDER-LEFT: #c1c1c1 0px solid; BACKGROUND-COLOR: #ffffff
+}
+.dataemphasisfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #c1c1c1 0px solid; FONT-FAMILY: 'Courier New', Courier, monospace; BORDER-RIGHT: #c1c1c1 1px solid; BORDER-BOTTOM: #c1c1c1 1px solid; FONT-WEIGHT: normal; FONT-STYLE: italic; BORDER-LEFT: #c1c1c1 0px solid; BACKGROUND-COLOR: #ffffff
+}
+.dataempty {
+	FONT-SIZE: x-small; BORDER-TOP: #c1c1c1 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #c1c1c1 1px solid; BORDER-BOTTOM: #c1c1c1 1px solid; FONT-WEIGHT: normal; FONT-STYLE: normal; BORDER-LEFT: #c1c1c1 0px solid; BACKGROUND-COLOR: #ffffff
+}
+.datafixed {
+	FONT-SIZE: x-small; BORDER-TOP: #c1c1c1 0px solid; FONT-FAMILY: 'Courier New', Courier; BORDER-RIGHT: #c1c1c1 1px solid; BORDER-BOTTOM: #c1c1c1 1px solid; FONT-WEIGHT: normal; FONT-STYLE: normal; BORDER-LEFT: #c1c1c1 0px solid; BACKGROUND-COLOR: #ffffff
+}
+.datastrong {
+	FONT-SIZE: x-small; BORDER-TOP: #c1c1c1 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #c1c1c1 1px solid; BORDER-BOTTOM: #c1c1c1 1px solid; FONT-WEIGHT: bold; COLOR: #000000; FONT-STYLE: normal; BORDER-LEFT: #c1c1c1 0px solid; BACKGROUND-COLOR: #ffffff
+}
+.datastrongfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #c1c1c1 0px solid; FONT-FAMILY: 'Courier New', Courier, monospace; BORDER-RIGHT: #c1c1c1 1px solid; BORDER-BOTTOM: #c1c1c1 1px solid; FONT-WEIGHT: bold; COLOR: #000000; FONT-STYLE: normal; BORDER-LEFT: #c1c1c1 0px solid; BACKGROUND-COLOR: #ffffff
+}
+.date {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; WIDTH: 100%; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.document {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+A:link {
+	COLOR: #0000ff
+}
+A:visited {
+	COLOR: #800080
+}
+A:active {
+	COLOR: #800080
+}
+.errorbanner {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.errorcontent {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.errorcontentfixed {
+	FONT-SIZE: x-small; FONT-FAMILY: 'Courier New', Courier; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.extendedpage {
+	FONT-SIZE: x-small; BORDER-TOP: #000000 1pt solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #000000 1pt solid; BORDER-BOTTOM: #000000 1pt solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: italic; TEXT-ALIGN: center; BORDER-LEFT: #000000 1pt solid; BACKGROUND-COLOR: #fafbfe
+}
+.fatalbanner {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.fatalcontent {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.fatalcontentfixed {
+	FONT-SIZE: x-small; FONT-FAMILY: 'Courier New', Courier; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.folderaction {
+	LIST-STYLE-TYPE: none; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; MARGIN-LEFT: 6pt
+}
+.footer {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.footeremphasis {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: italic; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.footeremphasisfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier, monospace; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: italic; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.footerempty {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.footerfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.footerstrong {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.footerstrongfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier, monospace; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.frame {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.graph {
+	FONT-SIZE: x-small; BORDER-TOP: #c1c1c1 1px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #c1c1c1 1px solid; BORDER-COLLAPSE: separate; BORDER-BOTTOM: #c1c1c1 1px solid; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BORDER-SPACING: 1px; BORDER-LEFT: #c1c1c1 1px solid; BACKGROUND-COLOR: #fafbfe
+}
+.header {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.headeremphasis {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: italic; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #d8dbd3
+}
+.headeremphasisfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier, monospace; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: italic; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #d8dbd3
+}
+.headerempty {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.headerfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.headersandfooters {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #edf2f9
+}
+.headerstrong {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #000000; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #d8dbd3
+}
+.headerstrongfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier, monospace; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #000000; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #d8dbd3
+}
+.heading1 {
+	FONT-FAMILY: Arial, Helvetica, sans-serif
+}
+.heading2 {
+	FONT-FAMILY: Arial, Helvetica, sans-serif
+}
+.heading3 {
+	FONT-FAMILY: Arial, Helvetica, sans-serif
+}
+.heading4 {
+	FONT-FAMILY: Arial, Helvetica, sans-serif
+}
+.heading5 {
+	FONT-FAMILY: Arial, Helvetica, sans-serif
+}
+.heading6 {
+	FONT-FAMILY: Arial, Helvetica, sans-serif
+}
+.index {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.indexaction {
+	LIST-STYLE-TYPE: none; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; MARGIN-LEFT: 6pt
+}
+.indexitem {
+	LIST-STYLE-TYPE: none; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; MARGIN-LEFT: 6pt
+}
+.indexprocname {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.indextitle {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: italic; BACKGROUND-COLOR: #fafbfe
+}
+.layoutcontainer {
+	BORDER-TOP: #000000 0px solid; BORDER-RIGHT: #000000 0px solid; BORDER-BOTTOM: #000000 0px solid; BORDER-SPACING: 30px; BORDER-LEFT: #000000 0px solid
+}
+.layoutregion {
+	BORDER-TOP: #000000 0px solid; BORDER-RIGHT: #000000 0px solid; BORDER-BOTTOM: #000000 0px solid; BORDER-SPACING: 30px; BORDER-LEFT: #000000 0px solid
+}
+.linecontent {
+	FONT-SIZE: x-small; BORDER-TOP: #c1c1c1 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #c1c1c1 1px solid; BORDER-BOTTOM: #c1c1c1 1px solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #c1c1c1 0px solid; BACKGROUND-COLOR: #fafbfe
+}
+.link {
+	COLOR: #0000ff
+}
+.list {
+	LIST-STYLE-TYPE: disc; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.list10 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.list2 {
+	LIST-STYLE-TYPE: circle; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.list3 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.list4 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.list5 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.list6 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.list7 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.list8 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.list9 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.listitem {
+	LIST-STYLE-TYPE: disc; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.listitem10 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.listitem2 {
+	LIST-STYLE-TYPE: circle; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.listitem3 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.listitem4 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.listitem5 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.listitem6 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.listitem7 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.listitem8 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.listitem9 {
+	LIST-STYLE-TYPE: square; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.note {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.notebanner {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.notecontent {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.notecontentfixed {
+	FONT-SIZE: x-small; FONT-FAMILY: 'Courier New', Courier; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.output {
+	FONT-SIZE: x-small; BORDER-TOP: #c1c1c1 1px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #c1c1c1 1px solid; BORDER-COLLAPSE: separate; BORDER-BOTTOM: #c1c1c1 1px solid; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BORDER-SPACING: 1px; BORDER-LEFT: #c1c1c1 1px solid; BACKGROUND-COLOR: #fafbfe
+}
+.pageno {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; VERTICAL-ALIGN: top; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; TEXT-ALIGN: right; BORDER-SPACING: 0px; BACKGROUND-COLOR: #fafbfe
+}
+.pages {
+	LIST-STYLE-TYPE: decimal; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; MARGIN-LEFT: 8px; BACKGROUND-COLOR: #fafbfe; MARGIN-RIGHT: 8px
+}
+.pagesdate {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; WIDTH: 100%; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.pagesitem {
+	LIST-STYLE-TYPE: none; FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; MARGIN-LEFT: 6pt
+}
+.pagesproclabel {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.pagesprocname {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.pagestitle {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: italic; BACKGROUND-COLOR: #fafbfe
+}
+.paragraph {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.parskip {
+	FONT-SIZE: x-small; BORDER-TOP: #000000 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #000000 0px solid; BORDER-BOTTOM: #000000 0px solid; FONT-WEIGHT: bold; FONT-STYLE: normal; BORDER-SPACING: 0px; BORDER-LEFT: #000000 0px solid
+}
+.prepage {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; TEXT-ALIGN: left; BACKGROUND-COLOR: #fafbfe
+}
+.proctitle {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.proctitlefixed {
+	FONT-SIZE: x-small; FONT-FAMILY: 'Courier New', Courier, monospace; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.rowfooter {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowfooteremphasis {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: italic; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowfooteremphasisfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier, monospace; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: italic; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowfooterempty {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowfooterfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowfooterstrong {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowfooterstrongfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier, monospace; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowheader {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowheaderemphasis {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: italic; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowheaderemphasisfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier, monospace; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: italic; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowheaderempty {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowheaderfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowheaderstrong {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.rowheaderstrongfixed {
+	FONT-SIZE: x-small; BORDER-TOP: #b0b7bb 0px solid; FONT-FAMILY: 'Courier New', Courier, monospace; BORDER-RIGHT: #b0b7bb 1px solid; BORDER-BOTTOM: #b0b7bb 1px solid; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BORDER-LEFT: #b0b7bb 0px solid; BACKGROUND-COLOR: #edf2f9
+}
+.systemfooter {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemfooter10 {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemfooter2 {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemfooter3 {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemfooter4 {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemfooter5 {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemfooter6 {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemfooter7 {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemfooter8 {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemfooter9 {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemtitle {
+	FONT-SIZE: small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemtitle10 {
+	FONT-SIZE: small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemtitle2 {
+	FONT-SIZE: small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemtitle3 {
+	FONT-SIZE: small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemtitle4 {
+	FONT-SIZE: small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemtitle5 {
+	FONT-SIZE: small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemtitle6 {
+	FONT-SIZE: small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemtitle7 {
+	FONT-SIZE: small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemtitle8 {
+	FONT-SIZE: small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systemtitle9 {
+	FONT-SIZE: small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.systitleandfootercontainer {
+	FONT-SIZE: x-small; BORDER-TOP: #000000 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #000000 0px solid; WIDTH: 100%; BORDER-BOTTOM: #000000 0px solid; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BORDER-SPACING: 1px; BORDER-LEFT: #000000 0px solid; BACKGROUND-COLOR: #fafbfe
+}
+.table {
+	BORDER-TOP: #c1c1c1 1px solid; BORDER-RIGHT: #c1c1c1 0px solid; BORDER-COLLAPSE: collapse; BORDER-BOTTOM: #c1c1c1 0px solid; BORDER-SPACING: 0px; BORDER-LEFT: #c1c1c1 1px solid
+}
+.top_stacked_value {
+	BORDER-TOP: 0px; BORDER-RIGHT: 0px; BORDER-BOTTOM: 0px; PADDING-BOTTOM: 1px; BORDER-LEFT: 0px
+}
+.middle_stacked_value {
+	BORDER-TOP: 0px; BORDER-RIGHT: 0px; BORDER-BOTTOM: 0px; PADDING-BOTTOM: 1px; PADDING-TOP: 1px; BORDER-LEFT: 0px
+}
+.bottom_stacked_value {
+	BORDER-TOP: 0px; BORDER-RIGHT: 0px; BORDER-BOTTOM: 0px; PADDING-TOP: 1px; BORDER-LEFT: 0px
+}
+.titleandnotecontainer {
+	FONT-SIZE: x-small; BORDER-TOP: #000000 0px solid; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; BORDER-RIGHT: #000000 0px solid; WIDTH: 100%; BORDER-BOTTOM: #000000 0px solid; FONT-WEIGHT: normal; COLOR: #000000; FONT-STYLE: normal; BORDER-SPACING: 1px; BORDER-LEFT: #000000 0px solid; BACKGROUND-COLOR: #fafbfe
+}
+.titlesandfooters {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.usertext {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.visitedlink {
+	COLOR: #800080
+}
+.warnbanner {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: bold; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.warncontent {
+	FONT-SIZE: x-small; FONT-FAMILY: Arial, 'Albany AMT', Helvetica, Helv; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.warncontentfixed {
+	FONT-SIZE: x-small; FONT-FAMILY: 'Courier New', Courier; FONT-WEIGHT: normal; COLOR: #112277; FONT-STYLE: normal; BACKGROUND-COLOR: #fafbfe
+}
+.l {
+	TEXT-ALIGN: left
+}
+.c {
+	TEXT-ALIGN: center
+}
+.r {
+	TEXT-ALIGN: right
+}
+.d {
+	TEXT-ALIGN: right
+}
+.j {
+	TEXT-ALIGN: justify
+}
+.t {
+	VERTICAL-ALIGN: top
+}
+.m {
+	VERTICAL-ALIGN: middle
+}
+.b {
+	VERTICAL-ALIGN: bottom
+}
+TD {
+	VERTICAL-ALIGN: top
+}
+TH {
+	VERTICAL-ALIGN: top
+}
+.stacked_cell {
+	PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px
+}
+</STYLE>
+
+<SCRIPT language=javascript type=text/javascript>
+<!-- 
+function startup(){
+
+}
+function shutdown(){
+
+}
+
+//-->
+</SCRIPT>
+</HEAD>
+<BODY class=body onload=startup() onunload=shutdown()>
+<SCRIPT language=javascript type=text/javascript>
+<!-- 
+var _info = navigator.userAgent
+var _ie = (_info.indexOf("MSIE") > 0
+          && _info.indexOf("Win") > 0
+          && _info.indexOf("Windows 3.1") < 0);
+var _ie64 = _info.indexOf("x64") > 0
+
+//-->
+</SCRIPT>
+
+<DIV class=branch><A name=IDX></A>
+<TABLE class=systitleandfootercontainer cellSpacing=1 cellPadding=1 rules=none 
+width="100%" summary="Page Layout" border=0 frame=void>
+  <TBODY>
+  <TR>
+    <TD class="c systemtitle">2015</TD></TR></TBODY></TABLE><BR>
+<DIV class="c proctitle">The FREQ Procedure</DIV>
+<P>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Race</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">79599</TD>
+    <TD class="r data">99.00</TD>
+    <TD class="r data">79599</TD>
+    <TD class="r data">99.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">40</TD>
+    <TD class="r data">0.05</TD>
+    <TD class="r data">79639</TD>
+    <TD class="r data">99.05</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">27</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">79666</TD>
+    <TD class="r data">99.09</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R1</TH>
+    <TD class="r data">16</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">79682</TD>
+    <TD class="r data">99.11</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R2</TH>
+    <TD class="r data">16</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">79698</TD>
+    <TD class="r data">99.13</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R3</TH>
+    <TD class="r data">94</TD>
+    <TD class="r data">0.12</TD>
+    <TD class="r data">79792</TD>
+    <TD class="r data">99.24</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R5</TH>
+    <TD class="r data">480</TD>
+    <TD class="r data">0.60</TD>
+    <TD class="r data">80272</TD>
+    <TD class="r data">99.84</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>RZ</TH>
+    <TD class="r data">128</TD>
+    <TD class="r data">0.16</TD>
+    <TD class="r data">80400</TD>
+    <TD class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR><A 
+name=IDX1></A>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Ethnicity</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">79602</TD>
+    <TD class="r data">99.01</TD>
+    <TD class="r data">79602</TD>
+    <TD class="r data">99.01</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E1</TH>
+    <TD class="r data">30</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">79632</TD>
+    <TD class="r data">99.04</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">568</TD>
+    <TD class="r data">0.71</TD>
+    <TD class="r data">80200</TD>
+    <TD class="r data">99.75</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EN</TH>
+    <TD class="r data">41</TD>
+    <TD class="r data">0.05</TD>
+    <TD class="r data">80241</TD>
+    <TD class="r data">99.80</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">133</TD>
+    <TD class="r data">0.17</TD>
+    <TD class="r data">80374</TD>
+    <TD class="r data">99.97</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>En</TH>
+    <TD class="r data">25</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">80399</TD>
+    <TD class="r data">100.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ma</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">80400</TD>
+    <TD class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR></DIV>
+<DIV class=branch>
+<P style="PAGE-BREAK-AFTER: always"><BR></P>
+<HR SIZE=3>
+<A name=IDX2></A>
+<TABLE class=systitleandfootercontainer cellSpacing=1 cellPadding=1 rules=none 
+width="100%" summary="Page Layout" border=0 frame=void>
+  <TBODY>
+  <TR>
+    <TD class="c systemtitle">2016</TD></TR></TBODY></TABLE><BR>
+<DIV class="c proctitle">The FREQ Procedure</DIV>
+<P>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Race</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">93602</TD>
+    <TD class="r data">29.34</TD>
+    <TD class="r data">93602</TD>
+    <TD class="r data">29.34</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E1</TH>
+    <TD class="r data">2604</TD>
+    <TD class="r data">0.82</TD>
+    <TD class="r data">96206</TD>
+    <TD class="r data">30.16</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">72879</TD>
+    <TD class="r data">22.85</TD>
+    <TD class="r data">169085</TD>
+    <TD class="r data">53.01</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">70366</TD>
+    <TD class="r data">22.06</TD>
+    <TD class="r data">239451</TD>
+    <TD class="r data">75.07</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R1</TH>
+    <TD class="r data">1552</TD>
+    <TD class="r data">0.49</TD>
+    <TD class="r data">241003</TD>
+    <TD class="r data">75.55</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R2</TH>
+    <TD class="r data">734</TD>
+    <TD class="r data">0.23</TD>
+    <TD class="r data">241737</TD>
+    <TD class="r data">75.78</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R3</TH>
+    <TD class="r data">8201</TD>
+    <TD class="r data">2.57</TD>
+    <TD class="r data">249938</TD>
+    <TD class="r data">78.35</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R4</TH>
+    <TD class="r data">139</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">250077</TD>
+    <TD class="r data">78.40</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R5</TH>
+    <TD class="r data">36494</TD>
+    <TD class="r data">11.44</TD>
+    <TD class="r data">286571</TD>
+    <TD class="r data">89.84</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R9</TH>
+    <TD class="r data">473</TD>
+    <TD class="r data">0.15</TD>
+    <TD class="r data">287044</TD>
+    <TD class="r data">89.99</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>RZ</TH>
+    <TD class="r data">31939</TD>
+    <TD class="r data">10.01</TD>
+    <TD class="r data">318983</TD>
+    <TD class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR><A 
+name=IDX3></A>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Ethnicity</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">94209</TD>
+    <TD class="r data">29.53</TD>
+    <TD class="r data">94209</TD>
+    <TD class="r data">29.53</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AL</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">94210</TD>
+    <TD class="r data">29.53</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AM</TH>
+    <TD class="r data">34</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">94244</TD>
+    <TD class="r data">29.55</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AN</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">94245</TD>
+    <TD class="r data">29.55</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AR</TH>
+    <TD class="r data">267</TD>
+    <TD class="r data">0.08</TD>
+    <TD class="r data">94512</TD>
+    <TD class="r data">29.63</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Af</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">94513</TD>
+    <TD class="r data">29.63</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Am</TH>
+    <TD class="r data">88</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">94601</TD>
+    <TD class="r data">29.66</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ar</TH>
+    <TD class="r data">38</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">94639</TD>
+    <TD class="r data">29.67</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BO</TH>
+    <TD class="r data">42</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">94681</TD>
+    <TD class="r data">29.68</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Be</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">94683</TD>
+    <TD class="r data">29.68</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Bo</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">94691</TD>
+    <TD class="r data">29.69</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CA</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">94693</TD>
+    <TD class="r data">29.69</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CH</TH>
+    <TD class="r data">9</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">94702</TD>
+    <TD class="r data">29.69</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CR</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">94704</TD>
+    <TD class="r data">29.69</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ch</TH>
+    <TD class="r data">18</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">94722</TD>
+    <TD class="r data">29.69</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>DU</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">94727</TD>
+    <TD class="r data">29.70</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E1</TH>
+    <TD class="r data">1219</TD>
+    <TD class="r data">0.38</TD>
+    <TD class="r data">95946</TD>
+    <TD class="r data">30.08</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">45856</TD>
+    <TD class="r data">14.38</TD>
+    <TD class="r data">141802</TD>
+    <TD class="r data">44.45</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EN</TH>
+    <TD class="r data">96911</TD>
+    <TD class="r data">30.38</TD>
+    <TD class="r data">238713</TD>
+    <TD class="r data">74.84</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>ES</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">238719</TD>
+    <TD class="r data">74.84</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>ET</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">238720</TD>
+    <TD class="r data">74.84</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EW</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">238723</TD>
+    <TD class="r data">74.84</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">31553</TD>
+    <TD class="r data">9.89</TD>
+    <TD class="r data">270276</TD>
+    <TD class="r data">84.73</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>En</TH>
+    <TD class="r data">43841</TD>
+    <TD class="r data">13.74</TD>
+    <TD class="r data">314117</TD>
+    <TD class="r data">98.47</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>FA</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314123</TD>
+    <TD class="r data">98.48</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>FR</TH>
+    <TD class="r data">26</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">314149</TD>
+    <TD class="r data">98.48</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Fa</TH>
+    <TD class="r data">14</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314163</TD>
+    <TD class="r data">98.49</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Fr</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314167</TD>
+    <TD class="r data">98.49</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ge</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314170</TD>
+    <TD class="r data">98.49</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HA</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314171</TD>
+    <TD class="r data">98.49</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HM</TH>
+    <TD class="r data">59</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">314230</TD>
+    <TD class="r data">98.51</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>He</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314231</TD>
+    <TD class="r data">98.51</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Hm</TH>
+    <TD class="r data">108</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">314339</TD>
+    <TD class="r data">98.54</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ja</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314345</TD>
+    <TD class="r data">98.55</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KA</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314349</TD>
+    <TD class="r data">98.55</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KO</TH>
+    <TD class="r data">7</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314356</TD>
+    <TD class="r data">98.55</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KU</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314360</TD>
+    <TD class="r data">98.55</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Kh</TH>
+    <TD class="r data">16</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">314376</TD>
+    <TD class="r data">98.56</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ko</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314380</TD>
+    <TD class="r data">98.56</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>LA</TH>
+    <TD class="r data">25</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">314405</TD>
+    <TD class="r data">98.56</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>La</TH>
+    <TD class="r data">33</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">314438</TD>
+    <TD class="r data">98.58</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>MA</TH>
+    <TD class="r data">23</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">314461</TD>
+    <TD class="r data">98.58</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>MI</TH>
+    <TD class="r data">10</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314471</TD>
+    <TD class="r data">98.59</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>MO</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314474</TD>
+    <TD class="r data">98.59</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ma</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314475</TD>
+    <TD class="r data">98.59</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>NE</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314476</TD>
+    <TD class="r data">98.59</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>No</TH>
+    <TD class="r data">13</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314489</TD>
+    <TD class="r data">98.59</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>OR</TH>
+    <TD class="r data">48</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">314537</TD>
+    <TD class="r data">98.61</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>OT</TH>
+    <TD class="r data">21</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">314558</TD>
+    <TD class="r data">98.61</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Or</TH>
+    <TD class="r data">11</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314569</TD>
+    <TD class="r data">98.62</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ot</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314573</TD>
+    <TD class="r data">98.62</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>PE</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314574</TD>
+    <TD class="r data">98.62</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>PO</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314582</TD>
+    <TD class="r data">98.62</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Pu</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314584</TD>
+    <TD class="r data">98.62</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>RU</TH>
+    <TD class="r data">39</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">314623</TD>
+    <TD class="r data">98.63</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ro</TH>
+    <TD class="r data">13</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">314636</TD>
+    <TD class="r data">98.64</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ru</TH>
+    <TD class="r data">37</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">314673</TD>
+    <TD class="r data">98.65</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SO</TH>
+    <TD class="r data">1122</TD>
+    <TD class="r data">0.35</TD>
+    <TD class="r data">315795</TD>
+    <TD class="r data">99.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SP</TH>
+    <TD class="r data">1946</TD>
+    <TD class="r data">0.61</TD>
+    <TD class="r data">317741</TD>
+    <TD class="r data">99.61</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SW</TH>
+    <TD class="r data">9</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">317750</TD>
+    <TD class="r data">99.61</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Sl</TH>
+    <TD class="r data">12</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">317762</TD>
+    <TD class="r data">99.62</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>So</TH>
+    <TD class="r data">198</TD>
+    <TD class="r data">0.06</TD>
+    <TD class="r data">317960</TD>
+    <TD class="r data">99.68</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Sp</TH>
+    <TD class="r data">604</TD>
+    <TD class="r data">0.19</TD>
+    <TD class="r data">318564</TD>
+    <TD class="r data">99.87</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Sw</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">318566</TD>
+    <TD class="r data">99.87</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TH</TH>
+    <TD class="r data">7</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">318573</TD>
+    <TD class="r data">99.87</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TI</TH>
+    <TD class="r data">77</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">318650</TD>
+    <TD class="r data">99.90</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ti</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">318651</TD>
+    <TD class="r data">99.90</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UK</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">318653</TD>
+    <TD class="r data">99.90</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UN</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">318659</TD>
+    <TD class="r data">99.90</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UR</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">318667</TD>
+    <TD class="r data">99.90</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Uk</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">318669</TD>
+    <TD class="r data">99.90</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Un</TH>
+    <TD class="r data">229</TD>
+    <TD class="r data">0.07</TD>
+    <TD class="r data">318898</TD>
+    <TD class="r data">99.97</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>VI</TH>
+    <TD class="r data">50</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">318948</TD>
+    <TD class="r data">99.99</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Vi</TH>
+    <TD class="r data">35</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">318983</TD>
+    <TD class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR></DIV>
+<DIV class=branch>
+<P style="PAGE-BREAK-AFTER: always"><BR></P>
+<HR SIZE=3>
+<A name=IDX4></A>
+<TABLE class=systitleandfootercontainer cellSpacing=1 cellPadding=1 rules=none 
+width="100%" summary="Page Layout" border=0 frame=void>
+  <TBODY>
+  <TR>
+    <TD class="c systemtitle">2017</TD></TR></TBODY></TABLE><BR>
+<DIV class="c proctitle">The FREQ Procedure</DIV>
+<P>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Race</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">9007</TD>
+    <TD class="r data">2.68</TD>
+    <TD class="r data">9007</TD>
+    <TD class="r data">2.68</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E1</TH>
+    <TD class="r data">4386</TD>
+    <TD class="r data">1.31</TD>
+    <TD class="r data">13393</TD>
+    <TD class="r data">3.99</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">135689</TD>
+    <TD class="r data">40.39</TD>
+    <TD class="r data">149082</TD>
+    <TD class="r data">44.38</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">68305</TD>
+    <TD class="r data">20.33</TD>
+    <TD class="r data">217387</TD>
+    <TD class="r data">64.71</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R1</TH>
+    <TD class="r data">3166</TD>
+    <TD class="r data">0.94</TD>
+    <TD class="r data">220553</TD>
+    <TD class="r data">65.65</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R2</TH>
+    <TD class="r data">1520</TD>
+    <TD class="r data">0.45</TD>
+    <TD class="r data">222073</TD>
+    <TD class="r data">66.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R3</TH>
+    <TD class="r data">17089</TD>
+    <TD class="r data">5.09</TD>
+    <TD class="r data">239162</TD>
+    <TD class="r data">71.19</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R4</TH>
+    <TD class="r data">207</TD>
+    <TD class="r data">0.06</TD>
+    <TD class="r data">239369</TD>
+    <TD class="r data">71.25</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R5</TH>
+    <TD class="r data">65057</TD>
+    <TD class="r data">19.37</TD>
+    <TD class="r data">304426</TD>
+    <TD class="r data">90.62</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R9</TH>
+    <TD class="r data">763</TD>
+    <TD class="r data">0.23</TD>
+    <TD class="r data">305189</TD>
+    <TD class="r data">90.85</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>RZ</TH>
+    <TD class="r data">30751</TD>
+    <TD class="r data">9.15</TD>
+    <TD class="r data">335940</TD>
+    <TD class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR><A 
+name=IDX5></A>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Ethnicity</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">9994</TD>
+    <TD class="r data">2.97</TD>
+    <TD class="r data">9994</TD>
+    <TD class="r data">2.97</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AF</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">9995</TD>
+    <TD class="r data">2.98</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AL</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">9997</TD>
+    <TD class="r data">2.98</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AM</TH>
+    <TD class="r data">77</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">10074</TD>
+    <TD class="r data">3.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AN</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">10075</TD>
+    <TD class="r data">3.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AR</TH>
+    <TD class="r data">235</TD>
+    <TD class="r data">0.07</TD>
+    <TD class="r data">10310</TD>
+    <TD class="r data">3.07</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ab</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">10311</TD>
+    <TD class="r data">3.07</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Am</TH>
+    <TD class="r data">192</TD>
+    <TD class="r data">0.06</TD>
+    <TD class="r data">10503</TD>
+    <TD class="r data">3.13</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ar</TH>
+    <TD class="r data">115</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">10618</TD>
+    <TD class="r data">3.16</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BE</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">10623</TD>
+    <TD class="r data">3.16</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BO</TH>
+    <TD class="r data">51</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">10674</TD>
+    <TD class="r data">3.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BU</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">10675</TD>
+    <TD class="r data">3.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Bo</TH>
+    <TD class="r data">13</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">10688</TD>
+    <TD class="r data">3.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Bu</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">10689</TD>
+    <TD class="r data">3.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CA</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">10690</TD>
+    <TD class="r data">3.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CH</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">10692</TD>
+    <TD class="r data">3.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ca</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">10695</TD>
+    <TD class="r data">3.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ce</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">10696</TD>
+    <TD class="r data">3.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ch</TH>
+    <TD class="r data">20</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">10716</TD>
+    <TD class="r data">3.19</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>DU</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">10718</TD>
+    <TD class="r data">3.19</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E1</TH>
+    <TD class="r data">2110</TD>
+    <TD class="r data">0.63</TD>
+    <TD class="r data">12828</TD>
+    <TD class="r data">3.82</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">86877</TD>
+    <TD class="r data">25.86</TD>
+    <TD class="r data">99705</TD>
+    <TD class="r data">29.68</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>ED</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">99707</TD>
+    <TD class="r data">29.68</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EG</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">99710</TD>
+    <TD class="r data">29.68</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EN</TH>
+    <TD class="r data">90087</TD>
+    <TD class="r data">26.82</TD>
+    <TD class="r data">189797</TD>
+    <TD class="r data">56.50</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">28682</TD>
+    <TD class="r data">8.54</TD>
+    <TD class="r data">218479</TD>
+    <TD class="r data">65.04</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ed</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">218480</TD>
+    <TD class="r data">65.04</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>En</TH>
+    <TD class="r data">110995</TD>
+    <TD class="r data">33.04</TD>
+    <TD class="r data">329475</TD>
+    <TD class="r data">98.08</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Es</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329476</TD>
+    <TD class="r data">98.08</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>FA</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329484</TD>
+    <TD class="r data">98.08</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>FR</TH>
+    <TD class="r data">18</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">329502</TD>
+    <TD class="r data">98.08</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Fa</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329508</TD>
+    <TD class="r data">98.09</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Fr</TH>
+    <TD class="r data">43</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">329551</TD>
+    <TD class="r data">98.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>GA</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329556</TD>
+    <TD class="r data">98.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>GE</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329560</TD>
+    <TD class="r data">98.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>GR</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329562</TD>
+    <TD class="r data">98.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>GU</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329563</TD>
+    <TD class="r data">98.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ge</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329564</TD>
+    <TD class="r data">98.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Gr</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329567</TD>
+    <TD class="r data">98.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HI</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329570</TD>
+    <TD class="r data">98.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HM</TH>
+    <TD class="r data">66</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">329636</TD>
+    <TD class="r data">98.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>He</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329637</TD>
+    <TD class="r data">98.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Hi</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329641</TD>
+    <TD class="r data">98.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Hm</TH>
+    <TD class="r data">128</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">329769</TD>
+    <TD class="r data">98.16</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>IG</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329770</TD>
+    <TD class="r data">98.16</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>JA</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329774</TD>
+    <TD class="r data">98.16</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ja</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329776</TD>
+    <TD class="r data">98.17</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KO</TH>
+    <TD class="r data">12</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329788</TD>
+    <TD class="r data">98.17</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KU</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329793</TD>
+    <TD class="r data">98.17</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Kh</TH>
+    <TD class="r data">31</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">329824</TD>
+    <TD class="r data">98.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ko</TH>
+    <TD class="r data">42</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">329866</TD>
+    <TD class="r data">98.19</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>LA</TH>
+    <TD class="r data">21</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">329887</TD>
+    <TD class="r data">98.20</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>LO</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329888</TD>
+    <TD class="r data">98.20</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>La</TH>
+    <TD class="r data">52</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">329940</TD>
+    <TD class="r data">98.21</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Li</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329948</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>MI</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329949</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>MO</TH>
+    <TD class="r data">12</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329961</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ma</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329963</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>NE</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329968</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>NO</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329971</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>No</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">329976</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>OR</TH>
+    <TD class="r data">84</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">330060</TD>
+    <TD class="r data">98.25</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>OT</TH>
+    <TD class="r data">13</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">330073</TD>
+    <TD class="r data">98.25</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Or</TH>
+    <TD class="r data">59</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">330132</TD>
+    <TD class="r data">98.27</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ot</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">330138</TD>
+    <TD class="r data">98.27</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>PE</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">330142</TD>
+    <TD class="r data">98.27</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>PO</TH>
+    <TD class="r data">14</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">330156</TD>
+    <TD class="r data">98.28</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Pa</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">330158</TD>
+    <TD class="r data">98.28</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Pe</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">330163</TD>
+    <TD class="r data">98.28</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Po</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">330166</TD>
+    <TD class="r data">98.28</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>RU</TH>
+    <TD class="r data">56</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">330222</TD>
+    <TD class="r data">98.30</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ro</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">330223</TD>
+    <TD class="r data">98.30</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ru</TH>
+    <TD class="r data">78</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">330301</TD>
+    <TD class="r data">98.32</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SA</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">330305</TD>
+    <TD class="r data">98.32</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SO</TH>
+    <TD class="r data">1103</TD>
+    <TD class="r data">0.33</TD>
+    <TD class="r data">331408</TD>
+    <TD class="r data">98.65</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SP</TH>
+    <TD class="r data">2310</TD>
+    <TD class="r data">0.69</TD>
+    <TD class="r data">333718</TD>
+    <TD class="r data">99.34</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SW</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">333724</TD>
+    <TD class="r data">99.34</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Sl</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">333726</TD>
+    <TD class="r data">99.34</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>So</TH>
+    <TD class="r data">962</TD>
+    <TD class="r data">0.29</TD>
+    <TD class="r data">334688</TD>
+    <TD class="r data">99.63</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Sp</TH>
+    <TD class="r data">716</TD>
+    <TD class="r data">0.21</TD>
+    <TD class="r data">335404</TD>
+    <TD class="r data">99.84</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Sw</TH>
+    <TD class="r data">25</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">335429</TD>
+    <TD class="r data">99.85</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TA</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">335430</TD>
+    <TD class="r data">99.85</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TE</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">335432</TD>
+    <TD class="r data">99.85</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TH</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">335434</TD>
+    <TD class="r data">99.85</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TI</TH>
+    <TD class="r data">32</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">335466</TD>
+    <TD class="r data">99.86</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TU</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">335468</TD>
+    <TD class="r data">99.86</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ta</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">335472</TD>
+    <TD class="r data">99.86</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ti</TH>
+    <TD class="r data">27</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">335499</TD>
+    <TD class="r data">99.87</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Tu</TH>
+    <TD class="r data">7</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">335506</TD>
+    <TD class="r data">99.87</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UK</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">335509</TD>
+    <TD class="r data">99.87</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UN</TH>
+    <TD class="r data">54</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">335563</TD>
+    <TD class="r data">99.89</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UR</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">335565</TD>
+    <TD class="r data">99.89</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Uk</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">335566</TD>
+    <TD class="r data">99.89</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Un</TH>
+    <TD class="r data">273</TD>
+    <TD class="r data">0.08</TD>
+    <TD class="r data">335839</TD>
+    <TD class="r data">99.97</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>VI</TH>
+    <TD class="r data">59</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">335898</TD>
+    <TD class="r data">99.99</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Vi</TH>
+    <TD class="r data">42</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">335940</TD>
+    <TD class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR></DIV>
+<DIV class=branch>
+<P style="PAGE-BREAK-AFTER: always"><BR></P>
+<HR SIZE=3>
+<A name=IDX6></A>
+<TABLE class=systitleandfootercontainer cellSpacing=1 cellPadding=1 rules=none 
+width="100%" summary="Page Layout" border=0 frame=void>
+  <TBODY>
+  <TR>
+    <TD class="c systemtitle">2018</TD></TR></TBODY></TABLE><BR>
+<DIV class="c proctitle">The FREQ Procedure</DIV>
+<P>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Race</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">1779</TD>
+    <TD class="r data">0.51</TD>
+    <TD class="r data">1779</TD>
+    <TD class="r data">0.51</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E1</TH>
+    <TD class="r data">6234</TD>
+    <TD class="r data">1.79</TD>
+    <TD class="r data">8013</TD>
+    <TD class="r data">2.30</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">195058</TD>
+    <TD class="r data">55.95</TD>
+    <TD class="r data">203071</TD>
+    <TD class="r data">58.25</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">19556</TD>
+    <TD class="r data">5.61</TD>
+    <TD class="r data">222627</TD>
+    <TD class="r data">63.86</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R1</TH>
+    <TD class="r data">5276</TD>
+    <TD class="r data">1.51</TD>
+    <TD class="r data">227903</TD>
+    <TD class="r data">65.37</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R2</TH>
+    <TD class="r data">2225</TD>
+    <TD class="r data">0.64</TD>
+    <TD class="r data">230128</TD>
+    <TD class="r data">66.01</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R3</TH>
+    <TD class="r data">26174</TD>
+    <TD class="r data">7.51</TD>
+    <TD class="r data">256302</TD>
+    <TD class="r data">73.52</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R4</TH>
+    <TD class="r data">250</TD>
+    <TD class="r data">0.07</TD>
+    <TD class="r data">256552</TD>
+    <TD class="r data">73.59</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R5</TH>
+    <TD class="r data">80718</TD>
+    <TD class="r data">23.15</TD>
+    <TD class="r data">337270</TD>
+    <TD class="r data">96.74</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R9</TH>
+    <TD class="r data">1993</TD>
+    <TD class="r data">0.57</TD>
+    <TD class="r data">339263</TD>
+    <TD class="r data">97.31</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>RZ</TH>
+    <TD class="r data">9366</TD>
+    <TD class="r data">2.69</TD>
+    <TD class="r data">348629</TD>
+    <TD class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR><A 
+name=IDX7></A>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Ethnicity</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">2880</TD>
+    <TD class="r data">0.83</TD>
+    <TD class="r data">2880</TD>
+    <TD class="r data">0.83</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AB</TH>
+    <TD class="r data">11</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">2891</TD>
+    <TD class="r data">0.83</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AL</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">2892</TD>
+    <TD class="r data">0.83</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AM</TH>
+    <TD class="r data">61</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">2953</TD>
+    <TD class="r data">0.85</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AR</TH>
+    <TD class="r data">359</TD>
+    <TD class="r data">0.10</TD>
+    <TD class="r data">3312</TD>
+    <TD class="r data">0.95</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ab</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3313</TD>
+    <TD class="r data">0.95</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Am</TH>
+    <TD class="r data">168</TD>
+    <TD class="r data">0.05</TD>
+    <TD class="r data">3481</TD>
+    <TD class="r data">1.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ar</TH>
+    <TD class="r data">33</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">3514</TD>
+    <TD class="r data">1.01</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BE</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3522</TD>
+    <TD class="r data">1.01</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BO</TH>
+    <TD class="r data">46</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">3568</TD>
+    <TD class="r data">1.02</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CA</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3569</TD>
+    <TD class="r data">1.02</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CH</TH>
+    <TD class="r data">7</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3576</TD>
+    <TD class="r data">1.03</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CR</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3580</TD>
+    <TD class="r data">1.03</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ca</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3581</TD>
+    <TD class="r data">1.03</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ch</TH>
+    <TD class="r data">35</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">3616</TD>
+    <TD class="r data">1.04</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>DU</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3621</TD>
+    <TD class="r data">1.04</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E1</TH>
+    <TD class="r data">2807</TD>
+    <TD class="r data">0.81</TD>
+    <TD class="r data">6428</TD>
+    <TD class="r data">1.84</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">114992</TD>
+    <TD class="r data">32.98</TD>
+    <TD class="r data">121420</TD>
+    <TD class="r data">34.83</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>ED</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">121422</TD>
+    <TD class="r data">34.83</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EG</TH>
+    <TD class="r data">10</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">121432</TD>
+    <TD class="r data">34.83</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EN</TH>
+    <TD class="r data">210331</TD>
+    <TD class="r data">60.33</TD>
+    <TD class="r data">331763</TD>
+    <TD class="r data">95.16</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>ET</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">331764</TD>
+    <TD class="r data">95.16</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">7091</TD>
+    <TD class="r data">2.03</TD>
+    <TD class="r data">338855</TD>
+    <TD class="r data">97.20</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ea</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">338856</TD>
+    <TD class="r data">97.20</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Eb</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">338861</TD>
+    <TD class="r data">97.20</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>En</TH>
+    <TD class="r data">2841</TD>
+    <TD class="r data">0.81</TD>
+    <TD class="r data">341702</TD>
+    <TD class="r data">98.01</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>FR</TH>
+    <TD class="r data">44</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">341746</TD>
+    <TD class="r data">98.03</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Fa</TH>
+    <TD class="r data">16</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">341762</TD>
+    <TD class="r data">98.03</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>GE</TH>
+    <TD class="r data">9</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">341771</TD>
+    <TD class="r data">98.03</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>GU</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">341779</TD>
+    <TD class="r data">98.04</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HI</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">341787</TD>
+    <TD class="r data">98.04</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HM</TH>
+    <TD class="r data">230</TD>
+    <TD class="r data">0.07</TD>
+    <TD class="r data">342017</TD>
+    <TD class="r data">98.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Hm</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342022</TD>
+    <TD class="r data">98.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Hu</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342024</TD>
+    <TD class="r data">98.11</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>IG</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342026</TD>
+    <TD class="r data">98.11</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>IT</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342029</TD>
+    <TD class="r data">98.11</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>In</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342030</TD>
+    <TD class="r data">98.11</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KO</TH>
+    <TD class="r data">25</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">342055</TD>
+    <TD class="r data">98.11</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KU</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342056</TD>
+    <TD class="r data">98.11</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Kh</TH>
+    <TD class="r data">21</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">342077</TD>
+    <TD class="r data">98.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ko</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342085</TD>
+    <TD class="r data">98.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>LA</TH>
+    <TD class="r data">64</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">342149</TD>
+    <TD class="r data">98.14</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>LI</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342154</TD>
+    <TD class="r data">98.14</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>MA</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342156</TD>
+    <TD class="r data">98.14</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ma</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342160</TD>
+    <TD class="r data">98.14</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>NE</TH>
+    <TD class="r data">13</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342173</TD>
+    <TD class="r data">98.15</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>NO</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342177</TD>
+    <TD class="r data">98.15</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ne</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342183</TD>
+    <TD class="r data">98.15</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>OR</TH>
+    <TD class="r data">95</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">342278</TD>
+    <TD class="r data">98.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>OT</TH>
+    <TD class="r data">27</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">342305</TD>
+    <TD class="r data">98.19</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Or</TH>
+    <TD class="r data">10</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342315</TD>
+    <TD class="r data">98.19</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>PE</TH>
+    <TD class="r data">30</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">342345</TD>
+    <TD class="r data">98.20</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>PO</TH>
+    <TD class="r data">9</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342354</TD>
+    <TD class="r data">98.20</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Pa</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342355</TD>
+    <TD class="r data">98.20</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Pu</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342360</TD>
+    <TD class="r data">98.20</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>QU</TH>
+    <TD class="r data">7</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342367</TD>
+    <TD class="r data">98.20</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Qu</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342368</TD>
+    <TD class="r data">98.20</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>RU</TH>
+    <TD class="r data">159</TD>
+    <TD class="r data">0.05</TD>
+    <TD class="r data">342527</TD>
+    <TD class="r data">98.25</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ro</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342533</TD>
+    <TD class="r data">98.25</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ru</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342539</TD>
+    <TD class="r data">98.25</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SA</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342542</TD>
+    <TD class="r data">98.25</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SO</TH>
+    <TD class="r data">2109</TD>
+    <TD class="r data">0.60</TD>
+    <TD class="r data">344651</TD>
+    <TD class="r data">98.86</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SP</TH>
+    <TD class="r data">3219</TD>
+    <TD class="r data">0.92</TD>
+    <TD class="r data">347870</TD>
+    <TD class="r data">99.78</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SW</TH>
+    <TD class="r data">12</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">347882</TD>
+    <TD class="r data">99.79</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Sa</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">347883</TD>
+    <TD class="r data">99.79</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Se</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">347889</TD>
+    <TD class="r data">99.79</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>So</TH>
+    <TD class="r data">172</TD>
+    <TD class="r data">0.05</TD>
+    <TD class="r data">348061</TD>
+    <TD class="r data">99.84</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Sp</TH>
+    <TD class="r data">149</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">348210</TD>
+    <TD class="r data">99.88</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TA</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">348211</TD>
+    <TD class="r data">99.88</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TE</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">348212</TD>
+    <TD class="r data">99.88</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TH</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">348215</TD>
+    <TD class="r data">99.88</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TI</TH>
+    <TD class="r data">16</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">348231</TD>
+    <TD class="r data">99.89</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TU</TH>
+    <TD class="r data">9</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">348240</TD>
+    <TD class="r data">99.89</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ti</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">348244</TD>
+    <TD class="r data">99.89</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UN</TH>
+    <TD class="r data">144</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">348388</TD>
+    <TD class="r data">99.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UR</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">348394</TD>
+    <TD class="r data">99.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UZ</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">348395</TD>
+    <TD class="r data">99.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Un</TH>
+    <TD class="r data">88</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">348483</TD>
+    <TD class="r data">99.96</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>VI</TH>
+    <TD class="r data">131</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">348614</TD>
+    <TD class="r data">100.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Vi</TH>
+    <TD class="r data">9</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">348623</TD>
+    <TD class="r data">100.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>We</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">348628</TD>
+    <TD class="r data">100.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>YO</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">348629</TD>
+    <TD class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR></DIV>
+<DIV class=branch>
+<P style="PAGE-BREAK-AFTER: always"><BR></P>
+<HR SIZE=3>
+<A name=IDX8></A>
+<TABLE class=systitleandfootercontainer cellSpacing=1 cellPadding=1 rules=none 
+width="100%" summary="Page Layout" border=0 frame=void>
+  <TBODY>
+  <TR>
+    <TD class="c systemtitle">2019</TD></TR></TBODY></TABLE><BR>
+<DIV class="c proctitle">The FREQ Procedure</DIV>
+<P>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Race</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">1503</TD>
+    <TD class="r data">0.43</TD>
+    <TD class="r data">1503</TD>
+    <TD class="r data">0.43</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E1</TH>
+    <TD class="r data">6198</TD>
+    <TD class="r data">1.76</TD>
+    <TD class="r data">7701</TD>
+    <TD class="r data">2.19</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">216094</TD>
+    <TD class="r data">61.54</TD>
+    <TD class="r data">223795</TD>
+    <TD class="r data">63.73</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">2522</TD>
+    <TD class="r data">0.72</TD>
+    <TD class="r data">226317</TD>
+    <TD class="r data">64.45</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R1</TH>
+    <TD class="r data">5832</TD>
+    <TD class="r data">1.66</TD>
+    <TD class="r data">232149</TD>
+    <TD class="r data">66.11</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R2</TH>
+    <TD class="r data">2122</TD>
+    <TD class="r data">0.60</TD>
+    <TD class="r data">234271</TD>
+    <TD class="r data">66.71</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R3</TH>
+    <TD class="r data">27998</TD>
+    <TD class="r data">7.97</TD>
+    <TD class="r data">262269</TD>
+    <TD class="r data">74.68</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R4</TH>
+    <TD class="r data">322</TD>
+    <TD class="r data">0.09</TD>
+    <TD class="r data">262591</TD>
+    <TD class="r data">74.78</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R5</TH>
+    <TD class="r data">82566</TD>
+    <TD class="r data">23.51</TD>
+    <TD class="r data">345157</TD>
+    <TD class="r data">98.29</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R9</TH>
+    <TD class="r data">2019</TD>
+    <TD class="r data">0.57</TD>
+    <TD class="r data">347176</TD>
+    <TD class="r data">98.86</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>RZ</TH>
+    <TD class="r data">3991</TD>
+    <TD class="r data">1.14</TD>
+    <TD class="r data">351167</TD>
+    <TD class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR><A 
+name=IDX9></A>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Ethnicity</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">2418</TD>
+    <TD class="r data">0.69</TD>
+    <TD class="r data">2418</TD>
+    <TD class="r data">0.69</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AF</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">2419</TD>
+    <TD class="r data">0.69</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AL</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">2420</TD>
+    <TD class="r data">0.69</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AM</TH>
+    <TD class="r data">150</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">2570</TD>
+    <TD class="r data">0.73</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AR</TH>
+    <TD class="r data">300</TD>
+    <TD class="r data">0.09</TD>
+    <TD class="r data">2870</TD>
+    <TD class="r data">0.82</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Am</TH>
+    <TD class="r data">233</TD>
+    <TD class="r data">0.07</TD>
+    <TD class="r data">3103</TD>
+    <TD class="r data">0.88</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ar</TH>
+    <TD class="r data">32</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">3135</TD>
+    <TD class="r data">0.89</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BA</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3139</TD>
+    <TD class="r data">0.89</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BO</TH>
+    <TD class="r data">78</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">3217</TD>
+    <TD class="r data">0.92</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BU</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3222</TD>
+    <TD class="r data">0.92</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Be</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3224</TD>
+    <TD class="r data">0.92</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CA</TH>
+    <TD class="r data">19</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">3243</TD>
+    <TD class="r data">0.92</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CH</TH>
+    <TD class="r data">12</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3255</TD>
+    <TD class="r data">0.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CZ</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3258</TD>
+    <TD class="r data">0.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ca</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3264</TD>
+    <TD class="r data">0.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ch</TH>
+    <TD class="r data">38</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">3302</TD>
+    <TD class="r data">0.94</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Cr</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3303</TD>
+    <TD class="r data">0.94</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>DA</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3304</TD>
+    <TD class="r data">0.94</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>DU</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3305</TD>
+    <TD class="r data">0.94</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>De</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3307</TD>
+    <TD class="r data">0.94</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Dh</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3313</TD>
+    <TD class="r data">0.94</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E1</TH>
+    <TD class="r data">2981</TD>
+    <TD class="r data">0.85</TD>
+    <TD class="r data">6294</TD>
+    <TD class="r data">1.79</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">119105</TD>
+    <TD class="r data">33.92</TD>
+    <TD class="r data">125399</TD>
+    <TD class="r data">35.71</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EG</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">125404</TD>
+    <TD class="r data">35.71</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EN</TH>
+    <TD class="r data">215638</TD>
+    <TD class="r data">61.41</TD>
+    <TD class="r data">341042</TD>
+    <TD class="r data">97.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>ES</TH>
+    <TD class="r data">18</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">341060</TD>
+    <TD class="r data">97.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>ET</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">341062</TD>
+    <TD class="r data">97.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EW</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">341065</TD>
+    <TD class="r data">97.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">1757</TD>
+    <TD class="r data">0.50</TD>
+    <TD class="r data">342822</TD>
+    <TD class="r data">97.62</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Eb</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">342825</TD>
+    <TD class="r data">97.62</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>En</TH>
+    <TD class="r data">1256</TD>
+    <TD class="r data">0.36</TD>
+    <TD class="r data">344081</TD>
+    <TD class="r data">97.98</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>FR</TH>
+    <TD class="r data">15</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344096</TD>
+    <TD class="r data">97.99</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Fa</TH>
+    <TD class="r data">18</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">344114</TD>
+    <TD class="r data">97.99</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Fr</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344115</TD>
+    <TD class="r data">97.99</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>GE</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344116</TD>
+    <TD class="r data">97.99</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>GI</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344117</TD>
+    <TD class="r data">97.99</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HA</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344118</TD>
+    <TD class="r data">97.99</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HE</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344120</TD>
+    <TD class="r data">97.99</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HI</TH>
+    <TD class="r data">12</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344132</TD>
+    <TD class="r data">98.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HM</TH>
+    <TD class="r data">262</TD>
+    <TD class="r data">0.07</TD>
+    <TD class="r data">344394</TD>
+    <TD class="r data">98.07</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HU</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344395</TD>
+    <TD class="r data">98.07</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>He</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344396</TD>
+    <TD class="r data">98.07</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Hm</TH>
+    <TD class="r data">9</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344405</TD>
+    <TD class="r data">98.07</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>IG</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344407</TD>
+    <TD class="r data">98.07</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>IN</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344408</TD>
+    <TD class="r data">98.08</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>JA</TH>
+    <TD class="r data">17</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344425</TD>
+    <TD class="r data">98.08</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KH</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344426</TD>
+    <TD class="r data">98.08</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KI</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344427</TD>
+    <TD class="r data">98.08</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KO</TH>
+    <TD class="r data">36</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">344463</TD>
+    <TD class="r data">98.09</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KU</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344465</TD>
+    <TD class="r data">98.09</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Kh</TH>
+    <TD class="r data">17</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344482</TD>
+    <TD class="r data">98.10</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>LA</TH>
+    <TD class="r data">90</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">344572</TD>
+    <TD class="r data">98.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>LE</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344573</TD>
+    <TD class="r data">98.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>LI</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344581</TD>
+    <TD class="r data">98.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Li</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344582</TD>
+    <TD class="r data">98.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>MA</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344585</TD>
+    <TD class="r data">98.13</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>NE</TH>
+    <TD class="r data">12</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344597</TD>
+    <TD class="r data">98.13</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>NO</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344598</TD>
+    <TD class="r data">98.13</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ne</TH>
+    <TD class="r data">7</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344605</TD>
+    <TD class="r data">98.13</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>OR</TH>
+    <TD class="r data">122</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">344727</TD>
+    <TD class="r data">98.17</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>OT</TH>
+    <TD class="r data">28</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">344755</TD>
+    <TD class="r data">98.17</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Or</TH>
+    <TD class="r data">7</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344762</TD>
+    <TD class="r data">98.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ot</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344763</TD>
+    <TD class="r data">98.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>PE</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344767</TD>
+    <TD class="r data">98.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>PO</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344772</TD>
+    <TD class="r data">98.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Pe</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344774</TD>
+    <TD class="r data">98.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>QU</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344776</TD>
+    <TD class="r data">98.18</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>RU</TH>
+    <TD class="r data">144</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">344920</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ro</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344926</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ru</TH>
+    <TD class="r data">10</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">344936</TD>
+    <TD class="r data">98.23</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SO</TH>
+    <TD class="r data">2185</TD>
+    <TD class="r data">0.62</TD>
+    <TD class="r data">347121</TD>
+    <TD class="r data">98.85</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SP</TH>
+    <TD class="r data">3290</TD>
+    <TD class="r data">0.94</TD>
+    <TD class="r data">350411</TD>
+    <TD class="r data">99.78</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SU</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">350412</TD>
+    <TD class="r data">99.79</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SW</TH>
+    <TD class="r data">49</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">350461</TD>
+    <TD class="r data">99.80</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>So</TH>
+    <TD class="r data">108</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">350569</TD>
+    <TD class="r data">99.83</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Sp</TH>
+    <TD class="r data">153</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">350722</TD>
+    <TD class="r data">99.87</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Sr</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">350723</TD>
+    <TD class="r data">99.87</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TA</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">350726</TD>
+    <TD class="r data">99.87</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TH</TH>
+    <TD class="r data">14</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">350740</TD>
+    <TD class="r data">99.88</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TI</TH>
+    <TD class="r data">72</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">350812</TD>
+    <TD class="r data">99.90</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TU</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">350818</TD>
+    <TD class="r data">99.90</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UK</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">350820</TD>
+    <TD class="r data">99.90</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UN</TH>
+    <TD class="r data">93</TD>
+    <TD class="r data">0.03</TD>
+    <TD class="r data">350913</TD>
+    <TD class="r data">99.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UR</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">350916</TD>
+    <TD class="r data">99.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Un</TH>
+    <TD class="r data">73</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">350989</TD>
+    <TD class="r data">99.95</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ur</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">350990</TD>
+    <TD class="r data">99.95</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>VI</TH>
+    <TD class="r data">170</TD>
+    <TD class="r data">0.05</TD>
+    <TD class="r data">351160</TD>
+    <TD class="r data">100.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Vi</TH>
+    <TD class="r data">7</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">351167</TD>
+    <TD class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR></DIV>
+<DIV class=branch>
+<P style="PAGE-BREAK-AFTER: always"><BR></P>
+<HR SIZE=3>
+<A name=IDX10></A>
+<TABLE class=systitleandfootercontainer cellSpacing=1 cellPadding=1 rules=none 
+width="100%" summary="Page Layout" border=0 frame=void>
+  <TBODY>
+  <TR>
+    <TD class="c systemtitle">2020</TD></TR></TBODY></TABLE><BR>
+<DIV class="c proctitle">The FREQ Procedure</DIV>
+<P>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Race</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">2181</TD>
+    <TD class="r data">0.78</TD>
+    <TD class="r data">2181</TD>
+    <TD class="r data">0.78</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E1</TH>
+    <TD class="r data">5262</TD>
+    <TD class="r data">1.88</TD>
+    <TD class="r data">7443</TD>
+    <TD class="r data">2.65</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">156239</TD>
+    <TD class="r data">55.70</TD>
+    <TD class="r data">163682</TD>
+    <TD class="r data">58.35</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">2388</TD>
+    <TD class="r data">0.85</TD>
+    <TD class="r data">166070</TD>
+    <TD class="r data">59.21</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R1</TH>
+    <TD class="r data">4911</TD>
+    <TD class="r data">1.75</TD>
+    <TD class="r data">170981</TD>
+    <TD class="r data">60.96</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R2</TH>
+    <TD class="r data">1942</TD>
+    <TD class="r data">0.69</TD>
+    <TD class="r data">172923</TD>
+    <TD class="r data">61.65</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R3</TH>
+    <TD class="r data">23582</TD>
+    <TD class="r data">8.41</TD>
+    <TD class="r data">196505</TD>
+    <TD class="r data">70.06</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R4</TH>
+    <TD class="r data">791</TD>
+    <TD class="r data">0.28</TD>
+    <TD class="r data">197296</TD>
+    <TD class="r data">70.34</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R5</TH>
+    <TD class="r data">74555</TD>
+    <TD class="r data">26.58</TD>
+    <TD class="r data">271851</TD>
+    <TD class="r data">96.92</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>R9</TH>
+    <TD class="r data">2103</TD>
+    <TD class="r data">0.75</TD>
+    <TD class="r data">273954</TD>
+    <TD class="r data">97.67</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>RZ</TH>
+    <TD class="r data">6545</TD>
+    <TD class="r data">2.33</TD>
+    <TD class="r data">280499</TD>
+    <TD class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR><A 
+name=IDX11></A>
+<DIV>
+<DIV align=center>
+<TABLE class=table borderColor=#c1c1c1 cellSpacing=0 cellPadding=5 rules=all 
+summary="Procedure Freq: One-Way Frequencies" frame=box>
+  <COLGROUP>
+  <COL></COLGROUP>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH class="l b header" scope=col>Ethnicity</TH>
+    <TH class="r b header" scope=col>Frequency</TH>
+    <TH class="r b header" scope=col>Percent</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Frequency</TH>
+    <TH class="r b header" scope=col>Cumulative<BR>Percent</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TH class="l rowheader" scope=row>&nbsp;</TH>
+    <TD class="r data">3055</TD>
+    <TD class="r data">1.09</TD>
+    <TD class="r data">3055</TD>
+    <TD class="r data">1.09</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AK</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3058</TD>
+    <TD class="r data">1.09</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AM</TH>
+    <TD class="r data">184</TD>
+    <TD class="r data">0.07</TD>
+    <TD class="r data">3242</TD>
+    <TD class="r data">1.16</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>AR</TH>
+    <TD class="r data">170</TD>
+    <TD class="r data">0.06</TD>
+    <TD class="r data">3412</TD>
+    <TD class="r data">1.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Af</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3413</TD>
+    <TD class="r data">1.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Am</TH>
+    <TD class="r data">69</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">3482</TD>
+    <TD class="r data">1.24</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ar</TH>
+    <TD class="r data">22</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">3504</TD>
+    <TD class="r data">1.25</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BA</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3506</TD>
+    <TD class="r data">1.25</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BE</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3510</TD>
+    <TD class="r data">1.25</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BO</TH>
+    <TD class="r data">36</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">3546</TD>
+    <TD class="r data">1.26</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>BU</TH>
+    <TD class="r data">15</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">3561</TD>
+    <TD class="r data">1.27</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ba</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3562</TD>
+    <TD class="r data">1.27</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CA</TH>
+    <TD class="r data">10</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3572</TD>
+    <TD class="r data">1.27</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CH</TH>
+    <TD class="r data">7</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3579</TD>
+    <TD class="r data">1.28</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>CR</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3587</TD>
+    <TD class="r data">1.28</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ca</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3588</TD>
+    <TD class="r data">1.28</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ch</TH>
+    <TD class="r data">25</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">3613</TD>
+    <TD class="r data">1.29</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>DI</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3614</TD>
+    <TD class="r data">1.29</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>DU</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">3615</TD>
+    <TD class="r data">1.29</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E1</TH>
+    <TD class="r data">3252</TD>
+    <TD class="r data">1.16</TD>
+    <TD class="r data">6867</TD>
+    <TD class="r data">2.45</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>E2</TH>
+    <TD class="r data">108277</TD>
+    <TD class="r data">38.60</TD>
+    <TD class="r data">115144</TD>
+    <TD class="r data">41.05</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EG</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">115147</TD>
+    <TD class="r data">41.05</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EN</TH>
+    <TD class="r data">152913</TD>
+    <TD class="r data">54.51</TD>
+    <TD class="r data">268060</TD>
+    <TD class="r data">95.57</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>ES</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">268066</TD>
+    <TD class="r data">95.57</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>ET</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">268067</TD>
+    <TD class="r data">95.57</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>EY</TH>
+    <TD class="r data">2050</TD>
+    <TD class="r data">0.73</TD>
+    <TD class="r data">270117</TD>
+    <TD class="r data">96.30</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>En</TH>
+    <TD class="r data">4872</TD>
+    <TD class="r data">1.74</TD>
+    <TD class="r data">274989</TD>
+    <TD class="r data">98.04</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>FA</TH>
+    <TD class="r data">7</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">274996</TD>
+    <TD class="r data">98.04</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>FI</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">274998</TD>
+    <TD class="r data">98.04</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>FR</TH>
+    <TD class="r data">29</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">275027</TD>
+    <TD class="r data">98.05</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Fa</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275030</TD>
+    <TD class="r data">98.05</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Fr</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275035</TD>
+    <TD class="r data">98.05</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>GE</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275037</TD>
+    <TD class="r data">98.05</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>GR</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275040</TD>
+    <TD class="r data">98.05</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HE</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275041</TD>
+    <TD class="r data">98.05</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HI</TH>
+    <TD class="r data">14</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275055</TD>
+    <TD class="r data">98.06</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>HM</TH>
+    <TD class="r data">167</TD>
+    <TD class="r data">0.06</TD>
+    <TD class="r data">275222</TD>
+    <TD class="r data">98.12</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Hm</TH>
+    <TD class="r data">30</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">275252</TD>
+    <TD class="r data">98.13</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KA</TH>
+    <TD class="r data">7</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275259</TD>
+    <TD class="r data">98.13</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KH</TH>
+    <TD class="r data">9</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275268</TD>
+    <TD class="r data">98.14</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KI</TH>
+    <TD class="r data">28</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">275296</TD>
+    <TD class="r data">98.15</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>KO</TH>
+    <TD class="r data">15</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">275311</TD>
+    <TD class="r data">98.15</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Kh</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275319</TD>
+    <TD class="r data">98.15</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>LA</TH>
+    <TD class="r data">28</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">275347</TD>
+    <TD class="r data">98.16</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>LI</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275353</TD>
+    <TD class="r data">98.17</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>La</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275354</TD>
+    <TD class="r data">98.17</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>MA</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275359</TD>
+    <TD class="r data">98.17</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>NE</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275360</TD>
+    <TD class="r data">98.17</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>NO</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275364</TD>
+    <TD class="r data">98.17</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>OR</TH>
+    <TD class="r data">106</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">275470</TD>
+    <TD class="r data">98.21</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>OT</TH>
+    <TD class="r data">16</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">275486</TD>
+    <TD class="r data">98.21</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>PE</TH>
+    <TD class="r data">9</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275495</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>PI</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275496</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>PO</TH>
+    <TD class="r data">6</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275502</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>QU</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275503</TD>
+    <TD class="r data">98.22</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>RU</TH>
+    <TD class="r data">155</TD>
+    <TD class="r data">0.06</TD>
+    <TD class="r data">275658</TD>
+    <TD class="r data">98.27</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ro</TH>
+    <TD class="r data">4</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275662</TD>
+    <TD class="r data">98.28</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Ru</TH>
+    <TD class="r data">10</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">275672</TD>
+    <TD class="r data">98.28</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SO</TH>
+    <TD class="r data">1911</TD>
+    <TD class="r data">0.68</TD>
+    <TD class="r data">277583</TD>
+    <TD class="r data">98.96</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SP</TH>
+    <TD class="r data">2425</TD>
+    <TD class="r data">0.86</TD>
+    <TD class="r data">280008</TD>
+    <TD class="r data">99.82</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>SW</TH>
+    <TD class="r data">5</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">280013</TD>
+    <TD class="r data">99.83</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>So</TH>
+    <TD class="r data">104</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">280117</TD>
+    <TD class="r data">99.86</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Sp</TH>
+    <TD class="r data">113</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">280230</TD>
+    <TD class="r data">99.90</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TH</TH>
+    <TD class="r data">1</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">280231</TD>
+    <TD class="r data">99.90</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TI</TH>
+    <TD class="r data">67</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">280298</TD>
+    <TD class="r data">99.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TU</TH>
+    <TD class="r data">8</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">280306</TD>
+    <TD class="r data">99.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>TW</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">280308</TD>
+    <TD class="r data">99.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UK</TH>
+    <TD class="r data">3</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">280311</TD>
+    <TD class="r data">99.93</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>UN</TH>
+    <TD class="r data">68</TD>
+    <TD class="r data">0.02</TD>
+    <TD class="r data">280379</TD>
+    <TD class="r data">99.96</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Un</TH>
+    <TD class="r data">16</TD>
+    <TD class="r data">0.01</TD>
+    <TD class="r data">280395</TD>
+    <TD class="r data">99.96</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>VI</TH>
+    <TD class="r data">100</TD>
+    <TD class="r data">0.04</TD>
+    <TD class="r data">280495</TD>
+    <TD class="r data">100.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>Vi</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">280497</TD>
+    <TD class="r data">100.00</TD></TR>
+  <TR>
+    <TH class="l rowheader" scope=row>YO</TH>
+    <TD class="r data">2</TD>
+    <TD class="r data">0.00</TD>
+    <TD class="r data">280499</TD>
+    <TD 
+class="r data">100.00</TD></TR></TBODY></TABLE></DIV></DIV><BR></DIV></BODY></HTML>

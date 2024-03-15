@@ -437,8 +437,7 @@ ggplot() +
   labs(title = "Minneapolis Carjacking Rates by Tract and Year", 
        fill = "Weekly Rate/ 1,000")+
   theme_void()+
-  theme(strip.text.x = element_text(face = "bold", size = 12),
-        legend.title = element_text(face = "bold", size = 10))
+  theme(legend.position="bottom")
 
 
 ggsave(filename = "Car Jacking/Figures for publication/fig2.png", bg="white", width = 10, height = 8)
@@ -598,8 +597,7 @@ ggplot() +
   labs(title = "Minneapolis Homicide Rates by Tract and Year", 
        fill = "Weekly Rate/ 1,000")+
   theme_void()+
-  theme(strip.text.x = element_text(face = "bold", size = 12),
-        legend.title = element_text(face = "bold", size = 10))
+  theme(legend.position="bottom")
 
 ggsave(filename = "Car Jacking/Figures for publication/fig4.png", bg="white", width = 10, height = 8)
 ```
@@ -1077,6 +1075,15 @@ summary(cfa_cd, fit.measures=TRUE, standardized = T)
 cd_predict <- as.vector(lavPredict(cfa_cd, newdata = as.data.frame(cj_exp_prepost)))
 cj_exp_prepost$conc_dis <- cd_predict
 
+cd_model_2  <- ' cd =~ unemp_rate + pov_rate +  female_hh_rate + no_hs_dip_rate 
+                  unemp_rate ~~	pov_rate'  
+
+cfa_cd_2 <- cfa(cd_model_2, data = cj_exp_prepost, std.lv = T)
+modificationindices(cfa_cd_2)
+summary(cfa_cd_2, fit.measures=TRUE, standardized = T)
+cd_predict_2 <- as.vector(lavPredict(cfa_cd_2, newdata = as.data.frame(cj_exp_prepost)))
+cj_exp_prepost$conc_dis_no_black <- cd_predict_2
+
 
 write_csv(cj_exp_prepost, file = "cj_exp_prepost.csv")
 
@@ -1093,6 +1100,7 @@ re <- lmer(car_jack_rate~t+post_floyd+t_post_floyd+
              (1|GEOID), 
           data = cj_exp_prepost)
 summary(re)
+
 
 library(emmeans)
 
@@ -1138,19 +1146,35 @@ ggsave(filename = "Car Jacking/Figures for publication/fig9.png", bg="white", wi
 ### CD Map
 
 ```{r, CD map}
-cd_cat <- read_csv("Data/ConcDis2_forRyan_103123.csv")
+cd_cat <- read_csv("Data/cd_noblack_forRyan_031324.csv")
 
-cj_exp_tract_year_cd <- cj_exp_tract_year %>%
-  filter(year==2020) %>%
+
+cj_exp_tract_year_cd <- cj_exp_prepost %>%
+  filter(year==2020) 
+  
+q_25 <- quantile(cj_exp_tract_year_cd$conc_dis_no_black, .25)
+q_75 <- quantile(cj_exp_tract_year_cd$conc_dis_no_black, .75)
+
+
+cj_exp_tract_year_cd <- cj_exp_prepost %>%
+  mutate(`Concentrated Disadvantage` = case_when(
+    conc_dis_no_black < q_25 ~ "Advantaged",
+    conc_dis_no_black >= q_25 & conc_dis_no_black <= q_75  ~ "Median",
+    conc_dis_no_black > q_75 ~ "Disadvantaged"
+  ))
+
+cj_exp_tract_year_cd <-  cj_exp_tract_year_cd %>%
   mutate(GEOID = as.numeric(GEOID)) %>%
-  left_join(cd_cat, by = c("GEOID"="geoid"))
+  left_join(cd_cat, by = "GEOID")
+
+table(cj_exp_tract_year_cd$`Concentrated Disadvantage.x`==cj_exp_tract_year_cd$`Concentrated Disadvantage.y`)
 
 MyColour <- c("#c1f0e0", "#c8e1ff", "#f5c6d8") 
 names(MyColour) <- c("Advantaged", "Median", "Disadvantaged")
 
 ggplot() +
   geom_sf(data = cj_exp_tract_year_cd, 
-          aes(geometry = geometry, fill = `Concentrated Disadvantage`)) + 
+          aes(geometry = geometry, fill = `Concentrated Disadvantage.x`)) + 
   geom_sf(data = mpls, aes(geometry = geometry), color = "black", alpha = 0)+
   geom_sf(data = gfs, aes(geometry = geometry), color = "black")+
   geom_text_repel(data = gfs_label, aes(x=lon, y=lat, label = name),
@@ -1183,6 +1207,33 @@ results_table<-standardizedSolution(cfa_cd) %>%
            RHS=="female_hh_rate"~"Female-HH Rate",
            RHS=="no_hs_dip_rate"~"No HS Diploma Rate",
            RHS=="black_perc"~"Percent Black"
+         ),
+    Specification = case_when(
+      Specification=="=~"~"FL",
+      Specification=="~~"~"Cov.")) 
+    
+
+
+stargazer(results_table, summary = FALSE, header = F,
+           type="latex", style="aer", align = T, 
+           title="CFA Measurement Model of Concentrated Disadvantage", 
+           notes="$LR\\chi^2$ vs. saturated (1) = 20.79***, RMSEA = .023 (PCLOSE = 1.0), CFI = 1.0, SRMR = .004")
+```
+
+```{r, results='asis'}
+results_table<-standardizedSolution(cfa_cd_2) %>% 
+  filter(row_number() %in% c(1:5)) %>% 
+  dplyr::select(LHS=lhs, Specification=op, RHS=rhs, 'Std(Beta)'=est.std, SE=se, 
+                'P-Value'=pvalue) %>%
+  mutate(LHS = case_when(
+    LHS=="cd"~"Conc. Dis.",
+    LHS=="unemp_rate"~"Unemp. Rate",
+    LHS=="no_hs_dip_rate"~"No HS Diploma Rate"),  
+         RHS = case_when(
+           RHS=="unemp_rate"~"Unemp. Rate",
+           RHS=="pov_rate"~"Poverty Rate",
+           RHS=="female_hh_rate"~"Female-HH Rate",
+           RHS=="no_hs_dip_rate"~"No HS Diploma Rate"
          ),
     Specification = case_when(
       Specification=="=~"~"FL",
